@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "279466694094",
+    "firebase_url": "https://entermediadb-177816.firebaseio.com",
+    "project_id": "entermediadb-177816",
+    "storage_bucket": "entermediadb-177816.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279466694094:android:89c853760e16b40afec79f",
+        "android_client_info": {
+          "package_name": "com.example.em_mobile_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "279466694094-c9tufgnvihj96g65kgmv3sln0afeh46h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.em_mobile_flutter",
+            "certificate_hash": "1de87b6e780e0a76f8e9f72824155db4a2605e43"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIUH6y-fLzdKLGhfc1ZkZBBM2EfO7cGk0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "279466694094-imq6891no3bbqmep025j5meqora057rm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279466694094:android:89d59d00e90b35c7fec79f",
+        "android_client_info": {
+          "package_name": "org.entermediadb.chat3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIUH6y-fLzdKLGhfc1ZkZBBM2EfO7cGk0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "279466694094-imq6891no3bbqmep025j5meqora057rm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
