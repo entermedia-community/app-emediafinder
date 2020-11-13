@@ -1,8 +1,6 @@
-import 'package:em_mobile_flutter/models/emLogo.dart';
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -28,7 +26,7 @@ class _NavRailState extends State<NavRail> {
       elevation: 10,
       destinations: [
         NavigationRailDestination(
-          icon: EmLogo(),
+          icon: emLogoIcon(),
           label: Text('Linked Folders'),
         ),
         NavigationRailDestination(
@@ -48,13 +46,13 @@ class _NavRailState extends State<NavRail> {
         ),
         NavigationRailDestination(
             icon: Icon(Icons.photo_library_outlined), label: Text('Albums')),
-        NavigationRailDestination(
-            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
+//        NavigationRailDestination(
+//            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
       trailing: IconButton(
-        icon: Icon(Icons.logout),
+        icon: Icon(Icons.add_box_outlined),
         onPressed: () {
-          context.read<AuthenticationService>().signOut();
+          print('Create Upload Function');
         },
       ),
       selectedIndex: _selectedIndex,

@@ -13,11 +13,13 @@ class EmLogo extends StatelessWidget {
             Icons.table_rows_rounded,
             color: Color(0xff61af56),
           ),
-          Transform.rotate(
-            angle: 90 * pi / 180,
-            child: Icon(
-              Icons.table_rows_rounded,
-              color: Color(0xff61af56),
+          Expanded(
+            child: Transform.rotate(
+              angle: 90 * pi / 180,
+              child: Icon(
+                Icons.table_rows_rounded,
+                color: Color(0xff61af56),
+              ),
             ),
           )
         ],

@@ -53,6 +53,7 @@ class _HomeMenuState extends State<HomeMenu> {
                 title: SizedBox(
                   height: 80,
                   child: SearchBar(onSearch: null, onItemFound: null),
+//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
                 ),
                 pinned: true,
                 expandedHeight: 55.0,
@@ -79,15 +80,16 @@ class _HomeMenuState extends State<HomeMenu> {
                         ),
                     childCount: example.length),
               ),
-              SliverPadding(
-                padding: EdgeInsets.all(9),
-                sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                  (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-                      myWorkspaces.names[i], myWorkspaces.colId[i], context),
-                  childCount: 15,
-                )),
-              ),
+//                todo; workspace list below use as a template to add another sliver
+//              SliverPadding(
+//                padding: EdgeInsets.all(9),
+//                sliver: SliverList(
+//                    delegate: SliverChildBuilderDelegate(
+//                  (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+//                      myWorkspaces.names[i], myWorkspaces.colId[i], context),
+//                  childCount: 15,
+//                )),
+//              ),
             ]),
           )
         ],
@@ -141,6 +143,15 @@ final List<String> example = [
   'assets/images/seven.jpg',
   'assets/images/eight.jpg',
   'assets/images/nine.jpg',
+  'assets/images/ten.jpg',
+  'assets/images/eleven.jpg',
+  'assets/images/twelve.jpg',
+  'assets/images/thirteen.jpg',
+  'assets/images/fourteen.jpg',
+  'assets/images/fifteen.jpg',
+  'assets/images/sixteen.jpg',
+  'assets/images/seventeen.jpg',
+  'assets/images/eighteen.jpg',
 ];
 
 //testing with card idea.
