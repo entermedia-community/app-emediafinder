@@ -22,10 +22,10 @@ class _WebViewContainerState extends State<WebViewContainer> {
                     key: _key,
                     javascriptMode: JavascriptMode.unrestricted,
                     initialUrl: "https://entermediadb.org/entermediadb/app/collective/community/index.html?goaltrackerstaff=*&collectionid=" + _url,
-                  headers:<String,String>{
-                    "X-token": emUser.results.entermediakey,
-                    "X-tokentype": "entermedia"
-                  },
+//                  headers:<String,String>{
+//                    "X-token": emUser.results.entermediakey,
+//                    "X-tokentype": "entermedia"
+//                  },
                 ))
           ],
         ));
