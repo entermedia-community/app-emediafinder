@@ -1,6 +1,6 @@
-import 'package:em_mobile_flutter/models/emWorkspaces.dart';
+import 'package:em_mobile_flutter/models/emLogo.dart';
+import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
-import 'package:em_mobile_flutter/models/workspaceIcon.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:provider/provider.dart';
@@ -28,15 +28,28 @@ class _NavRailState extends State<NavRail> {
       elevation: 10,
       destinations: [
         NavigationRailDestination(
-          icon: Icon(Icons.home_rounded),
-          label: Text('Home'),
+          icon: EmLogo(),
+          label: Text('Linked Folders'),
         ),
         NavigationRailDestination(
-            icon: Icon(Icons.chat_bubble_rounded), label: Text('Chat')),
-        NavigationRailDestination(
             icon: Icon(Icons.filter_alt_rounded), label: Text('Search')),
+
         NavigationRailDestination(
-            icon: workspaceIcon(), label: Text('Workspaces')),
+          icon: Icon(Icons.account_tree_rounded),
+          label: Text('Linked Folders'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.face_retouching_natural),
+          label: Text('Facial Recognition'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.bookmark_rounded),
+          label: Text('Favorites'),
+        ),
+        NavigationRailDestination(
+            icon: Icon(Icons.photo_library_outlined), label: Text('Albums')),
+        NavigationRailDestination(
+            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
       trailing: IconButton(
         icon: Icon(Icons.logout),
@@ -50,20 +63,7 @@ class _NavRailState extends State<NavRail> {
           _selectedIndex = index;
           print("NavRail index is: ");
           print(_selectedIndex);
-          if (index == 3) {
-//            //Perform API call
-//            final userWorkspaces = await EM.getEMWorkspaces();
-//            //Initialize blank Lists
-//            myWorkspaces.names = [];
-//            myWorkspaces.colId = [];
-//            //Loop thru API 'results'
-//            for (final project in userWorkspaces) {
-//
-//              myWorkspaces.names.add(project["name"]);
-//              myWorkspaces.colId.add(project["id"]);
-//            }
 
-          }
         });
       },
     );

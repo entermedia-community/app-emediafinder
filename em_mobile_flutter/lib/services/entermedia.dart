@@ -1,10 +1,6 @@
 import 'package:em_mobile_flutter/models/emUser.dart';
-import 'package:em_mobile_flutter/models/emWorkspaces.dart';
-import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:provider/provider.dart';
 
 class EnterMedia {
   final String EM = 'https://entermediadb.org/entermediadb/app';
