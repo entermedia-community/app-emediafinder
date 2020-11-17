@@ -62,7 +62,7 @@ class _HomeMenuState extends State<HomeMenu> {
                   pinned: true,
                   delegate: _SliverAppBarDelegate(
                     minHeight: 33,
-                    maxHeight: 66,
+                    maxHeight: 33,
                     child: Container(
                         color: Color(0xff384964),
                         child: Center(child: Text('Media'))),
@@ -78,8 +78,40 @@ class _HomeMenuState extends State<HomeMenu> {
                     (ctx, i) => Image.asset(
                           example[i],
                         ),
-                    childCount: example.length),
+                    childCount: 9),
               ),
+              SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverAppBarDelegate(
+                    minHeight: 33,
+                    maxHeight: 33,
+                    child: Container(
+                        color: Color(0xff384964),
+                        child: Center(child: Text('Projects'))),
+                  )),
+              SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+                    myWorkspaces.names[i], myWorkspaces.colId[i], context),
+                //amount of rows
+                childCount: 6,
+              )),
+              SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverAppBarDelegate(
+                    minHeight: 33,
+                    maxHeight: 33,
+                    child: Container(
+                        color: Color(0xff384964),
+                        child: Center(child: Text('Events'))),
+                  )),
+              SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+                        myWorkspaces.names[i], myWorkspaces.colId[i], context),
+                    //amount of rows
+                    childCount: 6,
+                  )),
 //                todo; workspace list below use as a template to add another sliver
 //              SliverPadding(
 //                padding: EdgeInsets.all(9),

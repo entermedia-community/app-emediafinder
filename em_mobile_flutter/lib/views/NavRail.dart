@@ -51,6 +51,7 @@ class _NavRailState extends State<NavRail> {
       ],
       trailing: IconButton(
         icon: Icon(Icons.add_box_outlined),
+        color: Color(0xff61af56),
         onPressed: () {
           print('Create Upload Function');
         },
