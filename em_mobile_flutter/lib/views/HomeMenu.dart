@@ -26,18 +26,6 @@ class _HomeMenuState extends State<HomeMenu> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           _navigateToNextScreen(context);
-//            //This button is to make sure workspaces were loading correctly.
-//            //Perform API call
-//            final userWorkspaces = await EM.getEMWorkspaces();
-//            //Initialize blank Lists
-//            myWorkspaces.names = [];
-//            myWorkspaces.colId = [];
-//            //Loop thru API 'results'
-//            for (final project in userWorkspaces) {
-//
-//              myWorkspaces.names.add(project["name"]);
-//              myWorkspaces.colId.add(project["id"]);
-////              print(myWorkspaces.names);
         },
         child: Icon(Icons.refresh),
       ),
@@ -45,84 +33,9 @@ class _HomeMenuState extends State<HomeMenu> {
         children: <Widget>[
           //From NavRail.dart
           NavRail(),
-          //todo; main landing page content displayed here in the Expanded. Can make it's own view and return Expanded()
+          //todo; main landing page content displayed below in the Expanded. Make it's own view and return Expanded()
           Expanded(
-            child: CustomScrollView(slivers: <Widget>[
-              SliverAppBar(
-                //appbar title & menu goes here
-                title: SizedBox(
-                  height: 80,
-                  child: SearchBar(onSearch: null, onItemFound: null),
-//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
-                ),
-                pinned: true,
-                expandedHeight: 55.0,
-              ),
-              SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _SliverAppBarDelegate(
-                    minHeight: 33,
-                    maxHeight: 33,
-                    child: Container(
-                        color: Color(0xff384964),
-                        child: Center(child: Text('Media'))),
-                  )),
-              SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisSpacing: 1,
-                  mainAxisSpacing: 1,
-                  crossAxisCount: 3,
-                ),
-                //todo; This is where images are loaded
-                delegate: SliverChildBuilderDelegate(
-                    (ctx, i) => Image.asset(
-                          example[i],
-                        ),
-                    childCount: 9),
-              ),
-              SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _SliverAppBarDelegate(
-                    minHeight: 33,
-                    maxHeight: 33,
-                    child: Container(
-                        color: Color(0xff384964),
-                        child: Center(child: Text('Projects'))),
-                  )),
-              SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-                    myWorkspaces.names[i], myWorkspaces.colId[i], context),
-                //amount of rows
-                childCount: 6,
-              )),
-              SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _SliverAppBarDelegate(
-                    minHeight: 33,
-                    maxHeight: 33,
-                    child: Container(
-                        color: Color(0xff384964),
-                        child: Center(child: Text('Events'))),
-                  )),
-              SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                        (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-                        myWorkspaces.names[i], myWorkspaces.colId[i], context),
-                    //amount of rows
-                    childCount: 6,
-                  )),
-//                todo; workspace list below use as a template to add another sliver
-//              SliverPadding(
-//                padding: EdgeInsets.all(9),
-//                sliver: SliverList(
-//                    delegate: SliverChildBuilderDelegate(
-//                  (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-//                      myWorkspaces.names[i], myWorkspaces.colId[i], context),
-//                  childCount: 15,
-//                )),
-//              ),
-            ]),
+            child: MainContent(myWorkspaces: myWorkspaces),
           )
         ],
       ),
@@ -130,6 +43,87 @@ class _HomeMenuState extends State<HomeMenu> {
   }
 }
 
+class MainContent extends StatelessWidget {
+  const MainContent({
+    Key key,
+    @required this.myWorkspaces,
+  }) : super(key: key);
+
+  final userWorkspaces myWorkspaces;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(slivers: <Widget>[
+      SliverAppBar(
+        //appbar title & menu goes here
+        title: SizedBox(
+          height: 80,
+          child: SearchBar(onSearch: null, onItemFound: null),
+//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
+        ),
+        pinned: true,
+        expandedHeight: 55.0,
+      ),
+      SliverPersistentHeader(
+          pinned: true,
+          delegate: _SliverAppBarDelegate(
+            minHeight: 33,
+            maxHeight: 33,
+            child: Container(
+                color: Color(0xff384964),
+                child: Center(child: Text('Media'))),
+          )),
+      SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisSpacing: 1,
+          mainAxisSpacing: 1,
+          crossAxisCount: 3,
+        ),
+        //todo; This is where images are loaded
+        delegate: SliverChildBuilderDelegate(
+            (ctx, i) => Image.asset(
+                  example[i],
+                ),
+            childCount: 9),
+      ),
+      SliverPersistentHeader(
+          pinned: true,
+          delegate: _SliverAppBarDelegate(
+            minHeight: 33,
+            maxHeight: 33,
+            child: Container(
+                color: Color(0xff384964),
+                child: Center(child: Text('Projects'))),
+          )),
+      SliverList(
+          delegate: SliverChildBuilderDelegate(
+            //just an example will build from api call
+          (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+            myWorkspaces.names[i], myWorkspaces.colId[i], context),
+        //amount of rows
+        childCount: 6,
+      )),
+      SliverPersistentHeader(
+          pinned: true,
+          delegate: _SliverAppBarDelegate(
+            minHeight: 33,
+            maxHeight: 33,
+            child: Container(
+                color: Color(0xff384964),
+                child: Center(child: Text('Events'))),
+          )),
+      SliverList(
+          delegate: SliverChildBuilderDelegate(
+            //just an example will build from api call
+                (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+                myWorkspaces.names[i], myWorkspaces.colId[i], context),
+            //amount of rows
+            childCount: 6,
+          )),
+    ]);
+  }
+}
+//Styling and animation behavior for headers and rows.
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
     @required this.minHeight,
