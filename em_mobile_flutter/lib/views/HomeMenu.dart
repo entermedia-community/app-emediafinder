@@ -33,7 +33,7 @@ class _HomeMenuState extends State<HomeMenu> {
         children: <Widget>[
           //From NavRail.dart
           NavRail(),
-          //todo; main landing page content displayed below in the Expanded. Make it's own view and return Expanded()
+          //todo; main content displayed below in the Expanded. Make it's own view and return Expanded()
           Expanded(
             child: MainContent(myWorkspaces: myWorkspaces),
           )
@@ -157,7 +157,7 @@ void _navigateToNextScreen(BuildContext context) {
       builder: (context) => WebViewContainer('https://google.com')));
 }
 
-// todo; Load image url into list dynamically from entermedia.
+// todo; Load image url into list dynamically from entermedia. below is just example data.
 // Be specific in '.yaml' file when using local assets. Might also have to push first: https://stackoverflow.com/questions/52644621/flutter-assets-error-exception-caught-by-image-resource-service
 final List<String> example = [
   'assets/images/one.jpg',

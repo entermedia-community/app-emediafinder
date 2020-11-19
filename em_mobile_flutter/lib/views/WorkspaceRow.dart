@@ -80,7 +80,7 @@ Widget rightSide(String collectionURL, BuildContext context) {
           icon: Icon(Icons.web),
           onPressed: () {
             _openCollectionWV(context, collectionURL);
-            //TODO: This button will open to collection Webview
+            //TODO: This button will open to collection Webview?
             final snackBar = SnackBar(
               content: Text('No Webview Attached'),
               action: SnackBarAction(
