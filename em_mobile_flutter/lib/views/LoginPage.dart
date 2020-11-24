@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('EnterMediaDB Mobile'),
+        title: Text('EMedia Finder'),
         centerTitle: true,
       ),
       body: Container(

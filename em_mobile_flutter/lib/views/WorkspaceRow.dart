@@ -1,3 +1,4 @@
+import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
 import 'EMWebview.dart' as Collection;
 
@@ -79,19 +80,19 @@ Widget rightSide(String collectionURL, BuildContext context) {
         child: IconButton(
           icon: Icon(Icons.web),
           onPressed: () {
-            _openCollectionWV(context, collectionURL);
-            //TODO: This button will open to collection Webview?
-            final snackBar = SnackBar(
-              content: Text('No Webview Attached'),
-              action: SnackBarAction(
-                label: 'Close',
-                onPressed: () {},
-              ),
-            );
+            _testOpenHomeMenu(context);
+            //TODO: This button will open to HomeMenu of the correct Workspace, place getEMAssets in this on pressed and pass in correct post URL
+//            final snackBar = SnackBar(
+//              content: Text('No Webview Attached'),
+//              action: SnackBarAction(
+//                label: 'Close',
+//                onPressed: () {},
+//              ),
+//            );
 
             // Find the Scaffold in the widget tree and use
             // it to show a SnackBar.
-            Scaffold.of(context).showSnackBar(snackBar);
+//            Scaffold.of(context).showSnackBar(snackBar);
           },
         ),
       ),
@@ -99,9 +100,14 @@ Widget rightSide(String collectionURL, BuildContext context) {
   ));
 }
 
+//edit to open correct HomeMenu dynamically
 void _openCollectionWV(BuildContext context, String url) {
   Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => Collection.WebViewContainer(url)));
+}
+
+void _testOpenHomeMenu(BuildContext context) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
 }

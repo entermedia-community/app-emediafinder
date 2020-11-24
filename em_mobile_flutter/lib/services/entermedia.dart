@@ -69,11 +69,26 @@ class EnterMedia {
     );
     print("Fetching workspaces...");
     if (resMap != null) {
-//      resMap["results"].forEach(() => workSpaces.addName(resMap["results"]["name"]));
-//      resMap["results"].forEach((int i) => workSpaces.addColId(resMap["results"][i]["id"]));
-
+      print(resMap);
 
 //      emWorkspacesFromJson(json.encode(resMap));
+
+      return resMap["results"];
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<List> getWorkspaceAssets(String url) async {
+
+    final resMap = await post(
+      url + '/finder/mediadb/services/module/modulesearch/sample.json',
+      {},
+    );
+    print("Fetching workspace assets...");
+    if (resMap != null) {
+
 
       return resMap["results"];
     } else {
