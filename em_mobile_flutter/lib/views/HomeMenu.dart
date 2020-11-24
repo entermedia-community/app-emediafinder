@@ -23,7 +23,8 @@ class _HomeMenuState extends State<HomeMenu> {
       backgroundColor: Color(0xff0c223a),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          EM.getEMWorkspaces();
+          final testWorkspaces = await EM.getEMWorkspaces();
+          print(testWorkspaces);
         },
         child: Icon(Icons.refresh),
       ),

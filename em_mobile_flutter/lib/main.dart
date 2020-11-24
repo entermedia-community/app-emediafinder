@@ -4,6 +4,7 @@ import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -77,7 +78,7 @@ class AuthenticationWrapper extends StatelessWidget {
     final EM = Provider.of<EnterMedia>(context);
 
     if(firebaseUser != null){
-      return HomeMenu();
+      return WorkspaceSelect();
     }
 
     return LoginPage();

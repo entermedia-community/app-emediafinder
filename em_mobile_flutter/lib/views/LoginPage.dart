@@ -70,11 +70,21 @@ class _LoginPageState extends State<LoginPage> {
               //Initialize blank Lists
               myWorkspaces.names = [];
               myWorkspaces.colId = [];
+              myWorkspaces.instUrl = [];
               //Loop thru API 'results'
               for (final project in userWorkspaces) {
 
                 myWorkspaces.names.add(project["name"]);
                 myWorkspaces.colId.add(project["id"]);
+
+                //Loop through response, add urls and check if blank.
+                if(project["servers"].isEmpty == true){
+                  myWorkspaces.instUrl.add("no instance url");
+                }
+                else{
+                  myWorkspaces.instUrl.add(project["servers"][0]["instanceurl"]);
+                  print(project["servers"][0]["instanceurl"]);
+                }
               }
 
               //Firebase Authentication

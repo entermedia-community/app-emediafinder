@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 class userWorkspaces with ChangeNotifier {
   List<String> names = [];
   List<String> colId = [];
+  List<String> instUrl = [];
 
-  userWorkspaces({this.names, this.colId});
+  userWorkspaces({this.names, this.colId, this.instUrl});
 
 }

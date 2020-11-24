@@ -1,9 +1,11 @@
+import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'EMWebview.dart' as Collection;
 
 Widget emWorkspace(
-    String imageVal, String workspaceName, String collectionURL) {
+    String imageVal, String workspaceName, String instanceUrl) {
   return Padding(
     padding: const EdgeInsets.all(8),
     child: Material(
@@ -14,15 +16,16 @@ Widget emWorkspace(
           // Create an inner BuildContext so that the onPressed methods
           // can refer to the Scaffold with Scaffold.of(). CANNOT USE BuildContext from original scaffolding.-Mando
           child: Builder(builder: (BuildContext context) {
+
             return emWorkspaceRow(
-                imageVal, workspaceName, collectionURL, context);
+                imageVal, workspaceName, instanceUrl, context);
           })),
     ),
   );
 }
 
 Column emWorkspaceRow(String imageVal, String workspaceName,
-    String collectionURL, BuildContext context) {
+    String instanceUrl, BuildContext context) {
   return Column(
     children: [
       //Spacingggggggg for the rows.
@@ -30,7 +33,7 @@ Column emWorkspaceRow(String imageVal, String workspaceName,
         height: 3,
       ),
       Material(
-        color: Colors.white,
+        color:  Color(0xff0c223a),
         borderRadius: BorderRadius.circular(24.0),
         shadowColor: Color(0x8092e184),
         child: Center(
@@ -40,7 +43,7 @@ Column emWorkspaceRow(String imageVal, String workspaceName,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 leftSide(imageVal, workspaceName),
-                rightSide(collectionURL, context),
+                rightSide(instanceUrl, context),
               ],
             )
           ],
@@ -62,9 +65,9 @@ Widget leftSide(String imageVal, String workspaceName) {
         child: Text(
           workspaceName,
           style: TextStyle(
-              color: Color(0xff000015),
+              color: Color(0xff61af56),
               fontFamily: 'Roboto',
-              fontWeight: FontWeight.w300,
+              fontWeight: FontWeight.w400,
               fontSize: 16.0),
         ),
       ),
@@ -72,15 +75,17 @@ Widget leftSide(String imageVal, String workspaceName) {
   ));
 }
 
-Widget rightSide(String collectionURL, BuildContext context) {
+Widget rightSide(String instanceUrl, BuildContext context) {
   return Container(
       child: Column(
     children: <Widget>[
       Container(
         child: IconButton(
-          icon: Icon(Icons.web),
+          icon: Icon(Icons.auto_awesome_mosaic,
+          color: Color(0x8092e184),
+          ),
           onPressed: () {
-            _testOpenHomeMenu(context);
+            _testOpenHomeMenu(context, instanceUrl);
             //TODO: This button will open to HomeMenu of the correct Workspace, place getEMAssets in this on pressed and pass in correct post URL
 //            final snackBar = SnackBar(
 //              content: Text('No Webview Attached'),
@@ -108,6 +113,10 @@ void _openCollectionWV(BuildContext context, String url) {
           builder: (context) => Collection.WebViewContainer(url)));
 }
 
-void _testOpenHomeMenu(BuildContext context) {
+void _testOpenHomeMenu(BuildContext context, String instanceUrl) {
+  final EM = Provider.of<EnterMedia>(context,listen: false);
+  print(instanceUrl);
+
+  EM.getWorkspaceAssets(instanceUrl);
   Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
 }

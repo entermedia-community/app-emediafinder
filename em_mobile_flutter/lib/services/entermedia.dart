@@ -86,9 +86,9 @@ class EnterMedia {
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
       {},
     );
-    print("Fetching workspace assets...");
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {
-
+      print(resMap);
 
       return resMap["results"];
     } else {

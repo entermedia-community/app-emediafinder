@@ -9,14 +9,19 @@ class WorkspaceSelect extends StatelessWidget {
     final myWorkspaces = Provider.of<userWorkspaces>(context);
     return CustomScrollView(slivers: <Widget>[
       SliverAppBar(
-        title: Text("Select a Workspace"),
+        title: Text("Select a Workspace",
+        style: TextStyle(color: Color(0xff61af56)),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        pinned: true,
       ),
       SliverList(
           delegate: SliverChildBuilderDelegate(
         (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-            myWorkspaces.names[i], myWorkspaces.colId[i], context),
+            myWorkspaces.names[i], myWorkspaces.instUrl[i], context),
         //amount of rows
-        childCount: 6,
+        childCount: myWorkspaces.instUrl.length,
       )),
     ]);
   }
