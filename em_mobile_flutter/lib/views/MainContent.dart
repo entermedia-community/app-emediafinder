@@ -32,7 +32,7 @@ class MainContent extends StatelessWidget {
             maxHeight: 33,
             child: Container(
                 color: Color(0xff384964),
-                child: Center(child: Text('Media'))),
+                child: Center(child: Text('Media' + ' (#)'))),
           )),
       SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -54,7 +54,7 @@ class MainContent extends StatelessWidget {
             maxHeight: 33,
             child: Container(
                 color: Color(0xff384964),
-                child: Center(child: Text('Projects'))),
+                child: Center(child: Text('Projects' + ' (#)'))),
           )),
       SliverList(
           delegate: SliverChildBuilderDelegate(
@@ -62,7 +62,7 @@ class MainContent extends StatelessWidget {
                 (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
                 myWorkspaces.names[i], myWorkspaces.colId[i], context),
             //amount of rows
-            childCount: 6,
+            childCount: 4,
           )),
       SliverPersistentHeader(
           pinned: true,
@@ -79,7 +79,7 @@ class MainContent extends StatelessWidget {
                 (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
                 myWorkspaces.names[i], myWorkspaces.colId[i], context),
             //amount of rows
-            childCount: 6,
+            childCount: 4,
           )),
     ]);
   }

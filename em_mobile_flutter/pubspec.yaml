@@ -30,6 +30,7 @@ dependencies:
   webview_flutter: ^0.3.24
   flutter_swiper: ^1.1.6
   flappy_search_bar: 1.4.1
+  photo_view: ^0.10.3
 
 
   # The following adds the Cupertino Icons font to your application.

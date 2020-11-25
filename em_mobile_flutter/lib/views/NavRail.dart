@@ -27,7 +27,7 @@ class _NavRailState extends State<NavRail> {
       destinations: [
         NavigationRailDestination(
           icon: emLogoIcon(),
-          label: Text('Linked Folders'),
+          label: Text('Account Options'),
         ),
         NavigationRailDestination(
             icon: Icon(Icons.filter_alt_rounded), label: Text('Search')),

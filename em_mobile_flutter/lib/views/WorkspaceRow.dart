@@ -118,5 +118,6 @@ void _testOpenHomeMenu(BuildContext context, String instanceUrl) {
   print(instanceUrl);
 
   EM.getWorkspaceAssets(instanceUrl);
+
   Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
 }
