@@ -62,7 +62,7 @@ class MainContent extends StatelessWidget {
             (ctx, i) => Image.network(
                   hitTracker.imageUrls[i],
                 ),
-            childCount: 9),
+            childCount: hitTracker.imageUrls.length),
       ),
       SliverPersistentHeader(
           pinned: true,
