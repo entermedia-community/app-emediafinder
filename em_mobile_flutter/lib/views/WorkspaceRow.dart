@@ -75,8 +75,10 @@ Widget leftSide(String imageVal, String workspaceName) {
 }
 
 Widget rightSide(String instanceUrl, BuildContext context) {
+  //Instantiate global instances of Entermedia and hitTracker
   final EM = Provider.of<EnterMedia>(context, listen: false);
   final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
+
   return Container(
       child: Column(
     children: <Widget>[

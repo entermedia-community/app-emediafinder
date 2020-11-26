@@ -91,6 +91,41 @@ class EnterMedia {
       return null;
     }
   }
+//Entermedia Login with key pasted in
+  Future<EmUser> emLoginWithKey(String entermediakey) async {
+    final resMap = await postEntermedia(
+        MEDIADB + '/services/authentication/firebaselogin.json',
+        {"entermediakey": entermediakey});
+
+    print("Logging in with key...");
+
+    if (resMap != null) {
+
+      //save local emUser from response object
+      emUser = emUserFromJson(json.encode(resMap));
+      return emUser;
+    } else {
+      return null;
+    }
+  }
+
+  //Entermedia Login with key pasted in
+  Future<bool>emEmailKey(String email) async {
+    final resMap = await postEntermedia(
+        MEDIADB + '/services/authentication/sendmagiclink.json',
+        {"to": email});
+
+    print("Sending email...");
+
+    if (resMap != null) {
+      var loggedin = true;
+      print(resMap);
+
+      return loggedin;
+    } else {
+      return null;
+    }
+  }
 
 //This function retrieves list of workspaces the user is apart of. - Mando Oct 23rd
   Future<List> getEMWorkspaces() async {

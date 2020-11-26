@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
@@ -15,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
 
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController entermediakeyController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('EMedia Finder'),
+        title: emLogoIcon(),
         centerTitle: true,
       ),
       body: Container(
@@ -38,24 +42,44 @@ class _LoginPageState extends State<LoginPage> {
           TextField(
             controller: emailController,
             decoration: InputDecoration(
-              labelText: "email",
-            ),
-          ),
-          TextField(
-            controller: passwordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: "password",
+              labelText: "E- mail",
             ),
           ),
           RaisedButton(
             onPressed: () async {
               String email = emailController.text.trim();
-              String password = passwordController.text.trim();
+
               //Get User info from entermedia website
-              final EmUser userInfo = await EM.emLogin(email, password);
+              EM.emEmailKey(email);
+
+
+
+            },
+            child: Text("E-mail Key"),
+          ),
+          SizedBox(
+            height: 66,
+            child: Center(
+                child: Text(
+              "Or",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+            )),
+          ),
+          TextField(
+            controller: entermediakeyController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: "Entermediakey",
+            ),
+          ),
+          RaisedButton(
+            onPressed: () async {
+              String entermediakey = entermediakeyController.text.trim();
+
+              //Get User info from entermedia website
+              final EmUser userInfo = await EM.emLoginWithKey(entermediakey);
               print(userInfo.results.screenname);
-              // todo; Here we call and update global myUser class with Entermedia user information after logging in.-> ln 31 NavMenu.dart
+              // Here we call and update global myUser class with Entermedia user information after logging in.
               myUser.addUser(
                   userInfo.results.userid,
                   userInfo.results.screenname,
@@ -73,25 +97,24 @@ class _LoginPageState extends State<LoginPage> {
               myWorkspaces.instUrl = [];
               //Loop thru API 'results'
               for (final project in userWorkspaces) {
-
                 myWorkspaces.names.add(project["name"]);
                 myWorkspaces.colId.add(project["id"]);
 
                 //Loop through response, add urls and check if blank.
-                if(project["servers"].isEmpty == true){
+                if (project["servers"].isEmpty == true) {
                   myWorkspaces.instUrl.add("no instance url");
-                }
-                else{
-                  myWorkspaces.instUrl.add(project["servers"][0]["instanceurl"]);
+                } else {
+                  myWorkspaces.instUrl
+                      .add(project["servers"][0]["instanceurl"]);
                   print(project["servers"][0]["instanceurl"]);
                 }
               }
               //Firebase Authentication
               context.read<AuthenticationService>().signIn(
-                  email: emailController.text.trim(),
-                  password: passwordController.text.trim());
+                  email: myUser.email,
+                  password: myUser.firebasepassword);
             },
-            child: Text("Sign In"),
+            child: Text("Sign In With Key"),
           )
         ],
       )),
