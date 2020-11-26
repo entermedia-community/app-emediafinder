@@ -86,7 +86,6 @@ class _LoginPageState extends State<LoginPage> {
                   print(project["servers"][0]["instanceurl"]);
                 }
               }
-
               //Firebase Authentication
               context.read<AuthenticationService>().signIn(
                   email: emailController.text.trim(),

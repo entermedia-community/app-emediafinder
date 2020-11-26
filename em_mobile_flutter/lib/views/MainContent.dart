@@ -1,8 +1,11 @@
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
+import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+
+import 'package:provider/provider.dart';
 
 class MainContent extends StatelessWidget {
   const MainContent({
@@ -14,6 +17,7 @@ class MainContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
     return CustomScrollView(slivers: <Widget>[
       SliverAppBar(
         //appbar title & menu goes here
@@ -32,7 +36,20 @@ class MainContent extends StatelessWidget {
             maxHeight: 33,
             child: Container(
                 color: Color(0xff384964),
-                child: Center(child: Text('Media' + ' (#)'))),
+                child: Center(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Media' + ' (#)'),
+                    IconButton(
+                        icon: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 19,
+                          color: Colors.deepOrangeAccent,
+                        ),
+                        onPressed: null)
+                  ],
+                ))),
           )),
       SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -42,9 +59,9 @@ class MainContent extends StatelessWidget {
         ),
         //todo; This is where images are loaded
         delegate: SliverChildBuilderDelegate(
-                (ctx, i) => Image.asset(
-              example[i],
-            ),
+            (ctx, i) => Image.network(
+                  hitTracker.imageUrls[i],
+                ),
             childCount: 9),
       ),
       SliverPersistentHeader(
@@ -54,16 +71,29 @@ class MainContent extends StatelessWidget {
             maxHeight: 33,
             child: Container(
                 color: Color(0xff384964),
-                child: Center(child: Text('Projects' + ' (#)'))),
+                child: Center(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Projects' + ' (#)'),
+                    IconButton(
+                        icon: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 19,
+                          color: Colors.deepOrangeAccent,
+                        ),
+                        onPressed: null)
+                  ],
+                ))),
           )),
       SliverList(
           delegate: SliverChildBuilderDelegate(
-            //just an example will build from api call
-                (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-                myWorkspaces.names[i], myWorkspaces.colId[i], context),
-            //amount of rows
-            childCount: 4,
-          )),
+        //just an example will build from api call
+        (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+            myWorkspaces.names[i], myWorkspaces.colId[i], context),
+        //amount of rows
+        childCount: 4,
+      )),
       SliverPersistentHeader(
           pinned: true,
           delegate: _SliverAppBarDelegate(
@@ -71,16 +101,28 @@ class MainContent extends StatelessWidget {
             maxHeight: 33,
             child: Container(
                 color: Color(0xff384964),
-                child: Center(child: Text('Events'))),
+                child: Center(
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                      Text('Events' + ' (#)'),
+                      IconButton(
+                          icon: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 19,
+                            color: Colors.deepOrangeAccent,
+                          ),
+                          onPressed: null)
+                    ]))),
           )),
       SliverList(
           delegate: SliverChildBuilderDelegate(
-            //just an example will build from api call
-                (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-                myWorkspaces.names[i], myWorkspaces.colId[i], context),
-            //amount of rows
-            childCount: 4,
-          )),
+        //just an example will build from api call
+        (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
+            myWorkspaces.names[i], myWorkspaces.colId[i], context),
+        //amount of rows
+        childCount: 4,
+      )),
     ]);
   }
 }
@@ -112,6 +154,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         child != oldDelegate.child;
   }
 }
+
 // todo; Load image url into list dynamically from entermedia. below is just example data.
 // Be specific in '.yaml' file when using local assets. Might also have to push first: https://stackoverflow.com/questions/52644621/flutter-assets-error-exception-caught-by-image-resource-service
 final List<String> example = [

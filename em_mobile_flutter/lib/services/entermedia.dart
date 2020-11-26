@@ -5,6 +5,7 @@ import 'dart:convert';
 class EnterMedia {
   final String EM = 'https://entermediadb.org/entermediadb/app';
   final String MEDIADB = 'https://entermediadb.org/entermediadb/mediadb';
+  final String Localhost = '';
   var client = http.Client();
   var emUser;
   
@@ -63,7 +64,7 @@ class EnterMedia {
     print("Response code: ");
     print(response.statusCode);
     if (response.statusCode == 200) {
-      print("Success user info is:" + response.body);
+      print("Success workspace data is:" + response.body);
       final String responseString = response.body;
 
       //returns map!
@@ -112,7 +113,7 @@ class EnterMedia {
     }
   }
 
-  Future<List> getWorkspaceAssets(String url) async {
+  Future<Map> getWorkspaceAssets(String url) async {
 
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
@@ -122,7 +123,7 @@ class EnterMedia {
     if (resMap != null) {
       print(resMap);
 
-      return resMap["results"];
+      return resMap;
     } else {
       print("Request failed!");
       return null;

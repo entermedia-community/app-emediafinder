@@ -1,5 +1,6 @@
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
+import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
           // todo; Creating an instance of the global class that will store our users information (see userData.dart in lib/models) after logging in. -> LoginPage.dart ln 22
           ChangeNotifierProvider<userData>(create: (context) => userData()),
           ChangeNotifierProvider<userWorkspaces>(create: (context) => userWorkspaces()),
+          ChangeNotifierProvider<workspaceAssets>(create: (context) => workspaceAssets()),
           Provider<EnterMedia>(create: (context) => EnterMedia()),
           Provider<AuthenticationService>(
               create: (_) => AuthenticationService(FirebaseAuth.instance),
