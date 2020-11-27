@@ -28,7 +28,7 @@ class WorkspaceSelect extends StatelessWidget {
       SliverList(
           delegate: SliverChildBuilderDelegate(
         (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-            myWorkspaces.names[i], myWorkspaces.instUrl[i], context),
+            myWorkspaces.names[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
         //amount of rows
         childCount: 20,
       )),

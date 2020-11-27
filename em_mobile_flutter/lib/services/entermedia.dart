@@ -5,9 +5,11 @@ import 'dart:convert';
 class EnterMedia {
   final String EM = 'https://entermediadb.org/entermediadb/app';
   final String MEDIADB = 'https://entermediadb.org/entermediadb/mediadb';
-  final String Localhost = '';
+//  final String MEDIADB = 'http://cburkey.entermediadb.org:8080/entermediadb/mediadb';
+  final String Localhost = 'htt';
   var client = http.Client();
   var emUser;
+  var tempKey;
   
   //Generic post method to entermedias server
   Future<Map> postEntermedia(String url, Map jsonBody) async {
@@ -49,7 +51,7 @@ class EnterMedia {
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
       headers = <String,String>{
-        "X-token": "em" + emUser.results.entermediakey,
+        "X-token": tempKey,
         "X-tokentype": "entermedia"
       };
     }
@@ -139,8 +141,6 @@ class EnterMedia {
     if (resMap != null) {
       print(resMap);
 
-//      emWorkspacesFromJson(json.encode(resMap));
-
       return resMap["results"];
     } else {
       print("Request failed!");
@@ -161,6 +161,32 @@ class EnterMedia {
       return resMap;
     } else {
       print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<Map> createTeamAccount(String url, String entermediakey, String colId) async {
+
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/authentication/createteamaccount.json',
+      {
+        "entermediacloudkey": entermediakey,
+        "collectionid": colId
+
+      },
+    );
+    if (resMap != null) {
+//    && resMap.response["status"] == "ok"
+
+      print(resMap);
+
+      print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
+
+      tempKey = resMap["results"]["entermediakey"];
+
+      return resMap;
+    } else {
+      print("Request failed!" );
       return null;
     }
   }

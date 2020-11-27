@@ -9,6 +9,7 @@ class userData with ChangeNotifier{
   String lastname;
   String email;
   String firebasepassword;
+  String workspacekey;
 //This function is what we use to create and update the 'myUser' userData() class in the login page.
   void addUser(String id, String sname, String key, String fname,String lname,String mail,String fbpw){
     userid = id;

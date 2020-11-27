@@ -1,3 +1,4 @@
+import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'EMWebview.dart' as Collection;
 
-Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl) {
+Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, String colId) {
   return Padding(
     padding: const EdgeInsets.all(8),
     child: Material(
@@ -17,13 +18,13 @@ Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl) {
           // can refer to the Scaffold with Scaffold.of(). CANNOT USE BuildContext from original scaffolding.-Mando
           child: Builder(builder: (BuildContext context) {
             return emWorkspaceRow(
-                imageVal, workspaceName, instanceUrl, context);
+                imageVal, workspaceName, instanceUrl, colId, context);
           })),
     ),
   );
 }
 
-Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl,
+Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId,
     BuildContext context) {
   return Column(
     children: [
@@ -42,7 +43,7 @@ Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 leftSide(imageVal, workspaceName),
-                rightSide(instanceUrl, context),
+                rightSide(instanceUrl,colId, context),
               ],
             )
           ],
@@ -74,10 +75,11 @@ Widget leftSide(String imageVal, String workspaceName) {
   ));
 }
 
-Widget rightSide(String instanceUrl, BuildContext context) {
+Widget rightSide(String instanceUrl, String colId, BuildContext context) {
   //Instantiate global instances of Entermedia and hitTracker
   final EM = Provider.of<EnterMedia>(context, listen: false);
   final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
+  final myUser = Provider.of<userData>(context);
 
   return Container(
       child: Column(
@@ -90,15 +92,17 @@ Widget rightSide(String instanceUrl, BuildContext context) {
           ),
           onPressed: () async {
 
-            final Map searchedData = (await EM.getWorkspaceAssets(instanceUrl)) as Map;
+            EM.createTeamAccount(instanceUrl, myUser.entermediakey, colId);
 
-            hitTracker.searchedhits = searchedData;
+//            final Map searchedData = (await EM.getWorkspaceAssets(instanceUrl)) as Map;
+//
+//            hitTracker.searchedhits = searchedData;
+//
+//            hitTracker.getAssetSampleUrls(instanceUrl);
 
-            hitTracker.getAssetSampleUrls(instanceUrl);
 
-
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomeMenu()));
+//            Navigator.push(
+//                context, MaterialPageRoute(builder: (context) => HomeMenu()));
           },
         ),
       ),
@@ -106,28 +110,3 @@ Widget rightSide(String instanceUrl, BuildContext context) {
   ));
 }
 
-//edit to open correct HomeMenu dynamically
-void _openCollectionWV(BuildContext context, String url) {
-  Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => Collection.WebViewContainer(url)));
-}
-
-//Future<void> _testOpenHomeMenu(BuildContext context, String instanceUrl) async {
-//  final EM = Provider.of<EnterMedia>(context, listen: false);
-//  final myAssets = Provider.of<workspaceAssets>(context, listen: false);
-//
-//  print(instanceUrl);
-//
-//  final workspaceData = await EM.getWorkspaceAssets(instanceUrl);
-//  print(workspaceData);
-//
-//
-//  for (final data in workspaceData) {
-////    myAssets.thumbUrl.add(data["thumbnailimg"]);
-//    print(data["organizedhits"]["samples"][0]["thumbnailimg"]);
-//  }
-//
-//  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
-//}
