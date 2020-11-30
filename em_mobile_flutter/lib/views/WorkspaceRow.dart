@@ -4,7 +4,6 @@ import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'EMWebview.dart' as Collection;
 
 Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, String colId) {
   return Padding(
@@ -92,14 +91,16 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
           ),
           onPressed: () async {
 
-            EM.createTeamAccount(instanceUrl, myUser.entermediakey, colId);
+            await EM.createTeamAccount(instanceUrl, myUser.entermediakey, colId);
 
-//            final Map searchedData = (await EM.getWorkspaceAssets(instanceUrl)) as Map;
-//
-//            hitTracker.searchedhits = searchedData;
-//
+            final Map searchedData = (await EM.getWorkspaceAssets(instanceUrl)) as Map;
+
+            hitTracker.searchedhits = searchedData;
+
+            hitTracker.organizeData();
+
+            //todo; Save this shit
 //            hitTracker.getAssetSampleUrls(instanceUrl);
-
 
 //            Navigator.push(
 //                context, MaterialPageRoute(builder: (context) => HomeMenu()));

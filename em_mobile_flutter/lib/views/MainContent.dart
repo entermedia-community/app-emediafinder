@@ -18,6 +18,7 @@ class MainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
+
     return CustomScrollView(slivers: <Widget>[
       SliverAppBar(
         //appbar title & menu goes here
