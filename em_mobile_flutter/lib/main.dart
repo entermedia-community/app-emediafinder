@@ -77,7 +77,6 @@ class AuthenticationWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     final firebaseUser = context.watch<User>();
-    final EM = Provider.of<EnterMedia>(context);
 
     if(firebaseUser != null){
       return WorkspaceSelect();

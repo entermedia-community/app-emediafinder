@@ -91,9 +91,9 @@ class MainContent extends StatelessWidget {
           delegate: SliverChildBuilderDelegate(
         //just an example will build from api call
         (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-            myWorkspaces.names[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
+            hitTracker.workspaceProjects[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
         //amount of rows
-        childCount: 4,
+        childCount: hitTracker.workspaceProjects.length,
       )),
       SliverPersistentHeader(
           pinned: true,
@@ -120,9 +120,9 @@ class MainContent extends StatelessWidget {
           delegate: SliverChildBuilderDelegate(
         //just an example will build from api call
         (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-            myWorkspaces.names[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
+            hitTracker.workspaceEvents[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
         //amount of rows
-        childCount: 4,
+        childCount: 3,
       )),
     ]);
   }

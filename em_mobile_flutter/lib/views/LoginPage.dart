@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
@@ -32,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
         title: emLogoIcon(),
         centerTitle: true,
       ),
+//      backgroundColor: Colors.white38,
       body: Container(
           //padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 130.0),
           //margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 130.0),
@@ -39,10 +41,13 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           //Text("Login:", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36.0, color: Colors.indigo)),
-          TextField(
-            controller: emailController,
-            decoration: InputDecoration(
-              labelText: "E- mail",
+          Container(
+            width: 250,
+            child: TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: "E- mail",
+              ),
             ),
           ),
           RaisedButton(
@@ -61,15 +66,18 @@ class _LoginPageState extends State<LoginPage> {
             height: 66,
             child: Center(
                 child: Text(
-              "Or",
+              " ",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
             )),
           ),
-          TextField(
-            controller: entermediakeyController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: "Entermediakey",
+          Container(
+            width: 250,
+            child: TextField(
+              controller: entermediakeyController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Entermediakey",
+              ),
             ),
           ),
           RaisedButton(

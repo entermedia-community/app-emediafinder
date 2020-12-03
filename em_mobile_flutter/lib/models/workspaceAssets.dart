@@ -1,5 +1,4 @@
 import 'dart:core';
-
 import 'package:flutter/widgets.dart';
 //use this format to create custom classes that need to change.
 

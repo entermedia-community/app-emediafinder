@@ -100,10 +100,10 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
             hitTracker.organizeData();
 
             //todo; Save this shit
-//            hitTracker.getAssetSampleUrls(instanceUrl);
+            hitTracker.getAssetSampleUrls(instanceUrl);
 
-//            Navigator.push(
-//                context, MaterialPageRoute(builder: (context) => HomeMenu()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomeMenu()));
           },
         ),
       ),
