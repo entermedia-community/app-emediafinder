@@ -43,68 +43,69 @@ class workspaceAssets with ChangeNotifier {
 
     for (final i in searchedhits["organizedhits"]) {
       //Find projects in response object
-      if (searchedhits["organizedhits"][i]["id"] == "entityproject") {
+      if (i["id"] == "entityproject") {
 
         print("These are workspace PROJECTS");
-        print(searchedhits["organizedhits"][i]["samples"]);
+        print(i["samples"]);
 
-        for (final i in searchedhits["organizedhits"][i]["samples"]) {
+        for (final i in i["samples"]) {
           projects.add(i["name"]);
         }
 
         workspaceProjects = projects;
+        print(workspaceProjects);
 
         //Find events in response object
-      } else if (searchedhits["organizedhits"][i]["id"] == "entityevent") {
+      } else if (i["id"] == "entityevent") {
 
         print("These are workspace EVENTS");
-        print(searchedhits["organizedhits"][i]["samples"]);
+        print(i["samples"]);
 
-        for (final i in searchedhits["organizedhits"][i]["samples"]) {
+        for (final i in i["samples"]) {
           events.add(i["name"]);
         }
 
         workspaceEvents = events;
 
-      } else if (searchedhits["organizedhits"][i]["id"] == "entityproduct") {
+      } else if (i["id"] == "entityproduct") {
 
         print("These are workspace PRODUCTS");
-        print(searchedhits["organizedhits"][i]["samples"]);
+        print(i["samples"]);
 
-        for (final i in searchedhits["organizedhits"][i]["samples"]) {
+        for (final i in i["samples"]) {
           products.add(i["name"]);
         }
 
         workspaceProducts = products;
 
-      } else if (searchedhits["organizedhits"][i]["id"] == "entityperson") {
+      } else if (i["id"] == "entityperson") {
 
         print("These are workspace PEOPLE");
-        print(searchedhits["organizedhits"][i]["samples"]);
+        print(i["samples"]);
 
-        for (final i in searchedhits["organizedhits"][i]["samples"]) {
+        for (final i in i["samples"]) {
           people.add(i["name"]);
         }
 
         workspacePeople = people;
 
-      } else if (searchedhits["organizedhits"][i]["id"] == "entitylocation") {
+      } else if (i["id"] == "entitylocation") {
 
         print("These are workspace LOCATIONS");
-        print(searchedhits["organizedhits"][i]["samples"]);
+        print(i["samples"]);
 
-        for (final i in searchedhits["organizedhits"][i]["samples"]) {
+        for (final i in i["samples"]) {
           locations.add(i["name"]);
         }
 
         workspaceLocations = locations;
 
-      } else if (searchedhits["organizedhits"][i]["id"] == "entitycompany") {
+      } else if (i["id"] == "entitycompany") {
 
         print("These are workspace COMPANIES");
-        print(searchedhits["organizedhits"][i]["samples"]);
+        print(i["samples"]);
 
-        for (final i in searchedhits["organizedhits"][i]["samples"]) {
+        for (final i in i["samples"]) {
           companies.add(i["name"]);
         }
 
