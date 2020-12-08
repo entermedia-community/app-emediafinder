@@ -1,4 +1,5 @@
 import 'package:em_mobile_flutter/models/emUser.dart';
+import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -6,11 +7,12 @@ class EnterMedia {
   final String EM = 'https://entermediadb.org/entermediadb/app';
   final String MEDIADB = 'https://entermediadb.org/entermediadb/mediadb';
 //  final String MEDIADB = 'http://cburkey.entermediadb.org:8080/entermediadb/mediadb';
-  final String Localhost = 'htt';
   var client = http.Client();
   var emUser;
   var tempKey;
-  
+
+
+
   //Generic post method to entermedias server
   Future<Map> postEntermedia(String url, Map jsonBody) async {
     //Set headers
@@ -98,6 +100,25 @@ class EnterMedia {
     final resMap = await postEntermedia(
         MEDIADB + '/services/authentication/firebaselogin.json',
         {"entermediakey": entermediakey});
+
+    print("Logging in with key...");
+
+    if (resMap != null) {
+
+      //save local emUser from response object
+      emUser = emUserFromJson(json.encode(resMap));
+      return emUser;
+    } else {
+      return null;
+    }
+  }
+
+  //Entermedia Login with key pasted in
+  Future<EmUser> emAutoLoginWithKey(emkey) async {
+
+    final resMap = await postEntermedia(
+        MEDIADB + '/services/authentication/firebaselogin.json',
+        {"entermediakey": emkey});
 
     print("Logging in with key...");
 

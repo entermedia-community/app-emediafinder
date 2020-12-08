@@ -155,26 +155,3 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         child != oldDelegate.child;
   }
 }
-
-// todo; Load image url into list dynamically from entermedia. below is just example data.
-// Be specific in '.yaml' file when using local assets. Might also have to push first: https://stackoverflow.com/questions/52644621/flutter-assets-error-exception-caught-by-image-resource-service
-final List<String> example = [
-  'assets/images/one.jpg',
-  'assets/images/two.jpg',
-  'assets/images/three.jpg',
-  'assets/images/four.jpg',
-  'assets/images/five.jpg',
-  'assets/images/six.jpg',
-  'assets/images/seven.jpg',
-  'assets/images/eight.jpg',
-  'assets/images/nine.jpg',
-  'assets/images/ten.jpg',
-  'assets/images/eleven.jpg',
-  'assets/images/twelve.jpg',
-  'assets/images/thirteen.jpg',
-  'assets/images/fourteen.jpg',
-  'assets/images/fifteen.jpg',
-  'assets/images/sixteen.jpg',
-  'assets/images/seventeen.jpg',
-  'assets/images/eighteen.jpg',
-];

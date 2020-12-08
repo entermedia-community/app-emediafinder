@@ -9,6 +9,7 @@ import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -23,10 +24,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // todo; Calling the global class of userData() and naming it myUser for all widgets nested in it. this will pretty much always happen at under 'Widget build(BuildContext context) {...' -> ln 58, of this file.
     final myUser = Provider.of<userData>(context);
     final EM = Provider.of<EnterMedia>(context);
-    final myWorkspaces = Provider.of<userWorkspaces>(context);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -84,6 +84,10 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () async {
               String entermediakey = entermediakeyController.text.trim();
 
+              await sharedPref().saveEMKey(entermediakey);
+
+              print(sharedPref().getEMKey());
+
               //Get User info from entermedia website
               final EmUser userInfo = await EM.emLoginWithKey(entermediakey);
               print(userInfo.results.screenname);
@@ -97,26 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                   userInfo.results.email,
                   userInfo.results.firebasepassword);
 
-              //Perform API call
-              final userWorkspaces = await EM.getEMWorkspaces();
-              //Initialize blank Lists
-              myWorkspaces.names = [];
-              myWorkspaces.colId = [];
-              myWorkspaces.instUrl = [];
-              //Loop thru API 'results'
-              for (final project in userWorkspaces) {
-                myWorkspaces.names.add(project["name"]);
-                myWorkspaces.colId.add(project["id"]);
 
-                //Loop through response, add urls and check if blank.
-                if (project["servers"].isEmpty == true) {
-                  myWorkspaces.instUrl.add("no instance url");
-                } else {
-                  myWorkspaces.instUrl
-                      .add(project["servers"][0]["instanceurl"]);
-                  print(project["servers"][0]["instanceurl"]);
-                }
-              }
               //Firebase Authentication
               context.read<AuthenticationService>().signIn(
                   email: myUser.email,

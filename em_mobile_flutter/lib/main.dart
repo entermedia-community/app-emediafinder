@@ -1,7 +1,6 @@
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
-import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
@@ -11,12 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
-Future<void> main() async{
+import 'models/emUser.dart';
+import 'services/sharedpreferences.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //a way to set the glue between the widgets and the Flutter engine before it has been done itself. This happens automatically a bit after the main method is called.
   //but as we want to initialize a class asynchronously then, before that is done we need to say:  "Hey, can we do the initialization now and after that we initialize the class"
   //binding is required before/inorder to call native code. - 10/2/2020
   await Firebase.initializeApp();
+
   //initialize firebase.
   runApp(MyApp());
 }
@@ -32,20 +35,25 @@ class MyApp extends StatelessWidget {
     // todo; When you want to display you must instantiate first with 'final name = Provider.of<SOMECLASS>(context); then wrap UI component with Consumer Widget.
     // todo; On ln 31 we return the MultiProvider()[] Widget because here we are going to define all classes we need access to globally and this 'wraps' ALL UI components which are in Material App()
     // todo; We create necessary Firebase classes and userData(). -> ln 33, below
+
     return MultiProvider(
-        providers: [
-          // todo; Creating an instance of the global class that will store our users information (see userData.dart in lib/models) after logging in. -> LoginPage.dart ln 22
-          ChangeNotifierProvider<userData>(create: (context) => userData()),
-          ChangeNotifierProvider<userWorkspaces>(create: (context) => userWorkspaces()),
-          ChangeNotifierProvider<workspaceAssets>(create: (context) => workspaceAssets()),
-          Provider<EnterMedia>(create: (context) => EnterMedia()),
-          Provider<AuthenticationService>(
-              create: (_) => AuthenticationService(FirebaseAuth.instance),
-          ),
-          StreamProvider(
-            create: (context) => context.read<AuthenticationService>().authStateChanges,
-          ),
-        ],
+      providers: [
+        // todo; Creating an instance of the global class that will store our users information (see userData.dart in lib/models) after logging in. -> LoginPage.dart ln 22
+        ChangeNotifierProvider<userData>(create: (context) => userData()),
+        ChangeNotifierProvider<userWorkspaces>(
+            create: (context) => userWorkspaces()),
+        ChangeNotifierProvider<workspaceAssets>(
+            create: (context) => workspaceAssets()),
+        Provider<EnterMedia>(create: (context) => EnterMedia()),
+        Provider<sharedPref>(create: (context) => sharedPref()),
+        Provider<AuthenticationService>(
+          create: (_) => AuthenticationService(FirebaseAuth.instance),
+        ),
+        StreamProvider(
+          create: (context) =>
+              context.read<AuthenticationService>().authStateChanges,
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'EntermediaDB Demo',
@@ -57,32 +65,78 @@ class MyApp extends StatelessWidget {
           //Text Colors
           textTheme: TextTheme(
               bodyText1: TextStyle(color: Colors.white),
-              bodyText2: TextStyle(color: Color(0xff92e184))
-          ),
+              bodyText2: TextStyle(color: Color(0xff92e184))),
           //Button Colors
           buttonTheme: ButtonThemeData(
             buttonColor: Color(0xff61af56),
           ),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: AuthenticationWrapper(),
+        home: AuthenticationWrapper()
       ),
     );
   }
 }
 
 //Requires users to be logged into Firebase
-class AuthenticationWrapper extends StatelessWidget {
+class AuthenticationWrapper extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    final firebaseUser = context.watch<User>();
+  _AuthenticationWrapperState createState() => _AuthenticationWrapperState();
+}
 
-    if(firebaseUser != null){
-      return WorkspaceSelect();
+class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
+
+    reLoginUser(BuildContext context) async {
+    final EM = Provider.of<EnterMedia>(context);
+    final myUser = Provider.of<userData>(context);
+    var relogin = false;
+    String emkey = await sharedPref().getEMKey();
+
+
+    print('Trying to relogin');
+
+    if (emkey != null) {
+      relogin = true;
+
+      final userInfo = await EM.emAutoLoginWithKey(emkey) as EmUser;
+      print('RELOGGING IN WITH STORED KEY');
+      print(emkey);
+
+      myUser.addUser(
+          userInfo.results.userid,
+          userInfo.results.screenname,
+          userInfo.results.entermediakey,
+          userInfo.results.firstname,
+          userInfo.results.lastname,
+          userInfo.results.email,
+          userInfo.results.firebasepassword);
     }
 
-    return LoginPage();
+    return relogin;
+  }
+
+  Widget build(BuildContext context) {
+    final firebaseUser = context.watch<User>();
+
+
+    if (firebaseUser == null) {
+      return LoginPage();
+    } else {
+      reLoginUser(context);
+      return WorkspaceSelect();
+//      FutureBuilder<bool>(
+//          future: reLoginUser(context),
+//          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+//            if (snapshot.data == true) {
+//              print("Relogging in...");
+//
+//              return WorkspaceSelect();
+//            } else {
+//              print("Sign in again...");
+//              return LoginPage();
+//            }
+//          });
+    }
   }
 }
 
