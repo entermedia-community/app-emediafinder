@@ -2,6 +2,7 @@ import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
+import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -24,7 +25,15 @@ class MainContent extends StatelessWidget {
         //appbar title & menu goes here
         title: SizedBox(
           height: 80,
-          child: SearchBar(onSearch: null, onItemFound: null),
+          child: SearchBar(
+              hintText: "Search your media...",
+              minimumChars: 2,
+              searchBarStyle: SearchBarStyle(
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              ),
+              onSearch: null,
+              onItemFound: null),
 //                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
         ),
         pinned: true,
@@ -41,7 +50,9 @@ class MainContent extends StatelessWidget {
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Media' + ' (#)'),
+                    Text('Media (' +
+                        hitTracker.imageUrls.length.toString() +
+                        ')'),
                     IconButton(
                         icon: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -76,7 +87,9 @@ class MainContent extends StatelessWidget {
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Projects' + ' (#)'),
+                    Text('Projects (' +
+                        hitTracker.workspaceProjects.length.toString() +
+                        ')'),
                     IconButton(
                         icon: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -90,10 +103,14 @@ class MainContent extends StatelessWidget {
       SliverList(
           delegate: SliverChildBuilderDelegate(
         //just an example will build from api call
-        (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-            hitTracker.workspaceProjects[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
+        (ctx, i) => emWorkspaceRow(
+            'assets/EM Logo Basic.jpg',
+            hitTracker.workspaceProjects[i],
+            myWorkspaces.instUrl[i],
+            myWorkspaces.colId[i],
+            context),
         //amount of rows
-        childCount: hitTracker.workspaceProjects.length,
+        childCount: 3,
       )),
       SliverPersistentHeader(
           pinned: true,
@@ -106,7 +123,9 @@ class MainContent extends StatelessWidget {
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                      Text('Events' + ' (#)'),
+                      Text('Events (' +
+                          hitTracker.workspaceEvents.length.toString() +
+                          ')'),
                       IconButton(
                           icon: Icon(
                             Icons.arrow_forward_ios_rounded,
@@ -119,8 +138,12 @@ class MainContent extends StatelessWidget {
       SliverList(
           delegate: SliverChildBuilderDelegate(
         //just an example will build from api call
-        (ctx, i) => emWorkspaceRow('assets/EM Logo Basic.jpg',
-            hitTracker.workspaceEvents[i], myWorkspaces.instUrl[i], myWorkspaces.colId[i], context),
+        (ctx, i) => emWorkspaceRow(
+            'assets/EM Logo Basic.jpg',
+            hitTracker.workspaceEvents[i],
+            myWorkspaces.instUrl[i],
+            myWorkspaces.colId[i],
+            context),
         //amount of rows
         childCount: 3,
       )),

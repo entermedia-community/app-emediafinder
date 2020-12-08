@@ -93,7 +93,7 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
 
             await EM.createTeamAccount(instanceUrl, myUser.entermediakey, colId);
 
-            final Map searchedData = (await EM.getWorkspaceAssets(instanceUrl)) as Map;
+            final Map searchedData = await EM.getWorkspaceAssets(instanceUrl);
 
             hitTracker.searchedhits = searchedData;
 

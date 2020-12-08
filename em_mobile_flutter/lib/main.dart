@@ -86,58 +86,43 @@ class AuthenticationWrapper extends StatefulWidget {
 
 class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
-    reLoginUser(BuildContext context) async {
-    final EM = Provider.of<EnterMedia>(context);
-    final myUser = Provider.of<userData>(context);
-    var relogin = false;
-    String emkey = await sharedPref().getEMKey();
-
-
-    print('Trying to relogin');
-
-    if (emkey != null) {
-      relogin = true;
-
-      final userInfo = await EM.emAutoLoginWithKey(emkey) as EmUser;
-      print('RELOGGING IN WITH STORED KEY');
-      print(emkey);
-
-      myUser.addUser(
-          userInfo.results.userid,
-          userInfo.results.screenname,
-          userInfo.results.entermediakey,
-          userInfo.results.firstname,
-          userInfo.results.lastname,
-          userInfo.results.email,
-          userInfo.results.firebasepassword);
-    }
-
-    return relogin;
-  }
 
   Widget build(BuildContext context) {
     final firebaseUser = context.watch<User>();
 
-
     if (firebaseUser == null) {
       return LoginPage();
     } else {
+
       reLoginUser(context);
+
       return WorkspaceSelect();
-//      FutureBuilder<bool>(
-//          future: reLoginUser(context),
-//          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-//            if (snapshot.data == true) {
-//              print("Relogging in...");
-//
-//              return WorkspaceSelect();
-//            } else {
-//              print("Sign in again...");
-//              return LoginPage();
-//            }
-//          });
     }
   }
 }
 
+reLoginUser(BuildContext context) async {
+  final EM = Provider.of<EnterMedia>(context);
+  final myUser = Provider.of<userData>(context);
+  String emkey = await sharedPref().getEMKey();
+
+
+  print('Trying to relogin');
+
+  if (emkey != null && myUser.entermediakey == null) {
+
+    final userInfo = await EM.emAutoLoginWithKey(emkey);
+    print('RELOGGING IN WITH STORED KEY');
+    print(emkey);
+
+    myUser.addUser(
+        userInfo.results.userid,
+        userInfo.results.screenname,
+        userInfo.results.entermediakey,
+        userInfo.results.firstname,
+        userInfo.results.lastname,
+        userInfo.results.email,
+        userInfo.results.firebasepassword);
+  }
+}
 
