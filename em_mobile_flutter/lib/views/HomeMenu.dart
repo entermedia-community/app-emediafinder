@@ -4,7 +4,6 @@ import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/NavRail.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 class HomeMenu extends StatefulWidget {
   @override
@@ -42,22 +41,3 @@ class _HomeMenuState extends State<HomeMenu> {
   }
 }
 
-//testing with card idea.
-class ImageCard extends StatelessWidget {
-  final loc;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-//      margin: const EdgeInsets.fromLTRB(0, 0, 24, 24),
-      child: Image.asset(loc),
-//      clipBehavior: Clip.antiAlias,
-      elevation: 10.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-    );
-  }
-
-  const ImageCard(this.loc);
-}

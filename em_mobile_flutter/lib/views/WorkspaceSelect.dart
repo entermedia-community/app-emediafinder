@@ -1,7 +1,7 @@
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
+import 'WorkspaceRow.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

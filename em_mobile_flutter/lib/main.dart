@@ -1,17 +1,17 @@
-import 'package:em_mobile_flutter/models/userData.dart';
-import 'package:em_mobile_flutter/models/userWorkspaces.dart';
-import 'package:em_mobile_flutter/models/workspaceAssets.dart';
-import 'package:em_mobile_flutter/views/LoginPage.dart';
-import 'package:em_mobile_flutter/services/authentication.dart';
-import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
-import 'models/emUser.dart';
+import 'models/userData.dart';
+import 'models/userWorkspaces.dart';
+import 'models/workspaceAssets.dart';
+import 'views/LoginPage.dart';
 import 'services/sharedpreferences.dart';
+import 'services/authentication.dart';
+import 'services/entermedia.dart';
+import 'views/WorkspaceSelect.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

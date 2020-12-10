@@ -1,10 +1,8 @@
 import 'dart:ui';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
-import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

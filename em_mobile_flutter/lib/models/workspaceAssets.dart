@@ -30,7 +30,7 @@ class workspaceAssets with ChangeNotifier {
     return images;
   }
 
-//This organizes the response from /finder/mediadb/services/module/modulesearch/sample.json
+//This organizes the response from /finder/mediadb/services/module/modulesearch/sample.json called in entermedia.dart
   //Todo; Add 'if else' statements for all other datatypes
   organizeData() {
     var companies = <String>[];

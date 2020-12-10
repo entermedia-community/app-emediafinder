@@ -1,7 +1,5 @@
-import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
-import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -30,8 +28,6 @@ class _emLogoIconState extends State<emLogoIcon> {
           {
             sharedPref().resetValues(),
             context.read<AuthenticationService>().signOut(),
-//            Navigator.push(
-//                context, MaterialPageRoute(builder: (context) => LoginPage()))
           }
       },
     );

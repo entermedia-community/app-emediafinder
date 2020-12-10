@@ -26,10 +26,13 @@ class MainContent extends StatelessWidget {
         title: SizedBox(
           height: 80,
           child: SearchBar(
+            icon: Icon(Icons.search_rounded,
+            color: Color(0xff92e184),),
               hintText: "Search your media...",
+              hintStyle: TextStyle(color: Colors.deepOrangeAccent,),
               minimumChars: 2,
               searchBarStyle: SearchBarStyle(
-                backgroundColor: Colors.white,
+                backgroundColor: Color(0xff384964),
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               ),
               onSearch: null,
