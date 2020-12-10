@@ -31,7 +31,6 @@ class _HomeMenuState extends State<HomeMenu> {
         children: <Widget>[
           //From NavRail.dart
           NavRail(),
-          //todo; main content displayed below in the Expanded. Make it's own view and return Expanded() - done Mando
           Expanded(
             child: MainContent(myWorkspaces: myWorkspaces),
           )

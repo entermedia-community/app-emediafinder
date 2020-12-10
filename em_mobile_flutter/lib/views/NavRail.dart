@@ -1,7 +1,4 @@
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
-import 'package:em_mobile_flutter/models/userWorkspaces.dart';
-import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class NavRail extends StatefulWidget {
@@ -14,8 +11,6 @@ class _NavRailState extends State<NavRail> {
 
   @override
   Widget build(BuildContext context) {
-    final EM = Provider.of<EnterMedia>(context);
-    final myWorkspaces = Provider.of<userWorkspaces>(context);
     return NavigationRail(
       extended: false,
       minWidth: 56,

@@ -18,7 +18,7 @@ class EnterMedia {
     var headers = <String,String>{};
     if (emUser != null) {
       print("Setting Headers.");
-      //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
+      // todo: Important must specify types! Dart defaults to dynamic and http.post requires definitive types. - mando
       headers = <String,String>{
         "X-token": emUser.results.entermediakey,
         "X-tokentype": "entermedia"
@@ -112,7 +112,7 @@ class EnterMedia {
     }
   }
 
-  //Entermedia Login with key pasted in
+  //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(emkey) async {
 
     final resMap = await postEntermedia(
@@ -196,7 +196,6 @@ class EnterMedia {
       },
     );
     if (resMap != null) {
-//    && resMap.response["status"] == "ok"
 
       print(resMap);
 

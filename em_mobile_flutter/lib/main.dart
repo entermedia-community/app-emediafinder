@@ -25,20 +25,20 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
-    // todo; <--- this just highlights on the IDE what is typed after. Follow the trail to see a complete setup and usage.
+    // todo; <--- this just highlights in the IDE what is typed after. Follow the trail to see a complete setup and usage.
     // todo;   This MultiProvider class is a sub class of Provider. Provider is how we're going to pass around information within the app.
     // todo; Provider basically can provide us with instances of any class we specify here. This has to 'wrap' the beginning of the app UI so that every child widget can access the same instance with the
-    // todo; Consumer widget (i.e. NavMenu.dart ln 31).
-    // todo; When you want to display you must instantiate first with 'final name = Provider.of<SOMECLASS>(context); then wrap UI component with Consumer Widget.
+    // todo; Consumer widget.
+    // todo; When you want to display you must instantiate first with 'final name = Provider.of<SOMECLASS>(context) or/then wrap UI component with Consumer Widget.
     // todo; On ln 31 we return the MultiProvider()[] Widget because here we are going to define all classes we need access to globally and this 'wraps' ALL UI components which are in Material App()
-    // todo; We create necessary Firebase classes and userData(). -> ln 33, below
+    // todo; We create necessary Firebase classes and userData().
 
     return MultiProvider(
       providers: [
-        // todo; Creating an instance of the global class that will store our users information (see userData.dart in lib/models) after logging in. -> LoginPage.dart ln 22
+        // todo; Creating an instance of the global class that will store our users information (see userData.dart in lib/models) after logging in.
         ChangeNotifierProvider<userData>(create: (context) => userData()),
         ChangeNotifierProvider<userWorkspaces>(
             create: (context) => userWorkspaces()),
@@ -126,4 +126,3 @@ reLoginUser(BuildContext context) async {
         userInfo.results.firebasepassword);
   }
 }
-

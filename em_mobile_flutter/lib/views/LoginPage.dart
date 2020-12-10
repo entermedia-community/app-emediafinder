@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
     final myUser = Provider.of<userData>(context);
     final EM = Provider.of<EnterMedia>(context);
 
-
     return Scaffold(
       appBar: AppBar(
         title: emLogoIcon(),
@@ -51,12 +50,8 @@ class _LoginPageState extends State<LoginPage> {
           RaisedButton(
             onPressed: () async {
               String email = emailController.text.trim();
-
               //Get User info from entermedia website
               EM.emEmailKey(email);
-
-
-
             },
             child: Text("E-mail Key"),
           ),
@@ -81,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
           RaisedButton(
             onPressed: () async {
               String entermediakey = entermediakeyController.text.trim();
-
+              //store the entermediakey from this login screent to local storage.
               await sharedPref().saveEMKey(entermediakey);
 
               print(sharedPref().getEMKey());
@@ -89,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
               //Get User info from entermedia website
               final EmUser userInfo = await EM.emLoginWithKey(entermediakey);
               print(userInfo.results.screenname);
-              // Here we call and update global myUser class with Entermedia user information after logging in.
+              // Here we call and update global myUser class with Entermediadb.org user information after logging in.
               myUser.addUser(
                   userInfo.results.userid,
                   userInfo.results.screenname,
@@ -99,11 +94,9 @@ class _LoginPageState extends State<LoginPage> {
                   userInfo.results.email,
                   userInfo.results.firebasepassword);
 
-
-              //Firebase Authentication
+              //Firebase Authentication sign in.
               context.read<AuthenticationService>().signIn(
-                  email: myUser.email,
-                  password: myUser.firebasepassword);
+                  email: myUser.email, password: myUser.firebasepassword);
             },
             child: Text("Sign In With Key"),
           )
