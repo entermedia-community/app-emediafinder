@@ -94,6 +94,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       return LoginPage();
     } else {
 
+      //Attempt relogin with current stored shared preferences key.
       reLoginUser(context);
 
       return WorkspaceSelect();

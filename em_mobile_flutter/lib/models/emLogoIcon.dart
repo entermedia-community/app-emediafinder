@@ -11,7 +11,6 @@ class emLogoIcon extends StatefulWidget {
 }
 
 class _emLogoIconState extends State<emLogoIcon> {
-  //example List
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
@@ -26,7 +25,9 @@ class _emLogoIconState extends State<emLogoIcon> {
       onSelected: (value) => {
         if (value == 1)
           {
+            //clear out stored entermediakey value
             sharedPref().resetValues(),
+            //firebase signout which should auto redirect to LoginPage()
             context.read<AuthenticationService>().signOut(),
           }
       },

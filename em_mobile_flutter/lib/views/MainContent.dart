@@ -153,7 +153,7 @@ class MainContent extends StatelessWidget {
     ]);
   }
 }
-
+//required for proper collapsing behavior- mando
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
     @required this.minHeight,
