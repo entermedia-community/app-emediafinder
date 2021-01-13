@@ -41,35 +41,13 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             width: 250,
             child: TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: "E- mail",
-              ),
-            ),
-          ),
-          RaisedButton(
-            onPressed: () async {
-              String email = emailController.text.trim();
-              //Get User info from entermedia website
-              EM.emEmailKey(email);
-            },
-            child: Text("E-mail Key"),
-          ),
-          SizedBox(
-            height: 66,
-            child: Center(
-                child: Text(
-              " ",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
-            )),
-          ),
-          Container(
-            width: 250,
-            child: TextField(
+              autofocus: true,
+              cursorColor: Color(0xff61af56),
               controller: entermediakeyController,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: "Entermediakey",
+                labelText: "EnterMedia Key",
+                  focusColor: Color(0xff61af56)
               ),
             ),
           ),
@@ -99,7 +77,58 @@ class _LoginPageState extends State<LoginPage> {
                   email: myUser.email, password: myUser.firebasepassword);
             },
             child: Text("Sign In With Key"),
-          )
+          ),
+          FlatButton(
+              child: Text('E-Mail Me a Key?',
+                  style: new TextStyle(
+                      fontSize: 15.0, fontWeight: FontWeight.w300,color: Color(0xff61af56))),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40)),
+                          elevation: 16,
+                          child: Container(
+                            height: 200.0,
+                            width: 600.0,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10,50,10,0),
+                              child: Column(
+                                children: [
+                                  TextField(
+                                    controller: emailController,
+                                    decoration: InputDecoration(
+                                      labelText: "E- mail",
+                                    ),
+                                  ),
+                                   RaisedButton(
+                                    onPressed: () async {
+                                      String email = emailController.text.trim();
+                                      //Get User info from entermedia website
+                                      EM.emEmailKey(email);
+                                      Navigator.of(context).pop();
+
+                                    },
+                                    child: Text("E-mail Key"),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          ));
+                    });
+              }),
+
+          SizedBox(
+            height: 66,
+            child: Center(
+                child: Text(
+              " ",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+            )),
+          ),
         ],
       )),
     );
