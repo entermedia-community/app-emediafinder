@@ -39,7 +39,7 @@ class WorkspaceSelect extends StatelessWidget {
                     myWorkspaces2.colId[i],
                     context),
                 //amount of rows
-                childCount: 20,
+                childCount: myWorkspaces2.colId.length,
               )),
             ]);
           } else {
