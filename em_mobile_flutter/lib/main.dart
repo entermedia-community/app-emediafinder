@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:em_mobile_flutter/services/deeplinks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,7 +15,6 @@ import 'services/authentication.dart';
 import 'services/entermedia.dart';
 import 'views/WorkspaceSelect.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //a way to set the glue between the widgets and the Flutter engine before it has been done itself. This happens automatically a bit after the main method is called.
@@ -24,8 +26,32 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   // This widget is the root of the application.
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  Timer _timerLink;
+
+  @override
+  void initState() {
+    super.initState();
+    DeepLinks.instance.handleDynamicLinks();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("didChangeAppLifecycleState");
+    if (state == AppLifecycleState.resumed) {
+      _timerLink = new Timer(const Duration(milliseconds: 1000), () {
+        DeepLinks.instance.handleDynamicLinks();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // todo; <--- this just highlights in the IDE what is typed after. Follow the trail to see a complete setup and usage.
@@ -40,40 +66,34 @@ class MyApp extends StatelessWidget {
       providers: [
         // todo; Creating an instance of the global class that will store our users information (see userData.dart in lib/models) after logging in.
         ChangeNotifierProvider<userData>(create: (context) => userData()),
-        ChangeNotifierProvider<userWorkspaces>(
-            create: (context) => userWorkspaces()),
-        ChangeNotifierProvider<workspaceAssets>(
-            create: (context) => workspaceAssets()),
+        ChangeNotifierProvider<userWorkspaces>(create: (context) => userWorkspaces()),
+        ChangeNotifierProvider<workspaceAssets>(create: (context) => workspaceAssets()),
         Provider<EnterMedia>(create: (context) => EnterMedia()),
         Provider<sharedPref>(create: (context) => sharedPref()),
         Provider<AuthenticationService>(
           create: (_) => AuthenticationService(FirebaseAuth.instance),
         ),
         StreamProvider(
-          create: (context) =>
-              context.read<AuthenticationService>().authStateChanges,
+          create: (context) => context.read<AuthenticationService>().authStateChanges,
         ),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'EntermediaDB Demo',
-        //Entermedia Theme Colors
-        theme: ThemeData(
-          primaryColor: Color(0xff0c223a),
-          accentColor: Color(0xff61af56),
-          backgroundColor: Colors.white38,
-          //Text Colors
-          textTheme: TextTheme(
-              bodyText1: TextStyle(color: Colors.white),
-              bodyText2: TextStyle(color: Color(0xff92e184))),
-          //Button Colors
-          buttonTheme: ButtonThemeData(
-            buttonColor: Color(0xff61af56),
+          debugShowCheckedModeBanner: false,
+          title: 'EntermediaDB Demo',
+          //Entermedia Theme Colors
+          theme: ThemeData(
+            primaryColor: Color(0xff0c223a),
+            accentColor: Color(0xff61af56),
+            backgroundColor: Colors.white38,
+            //Text Colors
+            textTheme: TextTheme(bodyText1: TextStyle(color: Colors.white), bodyText2: TextStyle(color: Color(0xff92e184))),
+            //Button Colors
+            buttonTheme: ButtonThemeData(
+              buttonColor: Color(0xff61af56),
+            ),
+            visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: AuthenticationWrapper()
-      ),
+          home: AuthenticationWrapper()),
     );
   }
 }
@@ -85,15 +105,12 @@ class AuthenticationWrapper extends StatefulWidget {
 }
 
 class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
-
-
   Widget build(BuildContext context) {
     final firebaseUser = context.watch<User>();
 
     if (firebaseUser == null) {
       return LoginPage();
     } else {
-
       //Attempt relogin with current stored shared preferences key.
       reLoginUser(context);
 
@@ -107,22 +124,14 @@ reLoginUser(BuildContext context) async {
   final myUser = Provider.of<userData>(context);
   String emkey = await sharedPref().getEMKey();
 
-
   print('Trying to relogin');
 
   if (emkey != null && myUser.entermediakey == null) {
-
     final userInfo = await EM.emAutoLoginWithKey(emkey);
     print('RELOGGING IN WITH STORED KEY');
     print(emkey);
 
-    myUser.addUser(
-        userInfo.results.userid,
-        userInfo.results.screenname,
-        userInfo.results.entermediakey,
-        userInfo.results.firstname,
-        userInfo.results.lastname,
-        userInfo.results.email,
-        userInfo.results.firebasepassword);
+    myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
+        userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
   }
 }
