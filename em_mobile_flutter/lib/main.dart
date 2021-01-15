@@ -32,26 +32,7 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  Timer _timerLink;
-
-  @override
-  void initState() {
-    super.initState();
-    DeepLinks.instance.handleDynamicLinks();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("didChangeAppLifecycleState");
-    if (state == AppLifecycleState.resumed) {
-      _timerLink = new Timer(const Duration(milliseconds: 1000), () {
-        DeepLinks.instance.handleDynamicLinks();
-      });
-    }
-  }
-
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     // todo; <--- this just highlights in the IDE what is typed after. Follow the trail to see a complete setup and usage.
