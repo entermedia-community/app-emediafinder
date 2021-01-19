@@ -5,6 +5,7 @@ import 'dart:convert';
 class EnterMedia {
   final String EM = 'https://entermediadb.org/entermediadb/app';
   final String MEDIADB = 'https://entermediadb.org/entermediadb/mediadb';
+  final String EMFinder = 'https://emediafinder.com/entermediadb/mediadb';
 //  final String MEDIADB = 'http://cburkey.entermediadb.org:8080/entermediadb/mediadb';
   var client = http.Client();
   var emUser;
