@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                                    RaisedButton(
                                     onPressed: () async {
                                       String email = emailController.text.trim();
-                                      //Get User info from entermedia website
+                                      //Send email entermedia website and send key in email if email exists.
                                       EM.emEmailKey(email);
                                       Navigator.of(context).pop();
 
