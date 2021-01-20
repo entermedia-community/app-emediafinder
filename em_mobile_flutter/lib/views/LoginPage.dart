@@ -5,48 +5,33 @@ import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
-import 'package:em_mobile_flutter/services/deeplinks.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
+import 'package:uni_links/uni_links.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
 
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController entermediakeyController = TextEditingController();
-  Timer _timerLink;
+
+  Uri _initialUri;
+  Uri _newUri;
+
+  StreamSubscription _stream;
 
   @override
   void initState() {
     super.initState();
-    DeepLinks.instance.handleDynamicLinks(context);
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("didChangeAppLifecycleState");
-    if (state == AppLifecycleState.resumed) {
-      _timerLink = new Timer(const Duration(milliseconds: 1000), () {
-        DeepLinks.instance.handleDynamicLinks(context);
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    if (_timerLink != null) {
-      _timerLink.cancel();
-    }
-    super.dispose();
+    initPlatformState();
   }
 
   @override
@@ -149,5 +134,41 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
     //Firebase Authentication sign in.
     context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword);
+  }
+
+  Future<void> initPlatformState() async {
+    await initPlatformStateForUriUniLinks();
+  }
+
+  Future<void> initPlatformStateForUriUniLinks() async {
+    _stream = getUriLinksStream().listen((Uri uri) {
+      if (!mounted) return;
+      if (_initialUri != null) {
+        onSignInWithKey(_initialUri?.queryParameters['entermedia.key']);
+      }
+      _newUri = uri;
+    }, onError: (Object err) {
+      if (!mounted) return;
+
+      _newUri = null;
+    });
+
+    getUriLinksStream().listen((Uri uri) {
+      print('got uri: ${uri?.path} ${uri?.queryParametersAll}');
+    }, onError: (Object err) {
+      print('got err: $err');
+    });
+
+    try {
+      _initialUri = await getInitialUri();
+      if (_initialUri != null) {
+        onSignInWithKey(_initialUri?.queryParameters['entermedia.key']);
+      }
+    } on PlatformException {
+      _initialUri = null;
+    }
+    if (!mounted) return;
+
+    _newUri = _initialUri;
   }
 }

@@ -45,8 +45,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:host="entermedia.page.link"
-                    android:pathPrefix="/"
+                    android:host="emediafinder.com"
+                    android:pathPrefix="/entermediadb/mediadb/workspaces/"
                     android:scheme="https" />
             </intent-filter>
         </activity>
