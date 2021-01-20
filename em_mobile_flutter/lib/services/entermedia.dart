@@ -98,7 +98,7 @@ class EnterMedia {
 //Entermedia Login with key pasted in
   Future<EmUser> emLoginWithKey(String entermediakey) async {
     final resMap = await postEntermedia(
-        MEDIADB + '/services/authentication/firebaselogin.json',
+        EMFinder + '/services/authentication/firebaselogin.json',
         {"entermediakey": entermediakey});
 
     print("Logging in with key...");
@@ -117,7 +117,7 @@ class EnterMedia {
   Future<EmUser> emAutoLoginWithKey(emkey) async {
 
     final resMap = await postEntermedia(
-        MEDIADB + '/services/authentication/firebaselogin.json',
+        EMFinder + '/services/authentication/firebaselogin.json',
         {"entermediakey": emkey});
 
     print("Logging in with key...");
@@ -135,7 +135,7 @@ class EnterMedia {
   //Entermedia Login with key pasted in
   Future<bool>emEmailKey(String email) async {
     final resMap = await postEntermedia(
-        MEDIADB + '/services/authentication/sendmagiclink.json',
+        EMFinder + '/services/authentication/sendmagiclink.json',
         {"to": email});
 
     print("Sending email...");
@@ -155,7 +155,7 @@ class EnterMedia {
 
 
     final resMap = await postEntermedia(
-      MEDIADB + '/services/module/librarycollection/viewprojects.json',
+      EMFinder + '/services/module/librarycollection/viewprojects.json',
       {},
     );
     print("Fetching workspaces...");
