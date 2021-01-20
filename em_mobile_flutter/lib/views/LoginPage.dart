@@ -121,8 +121,8 @@ class _LoginPageState extends State<LoginPage> {
 
   void onSignInWithKey(String entermediakey) async {
     print("called");
-    final myUser = Provider.of<userData>(context);
-    final EM = Provider.of<EnterMedia>(context);
+    final myUser = Provider.of<userData>(context, listen: false);
+    final EM = Provider.of<EnterMedia>(context, listen: false);
     //store the entermediakey from this login screent to local storage.
     await sharedPref().saveEMKey(entermediakey);
     print(sharedPref().getEMKey());
@@ -142,18 +142,17 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> initPlatformStateForUriUniLinks() async {
     _stream = getUriLinksStream().listen((Uri uri) {
-      if (!mounted) return;
       if (_initialUri != null) {
         onSignInWithKey(_initialUri?.queryParameters['entermedia.key']);
       }
       _newUri = uri;
     }, onError: (Object err) {
-      if (!mounted) return;
-
       _newUri = null;
     });
 
-    getUriLinksStream().listen((Uri uri) {
+    getUriLinksStream().listen((Uri uri) { if (uri != null) {
+      onSignInWithKey(uri?.queryParameters['entermedia.key']);
+    }
       print('got uri: ${uri?.path} ${uri?.queryParametersAll}');
     }, onError: (Object err) {
       print('got err: $err');
@@ -167,7 +166,6 @@ class _LoginPageState extends State<LoginPage> {
     } on PlatformException {
       _initialUri = null;
     }
-    if (!mounted) return;
 
     _newUri = _initialUri;
   }
