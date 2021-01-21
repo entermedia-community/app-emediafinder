@@ -26,10 +26,14 @@ class MainContent extends StatelessWidget {
         title: SizedBox(
           height: 80,
           child: SearchBar(
-            icon: Icon(Icons.search_rounded,
-            color: Color(0xff92e184),),
+              icon: Icon(
+                Icons.search_rounded,
+                color: Color(0xff92e184),
+              ),
               hintText: "Search your media...",
-              hintStyle: TextStyle(color: Colors.deepOrangeAccent,),
+              hintStyle: TextStyle(
+                color: Colors.deepOrangeAccent,
+              ),
               minimumChars: 2,
               searchBarStyle: SearchBarStyle(
                 backgroundColor: Color(0xff384964),
@@ -53,9 +57,7 @@ class MainContent extends StatelessWidget {
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Media (' +
-                        hitTracker.imageUrls.length.toString() +
-                        ')'),
+                    Text('Media (' + hitTracker.imageUrls.length.toString() + ')'),
                     IconButton(
                         icon: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -90,9 +92,7 @@ class MainContent extends StatelessWidget {
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Projects (' +
-                        hitTracker.workspaceProjects.length.toString() +
-                        ')'),
+                    Text('Projects (' + hitTracker.workspaceProjects.length.toString() + ')'),
                     IconButton(
                         icon: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -107,13 +107,9 @@ class MainContent extends StatelessWidget {
           delegate: SliverChildBuilderDelegate(
         //just an example will build from api call
         (ctx, i) => emWorkspaceRow(
-            'assets/EM Logo Basic.jpg',
-            hitTracker.workspaceProjects[i],
-            myWorkspaces.instUrl[i],
-            myWorkspaces.colId[i],
-            context),
+            'assets/EM Logo Basic.jpg', hitTracker.workspaceProjects[i] ?? "", myWorkspaces.instUrl[i] ?? "", myWorkspaces.colId[i], context),
         //amount of rows
-        childCount: 3,
+        childCount: myWorkspaces.colId.length,
       )),
       SliverPersistentHeader(
           pinned: true,
@@ -123,36 +119,29 @@ class MainContent extends StatelessWidget {
             child: Container(
                 color: Color(0xff384964),
                 child: Center(
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                      Text('Events (' +
-                          hitTracker.workspaceEvents.length.toString() +
-                          ')'),
-                      IconButton(
-                          icon: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 19,
-                            color: Colors.deepOrangeAccent,
-                          ),
-                          onPressed: null)
-                    ]))),
+                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text('Events (' + hitTracker.workspaceEvents.length.toString() + ')'),
+                  IconButton(
+                      icon: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 19,
+                        color: Colors.deepOrangeAccent,
+                      ),
+                      onPressed: null)
+                ]))),
           )),
       SliverList(
           delegate: SliverChildBuilderDelegate(
         //just an example will build from api call
         (ctx, i) => emWorkspaceRow(
-            'assets/EM Logo Basic.jpg',
-            hitTracker.workspaceEvents[i],
-            myWorkspaces.instUrl[i],
-            myWorkspaces.colId[i],
-            context),
+            'assets/EM Logo Basic.jpg', hitTracker.workspaceEvents[i] ?? "", myWorkspaces.instUrl[i] ?? "", myWorkspaces.colId[i], context),
         //amount of rows
-        childCount: 3,
+        childCount: myWorkspaces.colId.length,
       )),
     ]);
   }
 }
+
 //required for proper collapsing behavior- mando
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
@@ -169,15 +158,12 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   double get maxExtent => math.max(maxHeight, minHeight);
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return new SizedBox.expand(child: child);
   }
 
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }
