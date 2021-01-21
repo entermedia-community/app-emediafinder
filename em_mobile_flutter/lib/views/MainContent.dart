@@ -77,9 +77,9 @@ class MainContent extends StatelessWidget {
         //todo; This is where images are loaded
         delegate: SliverChildBuilderDelegate(
             (ctx, i) => Image.network(
-                  hitTracker.imageUrls[i],
+                  imagesUrls[i],
                 ),
-            childCount: hitTracker.imageUrls.length),
+            childCount: imagesUrls.length),
       ),
       SliverPersistentHeader(
           pinned: true,
