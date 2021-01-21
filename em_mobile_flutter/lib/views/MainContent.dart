@@ -54,7 +54,7 @@ class MainContent extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Media (' +
-                        hitTracker.imageUrls.length.toString() +
+//                        hitTracker.imageUrls.length.toString() +
                         ')'),
                     IconButton(
                         icon: Icon(
@@ -91,7 +91,7 @@ class MainContent extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Projects (' +
-                        hitTracker.workspaceProjects.length.toString() +
+//                        hitTracker.workspaceProjects.length.toString() +
                         ')'),
                     IconButton(
                         icon: Icon(
@@ -127,7 +127,7 @@ class MainContent extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                       Text('Events (' +
-                          hitTracker.workspaceEvents.length.toString() +
+//                          hitTracker.workspaceEvents.length.toString() +
                           ')'),
                       IconButton(
                           icon: Icon(
