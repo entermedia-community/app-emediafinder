@@ -109,8 +109,8 @@ class MainContent extends StatelessWidget {
         (ctx, i) => emWorkspaceRow(
             'assets/EM Logo Basic.jpg',
             hitTracker.workspaceProjects[i],
-            myWorkspaces.instUrl[i],
-            myWorkspaces.colId[i],
+            'test.com',
+            'testid123456789',
             context),
         //amount of rows
         childCount: 3,
@@ -144,8 +144,8 @@ class MainContent extends StatelessWidget {
         (ctx, i) => emWorkspaceRow(
             'assets/EM Logo Basic.jpg',
             hitTracker.workspaceEvents[i],
-            myWorkspaces.instUrl[i],
-            myWorkspaces.colId[i],
+            'test.com',
+            'testid123456789',
             context),
         //amount of rows
         childCount: 3,
