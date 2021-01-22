@@ -39,7 +39,7 @@ class MainContent extends StatelessWidget {
                 backgroundColor: Color(0xff384964),
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               ),
-              onSearch: null,
+              onSearch: filterSearchResults,
               onItemFound: null),
 //                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
         ),
@@ -77,9 +77,9 @@ class MainContent extends StatelessWidget {
         //todo; This is where images are loaded
         delegate: SliverChildBuilderDelegate(
             (ctx, i) => Image.network(
-                  imagesUrls[i],
+                  searchHelper.urls[i],
                 ),
-            childCount: imagesUrls.length),
+            childCount: searchHelper.urls.length),
       ),
       SliverPersistentHeader(
           pinned: true,
