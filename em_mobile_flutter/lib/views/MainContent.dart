@@ -25,23 +25,32 @@ class MainContent extends StatelessWidget {
         //appbar title & menu goes here
         title: SizedBox(
           height: 80,
-          child: SearchBar(
-              icon: Icon(
-                Icons.search_rounded,
-                color: Color(0xff92e184),
-              ),
-              hintText: "Search your media...",
-              hintStyle: TextStyle(
-                color: Colors.deepOrangeAccent,
-              ),
-              minimumChars: 2,
-              searchBarStyle: SearchBarStyle(
-                backgroundColor: Color(0xff384964),
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              ),
-              onSearch: filterSearchResults,
-              onItemFound: null),
-//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
+          child: /*TextFormField(
+            onChanged: (value) {
+              filterSearchResults(value);
+            },
+          )*/
+              SearchBar(
+                  icon: Icon(
+                    Icons.search_rounded,
+                    color: Color(0xff92e184),
+                  ),
+                  hintText: "Search your media...",
+                  hintStyle: TextStyle(
+                    color: Colors.deepOrangeAccent,
+                  ),
+                  minimumChars: 2,
+                  searchBarStyle: SearchBarStyle(
+                    backgroundColor: Color(0xff384964),
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  ),
+                  onSearch: (val) {
+                    // filterSearchResults(val);
+                    return null;
+                  },
+                  onItemFound: null),
+// IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),
+// IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
         ),
         pinned: true,
         expandedHeight: 55.0,
