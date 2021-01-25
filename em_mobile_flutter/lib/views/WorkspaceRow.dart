@@ -16,15 +16,13 @@ Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, St
           // Create an inner BuildContext so that the onPressed methods
           // can refer to the Scaffold with Scaffold.of(). CANNOT USE BuildContext from original scaffolding.-Mando
           child: Builder(builder: (BuildContext context) {
-            return emWorkspaceRow(
-                imageVal, workspaceName, instanceUrl, colId, context);
+            return emWorkspaceRow(imageVal, workspaceName, instanceUrl, colId, context);
           })),
     ),
   );
 }
 
-Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId,
-    BuildContext context) {
+Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId, BuildContext context) {
   return Column(
     children: [
       //Spacingggggggg for the rows.
@@ -42,7 +40,7 @@ Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 leftSide(imageVal, workspaceName),
-                rightSide(instanceUrl,colId, context),
+                rightSide(instanceUrl, colId, context),
               ],
             )
           ],
@@ -63,11 +61,7 @@ Widget leftSide(String imageVal, String workspaceName) {
       Container(
         child: Text(
           workspaceName,
-          style: TextStyle(
-              color: Color(0xff61af56),
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 16.0),
+          style: TextStyle(color: Color(0xff61af56), fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 16.0),
         ),
       ),
     ],
@@ -90,7 +84,6 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
             color: Color(0x8092e184),
           ),
           onPressed: () async {
-
             await EM.createTeamAccount(instanceUrl, myUser.entermediakey, colId);
 
             final Map searchedData = await EM.getWorkspaceAssets(instanceUrl);
@@ -102,12 +95,12 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
             //todo; Save this shit
             hitTracker.getAssetSampleUrls(instanceUrl);
 
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomeMenu()));
+            hitTracker.initializeFilters();
+
+            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
           },
         ),
       ),
     ],
   ));
 }
-

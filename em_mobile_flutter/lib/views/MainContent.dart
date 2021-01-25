@@ -19,54 +19,117 @@ class MainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
+    Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
 
-    return CustomScrollView(slivers: <Widget>[
-      SliverAppBar(
-        //appbar title & menu goes here
-        title: SizedBox(
-          height: 80,
-          child: /*TextFormField(
-            onChanged: (value) {
-              filterSearchResults(value);
-            },
-          )*/
-              SearchBar(
-                  icon: Icon(
-                    Icons.search_rounded,
-                    color: Color(0xff92e184),
-                  ),
-                  hintText: "Search your media...",
-                  hintStyle: TextStyle(
-                    color: Colors.deepOrangeAccent,
-                  ),
-                  minimumChars: 2,
-                  searchBarStyle: SearchBarStyle(
-                    backgroundColor: Color(0xff384964),
-                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  ),
-                  onSearch: (val) {
-                    // filterSearchResults(val);
-                    return null;
-                  },
-                  onItemFound: null),
-// IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),
-// IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
-        ),
-        pinned: true,
-        expandedHeight: 55.0,
-      ),
-      SliverPersistentHeader(
+    return Consumer<workspaceAssets>(builder: (context, assets, child) {
+      return CustomScrollView(slivers: <Widget>[
+        SliverAppBar(
+          //appbar title & menu goes here
+          title: SizedBox(
+            height: 80,
+            child: SearchBar(
+              icon: Icon(
+                Icons.search_rounded,
+                color: Color(0xff92e184),
+              ),
+              hintText: "Search your media...",
+              hintStyle: TextStyle(
+                color: Colors.deepOrangeAccent,
+              ),
+              minimumChars: 0,
+              onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
+              searchBarStyle: SearchBarStyle(
+                backgroundColor: Color(0xff384964),
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              ),
+              onSearch: (val) => Provider.of<workspaceAssets>(context, listen: false).filterResult(val),
+              onItemFound: null,
+            ),
+//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
+          ),
           pinned: true,
-          delegate: _SliverAppBarDelegate(
-            minHeight: 33,
-            maxHeight: 33,
-            child: Container(
-                color: Color(0xff384964),
-                child: Center(
-                    child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Media (' + hitTracker.imageUrls.length.toString() + ')'),
+          expandedHeight: 55.0,
+        ),
+        SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverAppBarDelegate(
+              minHeight: 33,
+              maxHeight: 33,
+              child: Container(
+                  color: Color(0xff384964),
+                  child: Center(
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Media (' + hitTracker.imageUrls.length.toString() + ')'),
+                      IconButton(
+                          icon: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 19,
+                            color: Colors.deepOrangeAccent,
+                          ),
+                          onPressed: null)
+                    ],
+                  ))),
+            )),
+        SliverGrid(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisSpacing: 1,
+            mainAxisSpacing: 1,
+            crossAxisCount: 3,
+          ),
+          //todo; This is where images are loaded
+          delegate: SliverChildBuilderDelegate(
+              (ctx, i) => Image.network(
+                    assets.filterUrls[i],
+                  ),
+              childCount: assets.filterUrls.length),
+        ),
+        SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverAppBarDelegate(
+              minHeight: 33,
+              maxHeight: 33,
+              child: Container(
+                  color: Color(0xff384964),
+                  child: Center(
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Projects (' + hitTracker.workspaceProjects.length.toString() + ')'),
+                      IconButton(
+                          icon: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 19,
+                            color: Colors.deepOrangeAccent,
+                          ),
+                          onPressed: null)
+                    ],
+                  ))),
+            )),
+        SliverList(
+            delegate: SliverChildBuilderDelegate(
+          //just an example will build from api call
+          (ctx, i) => emWorkspaceRow(
+            'assets/EM Logo Basic.jpg',
+            assets.filterProjects[i],
+            i < myWorkspaces.instUrl.length ? myWorkspaces.instUrl[i] : "",
+            i < myWorkspaces.colId.length ? myWorkspaces.colId[i] : "",
+            context,
+          ),
+          //amount of rows
+          childCount: assets.filterProjects.length,
+        )),
+        SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverAppBarDelegate(
+              minHeight: 33,
+              maxHeight: 33,
+              child: Container(
+                  color: Color(0xff384964),
+                  child: Center(
+                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Text('Events (' + hitTracker.workspaceEvents.length.toString() + ')'),
                     IconButton(
                         icon: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -74,80 +137,23 @@ class MainContent extends StatelessWidget {
                           color: Colors.deepOrangeAccent,
                         ),
                         onPressed: null)
-                  ],
-                ))),
-          )),
-      SliverGrid(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisSpacing: 1,
-          mainAxisSpacing: 1,
-          crossAxisCount: 3,
-        ),
-        //todo; This is where images are loaded
-        delegate: SliverChildBuilderDelegate(
-            (ctx, i) => Image.network(
-                  searchHelper.urls[i],
-                ),
-            childCount: searchHelper.urls.length),
-      ),
-      SliverPersistentHeader(
-          pinned: true,
-          delegate: _SliverAppBarDelegate(
-            minHeight: 33,
-            maxHeight: 33,
-            child: Container(
-                color: Color(0xff384964),
-                child: Center(
-                    child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Projects (' + hitTracker.workspaceProjects.length.toString() + ')'),
-                    IconButton(
-                        icon: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 19,
-                          color: Colors.deepOrangeAccent,
-                        ),
-                        onPressed: null)
-                  ],
-                ))),
-          )),
-      SliverList(
-          delegate: SliverChildBuilderDelegate(
-        //just an example will build from api call
-        (ctx, i) => emWorkspaceRow(
-            'assets/EM Logo Basic.jpg', hitTracker.workspaceProjects[i] ?? "", myWorkspaces.instUrl[i] ?? "", myWorkspaces.colId[i], context),
-        //amount of rows
-        childCount: myWorkspaces.colId.length,
-      )),
-      SliverPersistentHeader(
-          pinned: true,
-          delegate: _SliverAppBarDelegate(
-            minHeight: 33,
-            maxHeight: 33,
-            child: Container(
-                color: Color(0xff384964),
-                child: Center(
-                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text('Events (' + hitTracker.workspaceEvents.length.toString() + ')'),
-                  IconButton(
-                      icon: Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 19,
-                        color: Colors.deepOrangeAccent,
-                      ),
-                      onPressed: null)
-                ]))),
-          )),
-      SliverList(
-          delegate: SliverChildBuilderDelegate(
-        //just an example will build from api call
-        (ctx, i) => emWorkspaceRow(
-            'assets/EM Logo Basic.jpg', hitTracker.workspaceEvents[i] ?? "", myWorkspaces.instUrl[i] ?? "", myWorkspaces.colId[i], context),
-        //amount of rows
-        childCount: myWorkspaces.colId.length,
-      )),
-    ]);
+                  ]))),
+            )),
+        SliverList(
+            delegate: SliverChildBuilderDelegate(
+          //just an example will build from api call
+          (ctx, i) => emWorkspaceRow(
+            'assets/EM Logo Basic.jpg',
+            assets.filterEvents[i],
+            i < myWorkspaces.instUrl.length ? myWorkspaces.instUrl[i] : "",
+            i < myWorkspaces.colId.length ? myWorkspaces.colId[i] : "",
+            context,
+          ),
+          //amount of rows
+          childCount: assets.filterEvents.length,
+        )),
+      ]);
+    });
   }
 }
 
