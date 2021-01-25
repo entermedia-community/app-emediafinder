@@ -186,6 +186,33 @@ class EnterMedia {
     }
   }
 
+  Future<Map> searchWorkspaceAssets(String url,String searchtext) async {
+
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/module/modulesearch/sample.json',
+      {
+        "query": {
+          "terms": [
+            {
+              "field": "description",
+              "operation": "freeform",
+              "value": searchtext
+            }
+          ]
+        }
+      },
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
+    if (resMap != null) {
+      print(resMap);
+
+      return resMap;
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
   Future<Map> createTeamAccount(String url, String entermediakey, String colId) async {
 
     final resMap = await postFinder(
