@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class sharedPref {
-
   saveEMKey(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('entermediakey', key);
@@ -26,16 +25,16 @@ class sharedPref {
     return stringValue;
   }
 
-  saveRecentWorkspace(String colId) async {
+  saveRecentWorkspace(int colId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('recent', colId);
+    prefs.setInt('recent', colId);
   }
 
   getRecentWorkspace() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //Return String
-    String stringValue = prefs.getString('recent');
-    return stringValue;
+    //Return index of workspace
+    int intValue = prefs.getInt('recent');
+    return intValue;
   }
 
   //todo; EX:Handle null int intValue= await prefs.getInt('intValue') ?? 0;
@@ -51,8 +50,5 @@ class sharedPref {
     prefs.remove("workspacekey");
     //Remove most recent workspace ID
     prefs.remove("recent");
-
   }
-
-
 }

@@ -11,19 +11,15 @@ class EnterMedia {
   var emUser;
   var tempKey;
 
-
-
   //Generic post method to entermedias server
   Future<Map> postEntermedia(String url, Map jsonBody) async {
     //Set headers
-    var headers = <String,String>{};
+    Map<String, String> headers = <String, String>{};
+    headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
       print("Setting Headers.");
       // todo: Important must specify types! Dart defaults to dynamic and http.post requires definitive types. - mando
-      headers = <String,String>{
-        "X-token": emUser.results.entermediakey,
-        "X-tokentype": "entermedia"
-      };
+      headers.addAll({"X-token": emUser.results.entermediakey});
     }
 
     //make API post
@@ -45,17 +41,15 @@ class EnterMedia {
       return null;
     }
   }
+
 //Generic post to client specific 'EMFinder' server.
   Future<Map> postFinder(String url, Map jsonBody) async {
     //Set headers
-    var headers = <String,String>{};
+    var headers = <String, String>{};
     if (emUser != null) {
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
-      headers = <String,String>{
-        "X-token": tempKey,
-        "X-tokentype": "entermedia"
-      };
+      headers = <String, String>{"X-token": tempKey, "X-tokentype": "entermedia"};
     }
 
     //make API post
@@ -80,14 +74,11 @@ class EnterMedia {
 
   //This gets the Entermedia user information called when logging in. - Mando Oct 14th 2020
   Future<EmUser> emLogin(String email, String password) async {
-    final resMap = await postEntermedia(
-        MEDIADB + '/services/authentication/firebaselogin.json',
-        {"email": email, "password": password});
+    final resMap = await postEntermedia(MEDIADB + '/services/authentication/firebaselogin.json', {"email": email, "password": password});
 
     print("Logging in");
 
     if (resMap != null) {
-
       //save local emUser from response object
       emUser = emUserFromJson(json.encode(resMap));
       return emUser;
@@ -95,16 +86,14 @@ class EnterMedia {
       return null;
     }
   }
+
 //Entermedia Login with key pasted in
   Future<EmUser> emLoginWithKey(String entermediakey) async {
-    final resMap = await postEntermedia(
-        EMFinder + '/services/authentication/firebaselogin.json',
-        {"entermediakey": entermediakey});
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermediakey": entermediakey});
 
     print("Logging in with key...");
 
     if (resMap != null) {
-
       //save local emUser from response object
       emUser = emUserFromJson(json.encode(resMap));
       return emUser;
@@ -115,15 +104,11 @@ class EnterMedia {
 
   //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(emkey) async {
-
-    final resMap = await postEntermedia(
-        EMFinder + '/services/authentication/firebaselogin.json',
-        {"entermediakey": emkey});
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermediakey": emkey});
 
     print("Logging in with key...");
 
     if (resMap != null) {
-
       //save local emUser from response object
       emUser = emUserFromJson(json.encode(resMap));
       return emUser;
@@ -133,10 +118,8 @@ class EnterMedia {
   }
 
   //Entermedia Login with key pasted in
-  Future<bool>emEmailKey(String email) async {
-    final resMap = await postEntermedia(
-        EMFinder + '/services/authentication/sendmagiclink.json',
-        {"to": email});
+  Future<bool> emEmailKey(String email) async {
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email});
 
     print("Sending email...");
 
@@ -152,8 +135,6 @@ class EnterMedia {
 
 //This function retrieves list of workspaces the user is apart of. - Mando Oct 23rd
   Future<List> getEMWorkspaces() async {
-
-
     final resMap = await postEntermedia(
       EMFinder + '/services/module/librarycollection/viewprojects.json',
       {},
@@ -190,10 +171,9 @@ class EnterMedia {
   }
 
   Future<Map> getWorkspaceAssets(String url) async {
-
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
-      {},
+      null,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {
@@ -206,18 +186,13 @@ class EnterMedia {
     }
   }
 
-  Future<Map> searchWorkspaceAssets(String url,String searchtext) async {
-
+  Future<Map> searchWorkspaceAssets(String url, String searchtext) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
       {
         "query": {
           "terms": [
-            {
-              "field": "description",
-              "operation": "freeform",
-              "value": searchtext
-            }
+            {"field": "description", "operation": "freeform", "value": searchtext}
           ]
         }
       },
@@ -234,17 +209,11 @@ class EnterMedia {
   }
 
   Future<Map> createTeamAccount(String url, String entermediakey, String colId) async {
-
     final resMap = await postFinder(
       url + '/finder/mediadb/services/authentication/createteamaccount.json',
-      {
-        "entermediacloudkey": entermediakey,
-        "collectionid": colId
-
-      },
+      {"entermediacloudkey": entermediakey, "collectionid": colId},
     );
     if (resMap != null) {
-
       print(resMap);
 
       print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
@@ -253,7 +222,7 @@ class EnterMedia {
 
       return resMap;
     } else {
-      print("Request failed!" );
+      print("Request failed!");
       return null;
     }
   }
