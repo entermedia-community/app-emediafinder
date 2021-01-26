@@ -3,6 +3,7 @@ import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -25,7 +26,7 @@ class MainContent extends StatelessWidget {
       return CustomScrollView(slivers: <Widget>[
         SliverAppBar(
           //appbar title & menu goes here
-          title: SizedBox(
+          title: Container(
             height: 80,
             child: SearchBar(
               icon: Icon(
@@ -40,7 +41,7 @@ class MainContent extends StatelessWidget {
               onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
               searchBarStyle: SearchBarStyle(
                 backgroundColor: Color(0xff384964),
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               ),
               onSearch: (val) => Provider.of<workspaceAssets>(context, listen: false).filterResult(val),
               onItemFound: null,
@@ -61,7 +62,7 @@ class MainContent extends StatelessWidget {
                       child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Media (' + hitTracker.imageUrls.length.toString() + ')'),
+                      Text('Media (' + assets.filterUrls.length.toString() + ')'),
                       IconButton(
                           icon: Icon(
                             Icons.arrow_forward_ios_rounded,
@@ -96,7 +97,7 @@ class MainContent extends StatelessWidget {
                       child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Projects (' + hitTracker.workspaceProjects.length.toString() + ')'),
+                      Text('Projects (' + assets.filterProjects.length.toString() + ')'),
                       IconButton(
                           icon: Icon(
                             Icons.arrow_forward_ios_rounded,
@@ -116,6 +117,7 @@ class MainContent extends StatelessWidget {
             i < myWorkspaces.instUrl.length ? myWorkspaces.instUrl[i] : "",
             i < myWorkspaces.colId.length ? myWorkspaces.colId[i] : "",
             context,
+            null,
           ),
           //amount of rows
           childCount: assets.filterProjects.length,
@@ -129,7 +131,7 @@ class MainContent extends StatelessWidget {
                   color: Color(0xff384964),
                   child: Center(
                       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text('Events (' + hitTracker.workspaceEvents.length.toString() + ')'),
+                    Text('Events (' + assets.filterEvents.length.toString() + ')'),
                     IconButton(
                         icon: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -148,6 +150,7 @@ class MainContent extends StatelessWidget {
             i < myWorkspaces.instUrl.length ? myWorkspaces.instUrl[i] : "",
             i < myWorkspaces.colId.length ? myWorkspaces.colId[i] : "",
             context,
+            null,
           ),
           //amount of rows
           childCount: assets.filterEvents.length,

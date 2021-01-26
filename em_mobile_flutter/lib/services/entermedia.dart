@@ -153,7 +153,7 @@ class EnterMedia {
   Future<Map> getWorkspaceAssets(String url) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
-      {},
+      null,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {

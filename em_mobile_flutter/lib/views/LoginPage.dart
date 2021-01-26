@@ -38,83 +38,96 @@ class _LoginPageState extends State<LoginPage> {
     final myUser = Provider.of<userData>(context);
     final EM = Provider.of<EnterMedia>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: emLogoIcon(),
-        centerTitle: true,
-      ),
+    return WillPopScope(
+      onWillPop: () {
+        print("Disabled back button");
+        return null;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: emLogoIcon(),
+          centerTitle: true,
+        ),
 //      backgroundColor: Colors.white38,
-      body: Container(
-          //padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 130.0),
-          //margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 130.0),
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          //Text("Login:", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36.0, color: Colors.indigo)),
-          Container(
-            width: 250,
-            child: TextField(
-              autofocus: true,
-              cursorColor: Color(0xff61af56),
-              controller: entermediakeyController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: "EnterMedia Key", focusColor: Color(0xff61af56)),
-            ),
-          ),
-          RaisedButton(
-            onPressed: () async {
-              onSignInWithKey(entermediakeyController.text.trim());
-            },
-            child: Text("Sign In With Key"),
-          ),
-          FlatButton(
-              child: Text('E-Mail Me a Key?', style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300, color: Color(0xff61af56))),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Dialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                          elevation: 16,
-                          child: Container(
-                            height: 200.0,
-                            width: 600.0,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 50, 10, 0),
-                              child: Column(
-                                children: [
-                                  TextField(
-                                    controller: emailController,
-                                    decoration: InputDecoration(
-                                      labelText: "E- mail",
-                                    ),
+        body: InkWell(
+          onTap: () => FocusScope.of(context).unfocus(),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+              //padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 130.0),
+              //margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 130.0),
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              //Text("Login:", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36.0, color: Colors.indigo)),
+              Container(
+                width: 250,
+                child: TextField(
+                  autofocus: true,
+                  cursorColor: Color(0xff61af56),
+                  controller: entermediakeyController,
+                  obscureText: true,
+                  decoration: InputDecoration(labelText: "EnterMedia Key", focusColor: Color(0xff61af56)),
+                ),
+              ),
+              SizedBox(height: 15),
+              RaisedButton(
+                onPressed: () async {
+                  onSignInWithKey(entermediakeyController.text.trim());
+                },
+                child: Text("Sign In With Key"),
+              ),
+              FlatButton(
+                  child: Text('E-Mail Me a Key?', style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300, color: Color(0xff61af56))),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              elevation: 16,
+                              child: Container(
+                                height: 200.0,
+                                width: 600.0,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(15, 50, 15, 0),
+                                  child: Column(
+                                    children: [
+                                      TextField(
+                                        controller: emailController,
+                                        decoration: InputDecoration(
+                                          labelText: "E- mail",
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      RaisedButton(
+                                        onPressed: () async {
+                                          String email = emailController.text.trim();
+                                          //Send email entermedia website and send key in email if email exists.
+                                          EM.emEmailKey(email);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("E-mail Key"),
+                                      ),
+                                    ],
                                   ),
-                                  RaisedButton(
-                                    onPressed: () async {
-                                      String email = emailController.text.trim();
-                                      //Send email entermedia website and send key in email if email exists.
-                                      EM.emEmailKey(email);
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text("E-mail Key"),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ));
-                    });
-              }),
+                                ),
+                              ));
+                        });
+                  }),
 
-          SizedBox(
-            height: 66,
-            child: Center(
-                child: Text(
-              " ",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
-            )),
-          ),
-        ],
-      )),
+              SizedBox(
+                height: 66,
+                child: Center(
+                    child: Text(
+                  " ",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+                )),
+              ),
+            ],
+          )),
+        ),
+      ),
     );
   }
 

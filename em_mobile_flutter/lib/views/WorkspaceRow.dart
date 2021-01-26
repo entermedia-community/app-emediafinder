@@ -1,11 +1,12 @@
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, String colId) {
+/*Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, String colId) {
   return Padding(
     padding: const EdgeInsets.all(8),
     child: Material(
@@ -20,9 +21,9 @@ Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, St
           })),
     ),
   );
-}
+}*/
 
-Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId, BuildContext context) {
+Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId, BuildContext context, int index) {
   return Column(
     children: [
       //Spacingggggggg for the rows.
@@ -40,7 +41,7 @@ Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 leftSide(imageVal, workspaceName),
-                rightSide(instanceUrl, colId, context),
+                rightSide(instanceUrl, colId, context, index),
               ],
             )
           ],
@@ -68,7 +69,7 @@ Widget leftSide(String imageVal, String workspaceName) {
   ));
 }
 
-Widget rightSide(String instanceUrl, String colId, BuildContext context) {
+Widget rightSide(String instanceUrl, String colId, BuildContext context, int index) {
   //Instantiate global instances of Entermedia and hitTracker
   final EM = Provider.of<EnterMedia>(context, listen: false);
   final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
@@ -96,6 +97,9 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
             hitTracker.getAssetSampleUrls(instanceUrl);
 
             hitTracker.initializeFilters();
+            if (index != null) {
+              sharedPref().saveRecentWorkspace(index);
+            }
 
             Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
           },
