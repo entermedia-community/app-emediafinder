@@ -1,11 +1,12 @@
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, String colId) {
+/*Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, String colId) {
   return Padding(
     padding: const EdgeInsets.all(8),
     child: Material(
@@ -16,15 +17,13 @@ Widget emWorkspace(String imageVal, String workspaceName, String instanceUrl, St
           // Create an inner BuildContext so that the onPressed methods
           // can refer to the Scaffold with Scaffold.of(). CANNOT USE BuildContext from original scaffolding.-Mando
           child: Builder(builder: (BuildContext context) {
-            return emWorkspaceRow(
-                imageVal, workspaceName, instanceUrl, colId, context);
+            return emWorkspaceRow(imageVal, workspaceName, instanceUrl, colId, context);
           })),
     ),
   );
-}
+}*/
 
-Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId,
-    BuildContext context) {
+Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl, String colId, BuildContext context, int index) {
   return Column(
     children: [
       //Spacingggggggg for the rows.
@@ -42,7 +41,7 @@ Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 leftSide(imageVal, workspaceName),
-                rightSide(instanceUrl,colId, context),
+                rightSide(instanceUrl, colId, context, index),
               ],
             )
           ],
@@ -63,18 +62,14 @@ Widget leftSide(String imageVal, String workspaceName) {
       Container(
         child: Text(
           workspaceName,
-          style: TextStyle(
-              color: Color(0xff61af56),
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 16.0),
+          style: TextStyle(color: Color(0xff61af56), fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 16.0),
         ),
       ),
     ],
   ));
 }
 
-Widget rightSide(String instanceUrl, String colId, BuildContext context) {
+Widget rightSide(String instanceUrl, String colId, BuildContext context, int index) {
   //Instantiate global instances of Entermedia and hitTracker
   final EM = Provider.of<EnterMedia>(context, listen: false);
   final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
@@ -90,7 +85,6 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
             color: Color(0x8092e184),
           ),
           onPressed: () async {
-
             await EM.createTeamAccount(instanceUrl, myUser.entermediakey, colId);
 
             final Map searchedData = await EM.getWorkspaceAssets(instanceUrl);
@@ -102,12 +96,15 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context) {
             //todo; Save this shit
             hitTracker.getAssetSampleUrls(instanceUrl);
 
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomeMenu()));
+            hitTracker.initializeFilters();
+            if (index != null) {
+              sharedPref().saveRecentWorkspace(index);
+            }
+
+            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
           },
         ),
       ),
     ],
   ));
 }
-

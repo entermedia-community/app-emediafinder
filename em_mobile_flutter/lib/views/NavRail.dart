@@ -25,7 +25,9 @@ class _NavRailState extends State<NavRail> {
           label: Text('Account Options'),
         ),
         NavigationRailDestination(
-            icon: Icon(Icons.filter_alt_rounded), label: Text('Search')),
+          icon: Icon(Icons.filter_alt_rounded),
+          label: Text('Search'),
+        ),
 
         NavigationRailDestination(
           icon: Icon(Icons.account_tree_rounded),
@@ -40,7 +42,9 @@ class _NavRailState extends State<NavRail> {
           label: Text('Favorites'),
         ),
         NavigationRailDestination(
-            icon: Icon(Icons.photo_library_outlined), label: Text('Albums')),
+          icon: Icon(Icons.photo_library_outlined),
+          label: Text('Albums'),
+        ),
 //        NavigationRailDestination(
 //            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
@@ -57,7 +61,6 @@ class _NavRailState extends State<NavRail> {
           _selectedIndex = index;
           print("NavRail index is: ");
           print(_selectedIndex);
-
         });
       },
     );

@@ -1,5 +1,6 @@
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
+import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _emLogoIconState extends State<emLogoIcon> {
             sharedPref().resetValues(),
             //firebase signout which should auto redirect to LoginPage()
             context.read<AuthenticationService>().signOut(),
+            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
           }
       },
     );

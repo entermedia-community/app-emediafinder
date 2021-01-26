@@ -11,6 +11,9 @@ class workspaceAssets with ChangeNotifier {
   List workspacePeople;
   List workspaceProducts;
   List workspaceProjects;
+  List filterUrls;
+  List filterEvents;
+  List filterProjects;
 
   workspaceAssets({this.searchedhits});
 
@@ -30,7 +33,24 @@ class workspaceAssets with ChangeNotifier {
     return images;
   }
 
-//This organizes the response from /finder/mediadb/services/module/modulesearch/sample.json called in entermedia.dart ln 172
+  initializeFilters() {
+    filterUrls = imageUrls;
+    filterEvents = workspaceEvents;
+    filterProjects = workspaceProjects;
+  }
+
+  filterResult(String filterText) {
+    if (filterText.length <= 1) {
+      this.initializeFilters();
+    } else {
+      filterUrls = imageUrls.where((element) => element.toString().toLowerCase().contains(filterText.toLowerCase())).toList();
+      filterEvents = workspaceEvents.where((element) => element.toString().toLowerCase().contains(filterText.toLowerCase())).toList();
+      filterProjects = workspaceProjects.where((element) => element.toString().toLowerCase().contains(filterText.toLowerCase())).toList();
+    }
+    notifyListeners();
+  }
+
+//This organizes the response from /finder/mediadb/services/module/modulesearch/sample.json called in entermedia.dart
   //Todo; Add 'if else' statements for all other datatypes
   organizeData() {
     var companies = <String>[];
@@ -43,7 +63,6 @@ class workspaceAssets with ChangeNotifier {
     for (final i in searchedhits["organizedhits"]) {
       //Find projects in response object
       if (i["id"] == "entityproject") {
-
         print("These are workspace PROJECTS");
         print(i["samples"]);
 
@@ -56,7 +75,6 @@ class workspaceAssets with ChangeNotifier {
 
         //Find events in response object
       } else if (i["id"] == "entityevent") {
-
         print("These are workspace EVENTS");
         print(i["samples"]);
 
@@ -65,9 +83,7 @@ class workspaceAssets with ChangeNotifier {
         }
 
         workspaceEvents = events;
-
       } else if (i["id"] == "entityproduct") {
-
         print("These are workspace PRODUCTS");
         print(i["samples"]);
 
@@ -76,9 +92,7 @@ class workspaceAssets with ChangeNotifier {
         }
 
         workspaceProducts = products;
-
       } else if (i["id"] == "entityperson") {
-
         print("These are workspace PEOPLE");
         print(i["samples"]);
 
@@ -87,9 +101,7 @@ class workspaceAssets with ChangeNotifier {
         }
 
         workspacePeople = people;
-
       } else if (i["id"] == "entitylocation") {
-
         print("These are workspace LOCATIONS");
         print(i["samples"]);
 
@@ -98,9 +110,7 @@ class workspaceAssets with ChangeNotifier {
         }
 
         workspaceLocations = locations;
-
       } else if (i["id"] == "entitycompany") {
-
         print("These are workspace COMPANIES");
         print(i["samples"]);
 
@@ -109,7 +119,6 @@ class workspaceAssets with ChangeNotifier {
         }
 
         workspaceCompanies = companies;
-
       }
     }
   }
