@@ -107,7 +107,7 @@ reLoginUser(BuildContext context) async {
   print('Trying to relogin');
 
   if (emkey != null && myUser.entermediakey == null) {
-    final userInfo = await EM.emAutoLoginWithKey(emkey);
+    final userInfo = await EM.emAutoLoginWithKey(context, emkey);
     print('RELOGGING IN WITH STORED KEY');
     print(emkey);
 

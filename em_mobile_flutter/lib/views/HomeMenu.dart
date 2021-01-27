@@ -44,7 +44,7 @@ class _HomeMenuState extends State<HomeMenu> {
             label: 'Refresh page',
             labelStyle: TextStyle(color: Colors.blue, fontSize: 15),
             onTap: () async {
-              final testWorkspaces = await EM.getEMWorkspaces();
+              final testWorkspaces = await EM.getEMWorkspaces(context);
               print(testWorkspaces);
             },
           ),
