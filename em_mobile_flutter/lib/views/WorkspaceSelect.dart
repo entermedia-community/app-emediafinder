@@ -78,7 +78,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
   final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
   final myUser = Provider.of<userData>(context);
   //Perform API call
-  final List userWorkspaces2 = await EM.getEMWorkspaces();
+  final List userWorkspaces2 = await EM.getEMWorkspaces(context);
   wkspcs = true;
   int savedColId = await sharedPref().getRecentWorkspace();
   //Initialize blank Lists
@@ -98,18 +98,19 @@ Future<bool> loadWorkspaces(BuildContext context) async {
       print(project["servers"][0]["instanceurl"]);
     }
   }
-  if (myWorkspaces2.colId.length == 1) {
-    await EM.createTeamAccount(myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
-    final Map searchedData = await EM.getWorkspaceAssets(myWorkspaces2.instUrl[0]);
+  print("workspace count ${userWorkspaces2.length}");
+  if (userWorkspaces2.length == 1) {
+    await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
+    final Map searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
     hitTracker.searchedhits = searchedData;
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[0]);
     hitTracker.initializeFilters();
     Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
   }
-  if (savedColId != null && savedColId < myWorkspaces2.colId.length) {
-    await EM.createTeamAccount(myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
-    final Map searchedData = await EM.getWorkspaceAssets(myWorkspaces2.instUrl[savedColId]);
+  if (savedColId != null && savedColId < userWorkspaces2.length) {
+    await EM.createTeamAccount(context, myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
+    final Map searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[savedColId]);
     hitTracker.searchedhits = searchedData;
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[savedColId]);
