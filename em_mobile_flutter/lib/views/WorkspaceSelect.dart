@@ -98,7 +98,8 @@ Future<bool> loadWorkspaces(BuildContext context) async {
       print(project["servers"][0]["instanceurl"]);
     }
   }
-  if (myWorkspaces2.colId.length == 1) {
+  print("workspace count ${userWorkspaces2.length}");
+  if (userWorkspaces2.length == 1) {
     await EM.createTeamAccount(myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
     final Map searchedData = await EM.getWorkspaceAssets(myWorkspaces2.instUrl[0]);
     hitTracker.searchedhits = searchedData;
@@ -107,7 +108,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.initializeFilters();
     Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
   }
-  if (savedColId != null && savedColId < myWorkspaces2.colId.length) {
+  if (savedColId != null && savedColId < userWorkspaces2.length) {
     await EM.createTeamAccount(myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
     final Map searchedData = await EM.getWorkspaceAssets(myWorkspaces2.instUrl[savedColId]);
     hitTracker.searchedhits = searchedData;

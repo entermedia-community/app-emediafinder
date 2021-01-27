@@ -3,6 +3,7 @@ import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/NavRail.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
 class HomeMenu extends StatefulWidget {
@@ -21,21 +22,38 @@ class _HomeMenuState extends State<HomeMenu> {
 
     return Scaffold(
       backgroundColor: Color(0xff0c223a),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: SpeedDial(
+        marginRight: 18,
+        marginBottom: 20,
+        animatedIcon: AnimatedIcons.menu_close,
+        animatedIconTheme: IconThemeData(size: 22.0),
+        visible: true,
+        closeManually: true,
+        curve: Curves.bounceIn,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.5,
+        heroTag: 'speed-dial-hero-tag',
+        backgroundColor: Color(0xff61af56),
+        foregroundColor: Colors.black,
+        elevation: 8.0,
+        shape: CircleBorder(),
         children: [
-          FloatingActionButton(
-            heroTag: "1",
-            onPressed: () async {
+          SpeedDialChild(
+            child: Icon(Icons.refresh),
+            backgroundColor: Color(0xff61af56).withOpacity(0.8),
+            label: 'Refresh page',
+            labelStyle: TextStyle(color: Colors.blue, fontSize: 15),
+            onTap: () async {
               final testWorkspaces = await EM.getEMWorkspaces();
               print(testWorkspaces);
             },
-            child: Icon(Icons.refresh),
           ),
-          SizedBox(height: 8),
-          FloatingActionButton(
-            heroTag: "2",
-            onPressed: () => showDialog(
+          SpeedDialChild(
+            child: Icon(Icons.add),
+            backgroundColor: Color(0xff61af56).withOpacity(0.6),
+            label: 'Add workspace',
+            labelStyle: TextStyle(color: Colors.blue, fontSize: 15),
+            onTap: () => showDialog(
                 context: context,
                 builder: (context) {
                   return Dialog(
@@ -76,7 +94,13 @@ class _HomeMenuState extends State<HomeMenu> {
                         ),
                       ));
                 }),
-            child: Icon(Icons.add),
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.list_alt),
+            backgroundColor: Color(0xff61af56).withOpacity(0.4),
+            label: 'Change workspace',
+            labelStyle: TextStyle(color: Colors.blue, fontSize: 15),
+            onTap: () => print('Change workspace'),
           ),
         ],
       ),
