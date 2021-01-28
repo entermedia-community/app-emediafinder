@@ -66,34 +66,42 @@ switchWorkspace(BuildContext context) {
             borderRadius: BorderRadius.circular(10),
           ),
           padding: const EdgeInsets.all(15),
-          child: Consumer<userWorkspaces>(builder: (context, myWorkspace, child) {
-            return Column(
+          child: SingleChildScrollView(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: myWorkspace.names.length,
-                  itemBuilder: (BuildContext ctx, int index) {
-                    return Container(
-                      padding: EdgeInsets.symmetric(vertical: 7),
-                      child: InkWell(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Expanded(child: Text("${myWorkspace.names[index]}")),
-                          ],
-                        ),
-                        onTap: () {
-                          loadNewWorkspace(context, dialogContext, index);
+                Consumer<userWorkspaces>(builder: (context, myWorkspace, child) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        physics: ClampingScrollPhysics(),
+                        itemCount: myWorkspace.names.length,
+                        itemBuilder: (BuildContext ctx, int index) {
+                          return Container(
+                            padding: EdgeInsets.symmetric(vertical: 7),
+                            child: InkWell(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Expanded(child: Text("${myWorkspace.names[index]}")),
+                                ],
+                              ),
+                              onTap: () {
+                                loadNewWorkspace(context, dialogContext, index);
+                              },
+                            ),
+                          );
                         },
                       ),
-                    );
-                  },
-                ),
+                    ],
+                  );
+                }),
               ],
-            );
-          }),
+            ),
+          ),
         ),
       );
     },

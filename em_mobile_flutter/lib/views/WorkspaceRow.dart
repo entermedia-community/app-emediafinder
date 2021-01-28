@@ -85,13 +85,15 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context, int ind
             color: Color(0x8092e184),
           ),
           onPressed: () async {
-            await EM.createTeamAccount(context,instanceUrl, myUser.entermediakey, colId);
+            await EM.createTeamAccount(context, instanceUrl, myUser.entermediakey, colId);
 
-            final Map searchedData = await EM.getWorkspaceAssets(context,instanceUrl);
+            final Map searchedData = await EM.getWorkspaceAssets(context, instanceUrl);
 
             hitTracker.searchedhits = searchedData;
 
-            hitTracker.organizeData();
+            if (searchedData != null && searchedData.length > 0) {
+              hitTracker.organizeData();
+            }
 
             //todo; Save this shit
             hitTracker.getAssetSampleUrls(instanceUrl);
