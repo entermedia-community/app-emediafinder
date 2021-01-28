@@ -71,7 +71,7 @@ class _NavRailState extends State<NavRail> {
           ),
           SizedBox(height: 3),
           IconButton(
-            icon: Icon(Icons.swap_horiz),
+            icon: Icon(Icons.swap_vert),
             color: Color(0xff61af56),
             onPressed: () {
               switchWorkspace(widget.parentContext);

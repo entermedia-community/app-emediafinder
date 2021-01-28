@@ -8,4 +8,7 @@ class userWorkspaces with ChangeNotifier {
 
   userWorkspaces({this.names, this.colId, this.instUrl});
 
+  void notify() {
+    notifyListeners();
+  }
 }

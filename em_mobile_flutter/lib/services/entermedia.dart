@@ -53,10 +53,11 @@ class EnterMedia {
   Future<Map> postFinder(String url, Map jsonBody, BuildContext context, {String customError}) async {
     //Set headers
     var headers = <String, String>{};
+    headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
-      headers = <String, String>{"X-token": tempKey, "X-tokentype": "entermedia"};
+      headers.addAll({"X-token": tempKey});
     }
 
     //make API post
@@ -160,19 +161,18 @@ class EnterMedia {
   }
 
   // this creates a new workspace for people who have an account already
-  Future<List> createNewWorkspaces(String emkey, BuildContext context) async {
-    final resMap = await postFinder(
+  Future<Map> createNewWorkspaces(String emkey, BuildContext context) async {
+    print("Hi there $emkey");
+    final resMap = await postEntermedia(
       'https://emediafinder.com/entermediadb/app/services/createworkspace.json?',
-      {
-        "entermediakey": emkey,
-      },
+      {"entermediakey": "$emkey"},
       context,
     );
-    print("Fetching workspaces...");
+    print("Creating workspaces...");
     if (resMap != null) {
       print(resMap);
 
-      return resMap["results"];
+      return resMap;
     } else {
       print("Request failed!");
       return null;
