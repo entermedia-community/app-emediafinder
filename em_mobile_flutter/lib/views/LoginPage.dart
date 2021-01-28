@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                                         onPressed: () async {
                                           String email = emailController.text.trim();
                                           //Send email entermedia website and send key in email if email exists.
-                                          EM.emEmailKey(context,email);
+                                          EM.emEmailKey(context, email);
                                           Navigator.of(context).pop();
                                         },
                                         child: Text("E-mail Key"),
@@ -139,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
     await sharedPref().saveEMKey(entermediakey);
     print(sharedPref().getEMKey());
     //Get User info from entermedia website
-    final EmUser userInfo = await EM.emLoginWithKey(context,entermediakey);
+    final EmUser userInfo = await EM.emLoginWithKey(context, entermediakey);
     print(userInfo.results.screenname);
     // Here we call and update global myUser class with Entermediadb.org user information after logging in.
     myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,

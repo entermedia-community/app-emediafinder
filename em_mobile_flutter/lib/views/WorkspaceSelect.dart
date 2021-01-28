@@ -107,6 +107,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[0]);
     hitTracker.initializeFilters();
     Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+    return wkspcs;
   }
   if (savedColId != null && savedColId < userWorkspaces2.length) {
     await EM.createTeamAccount(context, myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);

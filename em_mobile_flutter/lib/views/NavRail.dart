@@ -1,7 +1,12 @@
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
+import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
 
 class NavRail extends StatefulWidget {
+  final BuildContext parentContext;
+  final TextEditingController createWorkspaceController;
+  NavRail({@required this.parentContext, @required this.createWorkspaceController});
+
   @override
   _NavRailState createState() => _NavRailState();
 }
@@ -28,7 +33,6 @@ class _NavRailState extends State<NavRail> {
           icon: Icon(Icons.filter_alt_rounded),
           label: Text('Search'),
         ),
-
         NavigationRailDestination(
           icon: Icon(Icons.account_tree_rounded),
           label: Text('Linked Folders'),
@@ -48,12 +52,32 @@ class _NavRailState extends State<NavRail> {
 //        NavigationRailDestination(
 //            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
-      trailing: IconButton(
-        icon: Icon(Icons.add_box_outlined),
-        color: Color(0xff61af56),
-        onPressed: () {
-          print('Create Upload Function');
-        },
+      trailing: Column(
+        children: [
+          IconButton(
+            icon: Icon(Icons.add_box_outlined),
+            color: Color(0xff61af56),
+            onPressed: () {
+              print('Create Upload Function');
+            },
+          ),
+          Divider(),
+          IconButton(
+            icon: Icon(Icons.create),
+            color: Color(0xff61af56),
+            onPressed: () {
+              createWorkspace(widget.parentContext, widget.createWorkspaceController);
+            },
+          ),
+          SizedBox(height: 3),
+          IconButton(
+            icon: Icon(Icons.swap_vert),
+            color: Color(0xff61af56),
+            onPressed: () {
+              switchWorkspace(widget.parentContext);
+            },
+          ),
+        ],
       ),
       selectedIndex: _selectedIndex,
       onDestinationSelected: (int index) {
