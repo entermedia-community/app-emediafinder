@@ -158,15 +158,15 @@ class EnterMedia {
       return null;
     }
   }
+
   // this creates a new workspace for people who have an account already
-  Future<List> createNewWorkspaces(String emkey) async {
-
-
+  Future<List> createNewWorkspaces(String emkey, BuildContext context) async {
     final resMap = await postFinder(
       'https://emediafinder.com/entermediadb/app/services/createworkspace.json?',
       {
         "entermediakey": emkey,
       },
+      context,
     );
     print("Fetching workspaces...");
     if (resMap != null) {
