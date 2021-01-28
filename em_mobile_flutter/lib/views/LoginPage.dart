@@ -5,6 +5,7 @@ import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
+import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -47,6 +48,7 @@ class _LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           title: emLogoIcon(),
           centerTitle: true,
+          leading: Text(""),
         ),
 //      backgroundColor: Colors.white38,
         body: InkWell(
@@ -146,6 +148,7 @@ class _LoginPageState extends State<LoginPage> {
         userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
     //Firebase Authentication sign in.
     context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
   }
 
   Future<void> initPlatformState() async {
