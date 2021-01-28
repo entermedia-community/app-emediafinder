@@ -147,8 +147,7 @@ class _LoginPageState extends State<LoginPage> {
     myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
         userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
     //Firebase Authentication sign in.
-    context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+    context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
   }
 
   Future<void> initPlatformState() async {
