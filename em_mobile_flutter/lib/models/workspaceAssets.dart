@@ -1,5 +1,9 @@
 import 'dart:core';
+import 'package:em_mobile_flutter/models/userWorkspaces.dart';
+import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 //use this format to create custom classes that need to change.
 
 class workspaceAssets with ChangeNotifier {
@@ -37,9 +41,22 @@ class workspaceAssets with ChangeNotifier {
     filterUrls = imageUrls;
     filterEvents = workspaceEvents;
     filterProjects = workspaceProjects;
+    notifyListeners();
   }
 
-  filterResult(String filterText) {
+  filterResult(String filterText, BuildContext context, hitTracker, userWorkspaces myWorkspace) async {
+    /* final EM = Provider.of<EnterMedia>(context, listen: false);
+    int index = await sharedPref().getRecentWorkspace();
+    String instUrl = myWorkspace.instUrl[index];
+    final Map searchedData = await EM.searchWorkspaceAssets(context, instUrl, filterText);
+    print(searchedData);
+    hitTracker.searchedhits = searchedData;
+    if (searchedData != null && searchedData.length > 0) {
+      hitTracker.organizeData();
+    }
+    hitTracker.getAssetSampleUrls(instUrl);
+    hitTracker.initializeFilters();*/
+
     if (filterText.length <= 1) {
       this.initializeFilters();
     } else {
