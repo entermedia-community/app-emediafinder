@@ -255,6 +255,7 @@ class EnterMedia {
         body: body,
         headers: headers,
       );
+      print(responseJson);
       response = await handleException(responseJson);
     } on BadRequestException catch (error) {
       showErrorFlushbar(context, "Bad request! Please try again later.");
