@@ -1,5 +1,6 @@
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
+import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
@@ -87,17 +88,15 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context, int ind
           onPressed: () async {
             await EM.createTeamAccount(context, instanceUrl, myUser.entermediakey, colId);
 
-            final Map searchedData = await EM.getWorkspaceAssets(context, instanceUrl);
+            final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, instanceUrl);
 
             hitTracker.searchedhits = searchedData;
 
-            if (searchedData != null && searchedData.length > 0) {
-              hitTracker.organizeData();
-            }
+            hitTracker.organizeData();
 
             //todo; Save this shit
             hitTracker.getAssetSampleUrls(instanceUrl);
-
+            print("priceIndex ${index.toString()}");
             hitTracker.initializeFilters();
             if (index != null) {
               sharedPref().saveRecentWorkspace(index);

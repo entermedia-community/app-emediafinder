@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
+import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
@@ -26,203 +27,234 @@ class MainContent extends StatelessWidget {
 
   final userWorkspaces myWorkspaces;
   final TextEditingController newWorkspaceController = new TextEditingController();
+  String searchText = "";
   @override
   Widget build(BuildContext context) {
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
     Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
 
-    return Consumer<workspaceAssets>(builder: (context, assets, child) {
-      return CustomScrollView(slivers: <Widget>[
-        SliverAppBar(
-          //appbar title & menu goes here
-          leading: Container(),
-          titleSpacing: 0,
-          leadingWidth: 6,
-          actions: [
-            SizedBox(width: 10),
-            PopupMenuButton(
-              child: Icon(Icons.menu),
-              color: Color(0xff0c223a),
-              itemBuilder: (BuildContext popupContext) {
-                return [
-                  PopupMenuItem(
-                    child: Text(
-                      "Create Workspace",
-                      style: TextStyle(
-                        color: Color(0xff92e184),
-                      ),
-                    ),
-                    value: 1,
-                  ),
-                  PopupMenuItem(
-                    child: Text(
-                      "Change Workspace",
-                      style: TextStyle(
-                        color: Color(0xff92e184),
-                      ),
-                    ),
-                    value: 2,
-                  ),
-                  PopupMenuItem(
-                    child: Text(
-                      "Log out",
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                    value: 3,
-                  ),
-                ];
-              },
-              onSelected: (value) {
-                value == 1
-                    ? createWorkspace(context, newWorkspaceController)
-                    : value == 2
-                        ? switchWorkspace(context)
-                        : logOutUser(context);
-              },
-              offset: Offset(0, 50),
-            ),
-            SizedBox(width: 8),
-          ],
-
-          title: Container(
-            height: 80,
-            child: SearchBar(
-              icon: Icon(
-                Icons.search_rounded,
-                color: Color(0xff92e184),
-              ),
-              hintText: "Search your media...",
-              hintStyle: TextStyle(
-                color: Colors.grey,
-              ),
-              minimumChars: 0,
-              cancellationWidget: Icon(Icons.clear),
-              onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
-              searchBarStyle: SearchBarStyle(
-                backgroundColor: Color(0xff384964),
-                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              ),
-              onSearch: (val) => Provider.of<workspaceAssets>(context, listen: false).filterResult(
-                val,
-                context,
-                hitTracker,
-                myWorkspaces,
-              ),
-              onItemFound: null,
-            ),
-//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
-          ),
-          pinned: true,
-          expandedHeight: 55.0,
-        ),
-        SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 33,
-              maxHeight: 33,
-              child: Container(
-                  color: Color(0xff384964),
-                  child: Center(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Media (' + assets.filterUrls?.length.toString() + ')'),
-                      IconButton(
-                          icon: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 19,
-                            color: Colors.deepOrangeAccent,
+    return Consumer<workspaceAssets>(
+      builder: (context, assets, child) {
+        return CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              //appbar title & menu goes here
+              leading: Container(),
+              titleSpacing: 0,
+              leadingWidth: 6,
+              actions: [
+                SizedBox(width: 10),
+                PopupMenuButton(
+                  child: Icon(Icons.menu),
+                  color: Color(0xff0c223a),
+                  itemBuilder: (BuildContext popupContext) {
+                    return [
+                      PopupMenuItem(
+                        child: Text(
+                          "Create Workspace",
+                          style: TextStyle(
+                            color: Color(0xff92e184),
                           ),
-                          onPressed: null)
-                    ],
-                  ))),
-            )),
-        SliverGrid(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisSpacing: 1,
-            mainAxisSpacing: 1,
-            crossAxisCount: 3,
-          ),
-          //todo; This is where images are loaded
-          delegate: SliverChildBuilderDelegate(
-              (ctx, i) => Image.network(
-                    assets.filterUrls[i],
-                  ),
-              childCount: assets.filterUrls?.length),
-        ),
-        SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 33,
-              maxHeight: 33,
-              child: Container(
-                  color: Color(0xff384964),
-                  child: Center(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Projects (' + assets.filterProjects?.length.toString() + ')'),
-                      IconButton(
-                          icon: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 19,
-                            color: Colors.deepOrangeAccent,
-                          ),
-                          onPressed: null)
-                    ],
-                  ))),
-            )),
-        SliverList(
-            delegate: SliverChildBuilderDelegate(
-          //just an example will build from api call
-          (ctx, i) => emWorkspaceRow(
-            'assets/EM Logo Basic.jpg',
-            assets.filterProjects[i],
-            i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
-            i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
-            context,
-            null,
-          ),
-          //amount of rows
-          childCount: assets.filterProjects.length,
-        )),
-        SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 33,
-              maxHeight: 33,
-              child: Container(
-                  color: Color(0xff384964),
-                  child: Center(
-                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text('Events (' + assets.filterEvents?.length.toString() + ')'),
-                    IconButton(
-                        icon: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 19,
-                          color: Colors.deepOrangeAccent,
                         ),
-                        onPressed: null)
-                  ]))),
+                        value: 1,
+                      ),
+                      PopupMenuItem(
+                        child: Text(
+                          "Change Workspace",
+                          style: TextStyle(
+                            color: Color(0xff92e184),
+                          ),
+                        ),
+                        value: 2,
+                      ),
+                      PopupMenuItem(
+                        child: Text(
+                          "Log out",
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                        value: 3,
+                      ),
+                    ];
+                  },
+                  onSelected: (value) {
+                    value == 1
+                        ? createWorkspace(context, newWorkspaceController)
+                        : value == 2
+                            ? switchWorkspace(context)
+                            : logOutUser(context);
+                  },
+                  offset: Offset(0, 50),
+                ),
+                SizedBox(width: 8),
+              ],
+
+              title: Container(
+                height: 80,
+                child: SearchBar(
+                  icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
+                  hintText: "Search your media...",
+                  hintStyle: TextStyle(color: Colors.grey),
+                  minimumChars: 0,
+                  cancellationWidget: Icon(Icons.clear),
+                  onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
+                  searchBarStyle: SearchBarStyle(
+                    backgroundColor: Color(0xff384964),
+                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  ),
+                  onSearch: (val) async {
+                    searchText = val;
+                    Provider.of<workspaceAssets>(context, listen: false).filterResult(
+                      val,
+                      context,
+                      myWorkspaces,
+                    );
+                    return null;
+                  },
+                  loader: CircularProgressIndicator(),
+                  onItemFound: null,
+                ),
+//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
+              ),
+              pinned: true,
+              expandedHeight: 55.0,
+            ),
+            SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  minHeight: 33,
+                  maxHeight: 33,
+                  child: Container(
+                      color: Color(0xff384964),
+                      child: Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Media (' + assets.filterUrls?.length.toString() + ')'),
+                          IconButton(
+                              icon: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 19,
+                                color: Colors.deepOrangeAccent,
+                              ),
+                              onPressed: null)
+                        ],
+                      ))),
+                )),
+            SliverGrid(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisSpacing: 1,
+                mainAxisSpacing: 1,
+                crossAxisCount: 3,
+              ),
+              //todo; This is where images are loaded
+              delegate: SliverChildBuilderDelegate(
+                  (ctx, i) => Image.network(
+                        assets.filterUrls[i],
+                      ),
+                  childCount: assets.filterUrls?.length),
+            ),
+            SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  minHeight: 33,
+                  maxHeight: 33,
+                  child: Container(
+                      color: Color(0xff384964),
+                      child: Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Projects (' + assets.filterProjects?.length.toString() + ')'),
+                          IconButton(
+                              icon: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 19,
+                                color: Colors.deepOrangeAccent,
+                              ),
+                              onPressed: null)
+                        ],
+                      ))),
+                )),
+            SliverList(
+                delegate: SliverChildBuilderDelegate(
+              //just an example will build from api call
+              (ctx, i) => emWorkspaceRow(
+                'assets/EM Logo Basic.jpg',
+                assets.filterProjects[i],
+                i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
+                i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
+                context,
+                null,
+              ),
+              //amount of rows
+              childCount: assets.filterProjects.length,
             )),
-        SliverList(
-            delegate: SliverChildBuilderDelegate(
-          //just an example will build from api call
-          (ctx, i) => emWorkspaceRow(
-            'assets/EM Logo Basic.jpg',
-            assets.filterEvents[i],
-            i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
-            i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
-            context,
-            null,
-          ),
-          //amount of rows
-          childCount: assets.filterEvents?.length,
-        )),
-      ]);
-    });
+            SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  minHeight: 33,
+                  maxHeight: 33,
+                  child: Container(
+                      color: Color(0xff384964),
+                      child: Center(
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Text('Events (' + assets.filterEvents?.length.toString() + ')'),
+                        IconButton(
+                            icon: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 19,
+                              color: Colors.deepOrangeAccent,
+                            ),
+                            onPressed: null)
+                      ]))),
+                )),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                //just an example will build from api call
+                (ctx, i) => emWorkspaceRow(
+                  'assets/EM Logo Basic.jpg',
+                  assets.filterEvents[i],
+                  i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
+                  i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
+                  context,
+                  null,
+                ),
+                //amount of rows
+                childCount: assets.filterEvents?.length,
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: hitTracker.filterPageCount > 1
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 10.0, top: 15, bottom: 10),
+                      child: InkWell(
+                        child: Text(
+                          'Show more...',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onTap: () {
+                          print(searchText);
+                          Provider.of<workspaceAssets>(context, listen: false).increaseCurrentPageCount();
+                          Provider.of<workspaceAssets>(context, listen: false).filterResult(
+                            searchText,
+                            context,
+                            myWorkspaces,
+                          );
+                        },
+                      ),
+                    )
+                  : Container(),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -402,11 +434,9 @@ Future<void> loadNewWorkspace(BuildContext parentContext, int index) async {
   print(myUser.entermediakey);
   print(myWorkspaces2.colId[index]);
   await EM.createTeamAccount(parentContext, myWorkspaces2.instUrl[index], myUser.entermediakey, myWorkspaces2.colId[index]);
-  final Map searchedData = await EM.getWorkspaceAssets(parentContext, myWorkspaces2.instUrl[index]);
+  final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(parentContext, myWorkspaces2.instUrl[index]);
   hitTracker.searchedhits = searchedData;
-  if (searchedData != null && searchedData.length > 0) {
-    hitTracker.organizeData();
-  }
+  hitTracker.organizeData();
   hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[index]);
   hitTracker.initializeFilters();
   if (index != null) {

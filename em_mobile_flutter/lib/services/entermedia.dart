@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:em_mobile_flutter/Helper/customException.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
+import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -50,7 +51,7 @@ class EnterMedia {
   }
 
 //Generic post to client specific 'EMFinder' server.
-  Future<Map> postFinder(String url, Map jsonBody, BuildContext context, {String customError}) async {
+  Future<Map> postFinder(String url, dynamic jsonBody, BuildContext context, {String customError}) async {
     //Set headers
     var headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
@@ -179,7 +180,7 @@ class EnterMedia {
     }
   }
 
-  Future<Map> getWorkspaceAssets(BuildContext context, String url) async {
+  Future<WorkspaceAssetsModel> getWorkspaceAssets(BuildContext context, String url) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
       null,
@@ -188,31 +189,33 @@ class EnterMedia {
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {
       print(resMap);
-
-      return resMap;
+      String response = json.encode(resMap);
+      return WorkspaceAssetsModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;
     }
   }
 
-  Future<Map> searchWorkspaceAssets(BuildContext context, String url, String searchtext) async {
+  Future<WorkspaceAssetsModel> searchWorkspaceAssets(BuildContext context, String url, String searchtext, String page) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
-      {
+      json.encode({
         "query": {
           "terms": [
             {"field": "description", "operation": "freeform", "value": searchtext}
           ]
-        }
-      },
+        },
+        "hitsperpage": "20",
+        "page": page,
+      }),
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {
       print(resMap);
-
-      return resMap;
+      String response = json.encode(resMap);
+      return WorkspaceAssetsModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;
@@ -242,7 +245,7 @@ class EnterMedia {
   Future<http.Response> httpRequest({
     @required String requestUrl,
     @required context,
-    @required Map<dynamic, dynamic> body,
+    @required dynamic body,
     @required Map<String, String> headers,
     String customError,
   }) async {
@@ -255,7 +258,8 @@ class EnterMedia {
         body: body,
         headers: headers,
       );
-      print(responseJson);
+      print("Get code");
+      print(responseJson.statusCode);
       response = await handleException(responseJson);
     } on BadRequestException catch (error) {
       showErrorFlushbar(context, "Bad request! Please try again later.");
@@ -269,7 +273,7 @@ class EnterMedia {
       showErrorFlushbar(
           context, customError != null ? customError : "Error occurred while communication with server. Please try again after some time.");
     } catch (error) {
-      print("errorPrince $error");
+      print("errorPrince ${error}");
       showErrorFlushbar(context, "Error occurred while communication with server. Please try again after some time.");
     }
     return response;

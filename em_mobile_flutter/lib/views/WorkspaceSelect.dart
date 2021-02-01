@@ -2,6 +2,7 @@ import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
+import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
@@ -99,9 +100,9 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     }
   }
   print("workspace count ${userWorkspaces2.length}");
-  /*if (userWorkspaces2.length == 1) {
+  /* if (userWorkspaces2.length == 1) {
     await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
-    final Map searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
+    final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
     hitTracker.searchedhits = searchedData;
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[0]);
@@ -111,7 +112,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
   }
   if (savedColId != null && savedColId < userWorkspaces2.length) {
     await EM.createTeamAccount(context, myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
-    final Map searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[savedColId]);
+    final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[savedColId]);
     hitTracker.searchedhits = searchedData;
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[savedColId]);
