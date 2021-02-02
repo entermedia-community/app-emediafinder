@@ -1,4 +1,5 @@
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
+import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
@@ -79,7 +80,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
   final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
   final myUser = Provider.of<userData>(context);
   //Perform API call
-  final List userWorkspaces2 = await EM.getEMWorkspaces(context);
+  final GetWorkspaceModel userWorkspaces2 = await EM.getEMWorkspaces(context);
   wkspcs = true;
   int savedColId = await sharedPref().getRecentWorkspace();
   //Initialize blank Lists
@@ -87,20 +88,20 @@ Future<bool> loadWorkspaces(BuildContext context) async {
   myWorkspaces2.colId = [];
   myWorkspaces2.instUrl = [];
   //Loop thru API 'results'
-  for (final project in userWorkspaces2) {
-    myWorkspaces2.names.add(project["name"]);
-    myWorkspaces2.colId.add(project["id"]);
+  for (final project in userWorkspaces2.results) {
+    myWorkspaces2.names.add(project.name);
+    myWorkspaces2.colId.add(project.id);
 
     //Loop through response, add urls and check if blank.
-    if (project["servers"].isEmpty == true) {
+    if (project.servers.isEmpty == true) {
       myWorkspaces2.instUrl.add("no instance url");
     } else {
-      myWorkspaces2.instUrl.add(project["servers"][0]["instanceurl"]);
-      print(project["servers"][0]["instanceurl"]);
+      myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
+      print(project.servers[0].instanceurl);
     }
   }
-  print("workspace count ${userWorkspaces2.length}");
-  /* if (userWorkspaces2.length == 1) {
+  print("workspace count ${userWorkspaces2.results.length}");
+  if (userWorkspaces2.results.length == 1) {
     await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
     final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
     hitTracker.searchedhits = searchedData;
@@ -110,7 +111,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
     return wkspcs;
   }
-  if (savedColId != null && savedColId < userWorkspaces2.length) {
+  if (savedColId != null && savedColId < userWorkspaces2.results.length) {
     await EM.createTeamAccount(context, myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
     final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[savedColId]);
     hitTracker.searchedhits = searchedData;
@@ -118,6 +119,6 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[savedColId]);
     hitTracker.initializeFilters();
     Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
-  }*/
+  }
   return wkspcs;
 }

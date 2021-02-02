@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
+import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
@@ -66,7 +67,10 @@ class MainContent extends StatelessWidget {
                       ),*/
                       PopupMenuItem(
                         child: Theme(
-                          data: ThemeData(dividerColor: Colors.transparent),
+                          data: ThemeData(
+                            dividerColor: Colors.transparent,
+                            accentColor: Color(0xff92e184),
+                          ),
                           child: ExpansionTile(
                             title: Text(
                               "Workspaces",
@@ -123,10 +127,7 @@ class MainContent extends StatelessWidget {
                             ],
                             tilePadding: EdgeInsets.all(0),
                             childrenPadding: EdgeInsets.all(8),
-                            trailing: Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Color(0xff92e184),
-                            ),
+                            initiallyExpanded: true,
                           ),
                         ),
                       ),
@@ -443,22 +444,22 @@ createWorkspace(BuildContext context, TextEditingController newWorkspaceControll
 void reloadWorkspaces(BuildContext context, String instanceUrl) async {
   final EM = Provider.of<EnterMedia>(context, listen: false);
   final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
-  final List userWorkspaces2 = await EM.getEMWorkspaces(context);
+  final GetWorkspaceModel userWorkspaces2 = await EM.getEMWorkspaces(context);
   //Initialize blank Lists
   myWorkspaces2.names = [];
   myWorkspaces2.colId = [];
   myWorkspaces2.instUrl = [];
   //Loop thru API 'results'
-  for (final project in userWorkspaces2) {
-    myWorkspaces2.names.add(project["name"]);
-    myWorkspaces2.colId.add(project["id"]);
+  for (final project in userWorkspaces2.results) {
+    myWorkspaces2.names.add(project.name);
+    myWorkspaces2.colId.add(project.id);
 
     //Loop through response, add urls and check if blank.
-    if (project["servers"].isEmpty == true) {
+    if (project.servers.isEmpty == true) {
       myWorkspaces2.instUrl.add("no instance url");
     } else {
-      myWorkspaces2.instUrl.add(project["servers"][0]["instanceurl"]);
-      print(project["servers"][0]["instanceurl"]);
+      myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
+      print(project.servers[0].instanceurl);
     }
   }
   Provider.of<userWorkspaces>(context, listen: false).notify();
@@ -476,20 +477,21 @@ Future<void> loadNewWorkspace(BuildContext parentContext, int index) async {
   final hitTracker = Provider.of<workspaceAssets>(parentContext, listen: false);
   final myUser = Provider.of<userData>(parentContext, listen: false);
   //Perform API call
-  final List userWorkspaces2 = await EM.getEMWorkspaces(parentContext);
+  final GetWorkspaceModel userWorkspaces2 = await EM.getEMWorkspaces(parentContext);
   myWorkspaces2.names = [];
   myWorkspaces2.colId = [];
   myWorkspaces2.instUrl = [];
   //Loop thru API 'results'
-  for (final project in userWorkspaces2) {
-    myWorkspaces2.names.add(project["name"]);
-    myWorkspaces2.colId.add(project["id"]);
+  for (final project in userWorkspaces2?.results) {
+    myWorkspaces2.names.add(project.name);
+    myWorkspaces2.colId.add(project.id);
+
     //Loop through response, add urls and check if blank.
-    if (project["servers"].isEmpty == true) {
+    if (project.servers.isEmpty == true) {
       myWorkspaces2.instUrl.add("no instance url");
     } else {
-      myWorkspaces2.instUrl.add(project["servers"][0]["instanceurl"]);
-      print(project["servers"][0]["instanceurl"]);
+      myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
+      print(project.servers[0].instanceurl);
     }
   }
   print("CHeck here");
