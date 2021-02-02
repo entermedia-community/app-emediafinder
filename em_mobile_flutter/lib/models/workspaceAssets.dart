@@ -139,7 +139,7 @@ class workspaceAssets with ChangeNotifier {
     var people = <String>[];
     var products = <String>[];
     var projects = <String>[];
-    if (searchedhits.organizedhits.length > 0) {
+    if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       for (final i in searchedhits.organizedhits) {
         //Find projects in response object
         if (i.id == "entityproject") {

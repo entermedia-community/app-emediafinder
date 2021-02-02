@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
@@ -28,11 +29,17 @@ class MainContent extends StatelessWidget {
   final userWorkspaces myWorkspaces;
   final TextEditingController newWorkspaceController = new TextEditingController();
   String searchText = "";
+  int currentWorkspace = 0;
+
+  setWorkspace() async {
+    currentWorkspace = await sharedPref().getRecentWorkspace();
+  }
+
   @override
   Widget build(BuildContext context) {
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
     Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-
+    setWorkspace();
     return Consumer<workspaceAssets>(
       builder: (context, assets, child) {
         return CustomScrollView(
@@ -50,39 +57,91 @@ class MainContent extends StatelessWidget {
                   itemBuilder: (BuildContext popupContext) {
                     return [
                       PopupMenuItem(
-                        child: Text(
-                          "Create Workspace",
-                          style: TextStyle(
-                            color: Color(0xff92e184),
-                          ),
-                        ),
+                        child: customPopupMenuItem(context, "Create Workspace"),
                         value: 1,
                       ),
+                      /*PopupMenuItem(
+                        child: customPopupMenuItem(context, "Change Workspace"),
+                        value: 2,
+                      ),*/
                       PopupMenuItem(
-                        child: Text(
-                          "Change Workspace",
-                          style: TextStyle(
-                            color: Color(0xff92e184),
+                        child: Theme(
+                          data: ThemeData(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            title: Text(
+                              "Workspaces",
+                              style: TextStyle(color: Color(0xff92e184)),
+                            ),
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                height: myWorkspaces.names.length != null ? (myWorkspaces.names.length * 35).toDouble() : 0,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: myWorkspaces.names?.length,
+                                      itemBuilder: (BuildContext ctx, int index) {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(vertical: 7),
+                                          child: InkWell(
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Expanded(
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "${myWorkspaces.names[index]}",
+                                                        style: TextStyle(color: Color(0xff92e184)),
+                                                      ),
+                                                      currentWorkspace != null && currentWorkspace == index
+                                                          ? Icon(
+                                                              Icons.album_outlined,
+                                                              color: Color(0xff92e184),
+                                                              size: 15,
+                                                            )
+                                                          : Container(),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            onTap: () async {
+                                              Navigator.of(context, rootNavigator: true).pop();
+                                              loadNewWorkspace(context, index);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            tilePadding: EdgeInsets.all(0),
+                            childrenPadding: EdgeInsets.all(8),
+                            trailing: Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Color(0xff92e184),
+                            ),
                           ),
                         ),
-                        value: 2,
                       ),
                       PopupMenuItem(
-                        child: Text(
-                          "Log out",
-                          style: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
+                        child: customPopupMenuItem(context, "Log out"),
                         value: 3,
                       ),
                     ];
                   },
-                  onSelected: (value) {
+                  onSelected: (value) async {
+                    print(await sharedPref().getRecentWorkspace());
                     value == 1
                         ? createWorkspace(context, newWorkspaceController)
                         : value == 2
-                            ? switchWorkspace(context)
+                            ? print("")
                             : logOutUser(context);
                   },
                   offset: Offset(0, 50),
@@ -258,6 +317,18 @@ class MainContent extends StatelessWidget {
   }
 }
 
+Widget customPopupMenuItem(BuildContext context, String title) {
+  return Container(
+    width: MediaQuery.of(context).size.width * 0.4,
+    child: Text(
+      "$title",
+      style: TextStyle(
+        color: Color(0xff92e184),
+      ),
+    ),
+  );
+}
+
 void logOutUser(BuildContext context) {
   sharedPref().resetValues();
   context.read<AuthenticationService>().signOut();
@@ -267,58 +338,42 @@ void logOutUser(BuildContext context) {
 switchWorkspace(BuildContext context) {
   final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
   print(myWorkspaces2.names);
-  showDialog(
-    context: context,
-    builder: (dialogContext) {
-      return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 16,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Color(0xff0c223a),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.all(15),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Consumer<userWorkspaces>(builder: (context, myWorkspace, child) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        physics: ClampingScrollPhysics(),
-                        itemCount: myWorkspace.names?.length,
-                        itemBuilder: (BuildContext ctx, int index) {
-                          return Container(
-                            padding: EdgeInsets.symmetric(vertical: 7),
-                            child: InkWell(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Expanded(child: Text("${myWorkspace.names[index]}")),
-                                ],
-                              ),
-                              onTap: () async {
-                                Navigator.of(context, rootNavigator: true).pop();
-                                loadNewWorkspace(context, index);
-                              },
-                            ),
-                          );
-                        },
+  return Container(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Consumer<userWorkspaces>(builder: (context, myWorkspace, child) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                physics: ClampingScrollPhysics(),
+                itemCount: myWorkspace.names?.length,
+                itemBuilder: (BuildContext ctx, int index) {
+                  return Container(
+                    padding: EdgeInsets.symmetric(vertical: 7),
+                    child: InkWell(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(child: Text("${myWorkspace.names[index]}")),
+                        ],
                       ),
-                    ],
+                      onTap: () async {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        loadNewWorkspace(context, index);
+                      },
+                    ),
                   );
-                }),
-              ],
-            ),
-          ),
-        ),
-      );
-    },
+                },
+              ),
+            ],
+          );
+        }),
+      ],
+    ),
   );
 }
 
@@ -350,7 +405,7 @@ createWorkspace(BuildContext context, TextEditingController newWorkspaceControll
                       final EM = Provider.of<EnterMedia>(context, listen: false);
                       final myUser = Provider.of<userData>(context, listen: false);
                       print(myUser.entermediakey);
-                      final Map createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
+                      final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
                       print(createWorkspaceResponse);
                       if (json.encode(createWorkspaceResponse).contains("ok")) {}
                       Fluttertoast.showToast(
@@ -361,7 +416,9 @@ createWorkspace(BuildContext context, TextEditingController newWorkspaceControll
                         backgroundColor: Color(0xff61af56),
                         fontSize: 16.0,
                       );
-                      reloadWorkspaces(context);
+                      if (createWorkspaceResponse != null) {
+                        reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
+                      }
                     },
                     child: Text("Create Workspace"),
                   ),
@@ -383,7 +440,7 @@ createWorkspace(BuildContext context, TextEditingController newWorkspaceControll
   );
 }
 
-void reloadWorkspaces(BuildContext context) async {
+void reloadWorkspaces(BuildContext context, String instanceUrl) async {
   final EM = Provider.of<EnterMedia>(context, listen: false);
   final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
   final List userWorkspaces2 = await EM.getEMWorkspaces(context);
@@ -405,6 +462,12 @@ void reloadWorkspaces(BuildContext context) async {
     }
   }
   Provider.of<userWorkspaces>(context, listen: false).notify();
+  for (int i = 0; i < myWorkspaces2.instUrl.length; i++) {
+    if (myWorkspaces2.instUrl[i] == instanceUrl) {
+      loadNewWorkspace(context, i);
+      break;
+    }
+  }
 }
 
 Future<void> loadNewWorkspace(BuildContext parentContext, int index) async {
