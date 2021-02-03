@@ -166,10 +166,12 @@ class MainContent extends StatelessWidget {
                   ),
                   onSearch: (val) async {
                     searchText = val;
+                    Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
                     Provider.of<workspaceAssets>(context, listen: false).filterResult(
                       val,
                       context,
                       myWorkspaces,
+                      false,
                     );
                     return null;
                   },
@@ -290,7 +292,7 @@ class MainContent extends StatelessWidget {
               ),
             ),
             SliverToBoxAdapter(
-              child: hitTracker.filterPageCount > 1
+              child: hitTracker.filterPageCount > 1 && hitTracker.currentPageNumber < hitTracker.filterPageCount
                   ? Padding(
                       padding: const EdgeInsets.only(right: 10.0, top: 15, bottom: 10),
                       child: InkWell(
@@ -309,6 +311,7 @@ class MainContent extends StatelessWidget {
                             searchText,
                             context,
                             myWorkspaces,
+                            true,
                           );
                         },
                       ),

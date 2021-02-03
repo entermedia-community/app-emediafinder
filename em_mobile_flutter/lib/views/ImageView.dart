@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_downloader/image_downloader.dart';
 
 class ImageView extends StatefulWidget {
   final List<dynamic> imageUrls;
@@ -47,6 +50,18 @@ class _ImageViewState extends State<ImageView> {
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
+          /*SafeArea(
+            child: Positioned(
+              right: 0,
+              child: IconButton(
+                icon: Icon(
+                  Icons.cloud_download,
+                  color: Colors.white,
+                ),
+                onPressed: () => _downloadImage(widget.imageUrls[_controller.page.toInt()]),
+              ),
+            ),
+          ),*/
           Positioned(
             bottom: 10,
             child: Container(
@@ -82,4 +97,6 @@ class _ImageViewState extends State<ImageView> {
       onPressed: onTap,
     );
   }
+
+  void _downloadImage(imageUrl) async {}
 }

@@ -42,7 +42,7 @@ class workspaceAssets with ChangeNotifier {
 
   //hitsperpage
 
-  getFilteredAssetSampleUrls<List>(String instanceUrl) {
+  getFilteredAssetSampleUrls<List>(String instanceUrl, bool appendResult) {
     var images = <String>[];
 
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
@@ -52,14 +52,20 @@ class workspaceAssets with ChangeNotifier {
         }
       }
     }
-    filterUrls = images;
-    print(images);
+    if (!appendResult) {
+      filterUrls = images;
+      print(images);
+    } else {
+      filterUrls.addAll(images);
+      print(images);
+    }
 
     return images;
   }
 
   initializeFilters() {
     currentPageNumber = 1;
+    filterPageCount = 1;
     filterUrls = imageUrls;
     filterEvents = workspaceEvents;
     filterProjects = workspaceProjects;
@@ -76,7 +82,7 @@ class workspaceAssets with ChangeNotifier {
     currentPageNumber++;
   }
 
-  filterResult(String filterText, BuildContext context, userWorkspaces myWorkspace) async {
+  filterResult(String filterText, BuildContext context, userWorkspaces myWorkspace, bool appendResult) async {
     if (filterText.length <= 2) {
       initializeFilters();
     } else {
@@ -89,9 +95,9 @@ class workspaceAssets with ChangeNotifier {
       myHitTracker.searchedhits = searchedData;
       filterPageCount = searchedData.response.pages;
       currentPageNumber = searchedData.response.page;
-      myHitTracker.organizeFilterData();
+      myHitTracker.organizeFilterData(appendResult);
 
-      myHitTracker.getFilteredAssetSampleUrls(instUrl);
+      myHitTracker.getFilteredAssetSampleUrls(instUrl, appendResult);
     }
     notifyListeners();
   }
@@ -99,12 +105,13 @@ class workspaceAssets with ChangeNotifier {
 //This organizes the response from /finder/mediadb/services/module/modulesearch/sample.json called in entermedia.dart
   //Todo; Add 'if else' statements for all other datatypes
 
-  organizeFilterData() {
+  organizeFilterData(bool appendResult) {
     var projects = <String>[];
     var events = <String>[];
-
-    filterProjects = [];
-    filterEvents = [];
+    if (!appendResult) {
+      filterProjects = [];
+      filterEvents = [];
+    }
     for (final i in searchedhits.organizedhits) {
       //Find projects in response object
       if (i.id == "entityproject") {
@@ -115,7 +122,10 @@ class workspaceAssets with ChangeNotifier {
           projects.add(i.name);
         }
 
-        filterProjects = projects;
+        projects.forEach((element) {
+          filterProjects.add(element);
+        });
+
         print(workspaceProjects);
 
         //Find events in response object
@@ -126,8 +136,9 @@ class workspaceAssets with ChangeNotifier {
         for (final i in i.samples) {
           events.add(i.name);
         }
-
-        filterEvents = events;
+        events.forEach((element) {
+          filterEvents.add(element);
+        });
       }
     }
   }
