@@ -27,9 +27,7 @@ class EnterMedia {
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
-      String tokenKey = emUser.results.entermediakey;
-
-      // tokenKey = handleTokenKey(emUser.results.entermediakey);
+      String tokenKey = handleTokenKey(emUser.results.entermediakey);
 
       print("Setting Headers.");
       // todo: Important must specify types! Dart defaults to dynamic and http.post requires definitive types. - mando
@@ -62,9 +60,7 @@ class EnterMedia {
     var headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
-      String tokenKey = tempKey;
-
-      // tokenKey = handleTokenKey(tokenKey);
+      String tokenKey = handleTokenKey(tempKey);
 
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.

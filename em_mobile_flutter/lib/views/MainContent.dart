@@ -10,6 +10,7 @@ import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
+import 'package:em_mobile_flutter/views/ImageView.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
@@ -210,8 +211,11 @@ class MainContent extends StatelessWidget {
               ),
               //todo; This is where images are loaded
               delegate: SliverChildBuilderDelegate(
-                  (ctx, i) => Image.network(
-                        assets.filterUrls[i],
+                  (ctx, i) => InkWell(
+                        child: Image.network(
+                          assets.filterUrls[i],
+                        ),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ImageView(assets.filterUrls[i]))),
                       ),
                   childCount: assets.filterUrls?.length),
             ),
