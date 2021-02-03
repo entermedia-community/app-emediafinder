@@ -215,7 +215,7 @@ class MainContent extends StatelessWidget {
                         child: Image.network(
                           assets.filterUrls[i],
                         ),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ImageView(assets.filterUrls[i]))),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ImageView(assets.filterUrls, i))),
                       ),
                   childCount: assets.filterUrls?.length),
             ),
