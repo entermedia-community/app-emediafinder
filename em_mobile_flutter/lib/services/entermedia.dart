@@ -179,7 +179,6 @@ class EnterMedia {
 
   // this creates a new workspace for people who have an account already
   Future<CreateWorkspaceModel> createNewWorkspaces(String emkey, BuildContext context) async {
-    print("Hi there $emkey");
     final resMap = await postEntermedia(
       'https://emediafinder.com/entermediadb/app/services/createworkspace.json?',
       {"entermediakey": "$emkey"},
@@ -190,6 +189,42 @@ class EnterMedia {
       print(resMap);
       String response = json.encode(resMap);
       return CreateWorkspaceModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<Map> renameWorkspaces(String emkey, BuildContext context) async {
+    final resMap = await postEntermedia(
+      //TODO: Complete the URL here to get correct response
+      'https://emediafinder.com/entermediadb/mediadb/',
+      {"entermediakey": "$emkey"},
+      context,
+    );
+    print("Creating workspaces...");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return (json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<Map> deleteWorkspaces(String emkey, BuildContext context) async {
+    final resMap = await postEntermedia(
+      //TODO: Complete the URL here to get correct response
+      'https://emediafinder.com/entermediadb/mediadb/',
+      {"entermediakey": "$emkey"},
+      context,
+    );
+    print("Creating workspaces...");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return (json.decode(response));
     } else {
       print("Request failed!");
       return null;

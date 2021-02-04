@@ -9,6 +9,7 @@ import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
+import 'package:em_mobile_flutter/shared/ConfirmationDialog.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/ImageView.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
@@ -30,11 +31,12 @@ class MainContent extends StatelessWidget {
 
   final userWorkspaces myWorkspaces;
   final TextEditingController newWorkspaceController = new TextEditingController();
+  final TextEditingController renameController = new TextEditingController();
   String searchText = "";
   int currentWorkspace = 0;
   ValueNotifier<bool> isLoading = ValueNotifier(false);
 
-  setWorkspace() async {
+  getWorkspace() async {
     currentWorkspace = await sharedPref().getRecentWorkspace();
   }
 
@@ -42,7 +44,7 @@ class MainContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
     Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-    setWorkspace();
+    getWorkspace();
     return Stack(
       children: [
         Consumer<workspaceAssets>(
@@ -110,7 +112,12 @@ class MainContent extends StatelessWidget {
                                                       size: 18,
                                                     ),
                                                     SizedBox(width: 5),
-                                                    customPopupMenuItem(context, popupContext, "Rename", null),
+                                                    customPopupMenuItem(
+                                                      context,
+                                                      popupContext,
+                                                      "Rename",
+                                                      () => renameWorkspace(context, renameController),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -124,7 +131,12 @@ class MainContent extends StatelessWidget {
                                                       size: 18,
                                                     ),
                                                     SizedBox(width: 5),
-                                                    customPopupMenuItem(context, popupContext, "Delete", null),
+                                                    customPopupMenuItem(
+                                                      context,
+                                                      popupContext,
+                                                      "Delete",
+                                                      () => deleteWorkspace(context),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -155,7 +167,20 @@ class MainContent extends StatelessWidget {
                             value: 0,
                           ),
                           PopupMenuItem(
-                            child: customPopupMenuItem(context, popupContext, "Log out", () => logOutUser(context)),
+                            child: customPopupMenuItem(
+                              context,
+                              popupContext,
+                              "Log out",
+                              () => ConfirmationDialog(
+                                context: context,
+                                title: "Log out?",
+                                alertMessage: "Are you sure you want to log out?",
+                                hasSecondActionButton: true,
+                                actionButtonLabel: "Yes",
+                                actionButtonCallback: () => logOutUser(context),
+                                secondActionButtonLabel: "No",
+                              ).showPopUpDialog(),
+                            ),
                             value: 1,
                           ),
                         ];
@@ -451,7 +476,108 @@ class MainContent extends StatelessWidget {
     );
   }
 
+  deleteWorkspace(BuildContext context) {
+    ConfirmationDialog(
+      context: context,
+      title: "Delete Wokspace",
+      alertMessage: "Are you sure you want to delete ${myWorkspaces.names[currentWorkspace]}?",
+      hasSecondActionButton: true,
+      actionButtonLabel: "Yes",
+      actionButtonCallback: () async {
+        isLoading.value = true;
+        final EM = Provider.of<EnterMedia>(context, listen: false);
+        final myUser = Provider.of<userData>(context, listen: false);
+        print(myUser.entermediakey);
+        final Map createWorkspaceResponse = await EM.deleteWorkspaces(myUser.entermediakey, context);
+        print(createWorkspaceResponse);
+        if (json.encode(createWorkspaceResponse).contains("ok")) {
+          Fluttertoast.showToast(
+            msg: "Deletion initiated. Workspace will be deleted within 30 days.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 10,
+            backgroundColor: Color(0xff61af56),
+            fontSize: 16.0,
+          );
+        }
+        //TODO:Reload workspace after getting instUrl
+        // if (createWorkspaceResponse != null) {
+        //   reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
+        // }
+        isLoading.value = false;
+      },
+      secondActionButtonLabel: "No",
+    ).showPopUpDialog();
+  }
+
+  renameWorkspace(BuildContext context, TextEditingController renameController) async {
+    popupWithTextInput(
+        context: context,
+        controller: newWorkspaceController,
+        textFieldHint: "Rename Workspace",
+        buttonLabel: "Rename Workspace",
+        footerText: "",
+        onTap: () async {
+          isLoading.value = true;
+          final EM = Provider.of<EnterMedia>(context, listen: false);
+          final myUser = Provider.of<userData>(context, listen: false);
+          print(myUser.entermediakey);
+          final Map createWorkspaceResponse = await EM.renameWorkspaces(myUser.entermediakey, context);
+          print(createWorkspaceResponse);
+          if (json.encode(createWorkspaceResponse).contains("ok")) {
+            Fluttertoast.showToast(
+              msg: "Workspace renamed successfully!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 10,
+              backgroundColor: Color(0xff61af56),
+              fontSize: 16.0,
+            );
+          }
+          //TODO:Reload workspace after getting instUrl
+          // if (createWorkspaceResponse != null) {
+          //   reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
+          // }
+          isLoading.value = false;
+        });
+  }
+
   createWorkspace(BuildContext context, TextEditingController newWorkspaceController) {
+    popupWithTextInput(
+      context: context,
+      controller: newWorkspaceController,
+      textFieldHint: "Workspace name",
+      buttonLabel: "Create Workspace",
+      footerText: "Leave the textfield empty to generate randomly named workspace.",
+      onTap: () async {
+        isLoading.value = true;
+
+        final EM = Provider.of<EnterMedia>(context, listen: false);
+        final myUser = Provider.of<userData>(context, listen: false);
+        print(myUser.entermediakey);
+        final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
+        print(createWorkspaceResponse);
+        if (json.encode(createWorkspaceResponse).contains("ok")) {
+          Fluttertoast.showToast(
+            msg: "Workspace created successfully!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 10,
+            backgroundColor: Color(0xff61af56),
+            fontSize: 16.0,
+          );
+        }
+
+        if (createWorkspaceResponse != null) {
+          reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
+        }
+        isLoading.value = false;
+      },
+    );
+  }
+
+  popupWithTextInput(
+      {BuildContext context, TextEditingController controller, Function onTap, String footerText, String buttonLabel, String textFieldHint}) async {
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -464,9 +590,9 @@ class MainContent extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-                  controller: newWorkspaceController,
+                  controller: controller,
                   decoration: InputDecoration(
-                    labelText: "Workspace name",
+                    labelText: "$textFieldHint",
                   ),
                 ),
                 SizedBox(height: 8),
@@ -475,35 +601,17 @@ class MainContent extends StatelessWidget {
                   children: [
                     RaisedButton(
                       onPressed: () async {
-                        isLoading.value = true;
                         Navigator.of(dialogContext).pop();
-                        final EM = Provider.of<EnterMedia>(context, listen: false);
-                        final myUser = Provider.of<userData>(context, listen: false);
-                        print(myUser.entermediakey);
-                        final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
-                        print(createWorkspaceResponse);
-                        if (json.encode(createWorkspaceResponse).contains("ok")) {}
-                        Fluttertoast.showToast(
-                          msg: "Workspace created successfully!",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          timeInSecForIosWeb: 10,
-                          backgroundColor: Color(0xff61af56),
-                          fontSize: 16.0,
-                        );
-                        if (createWorkspaceResponse != null) {
-                          reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
-                        }
-                        isLoading.value = false;
+                        onTap();
                       },
-                      child: Text("Create Workspace"),
+                      child: Text("$buttonLabel"),
                     ),
                   ],
                 ),
                 SizedBox(height: 15),
                 Container(
                   child: Text(
-                    "Leave the textfield empty to generate randomly named workspace.",
+                    "$footerText",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey),
                   ),
