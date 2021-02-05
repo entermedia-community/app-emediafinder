@@ -57,6 +57,7 @@ class Sample {
     this.collectionid,
     this.id,
     this.name,
+    this.sourcepath,
     this.thumbnailimg,
     this.entitysourcetype,
     this.hasfulltext,
@@ -71,6 +72,7 @@ class Sample {
   String collectionid;
   String id;
   String name;
+  String sourcepath;
   String thumbnailimg;
   Entitysourcetype entitysourcetype;
   String hasfulltext;
@@ -86,6 +88,7 @@ class Sample {
         id: json["id"],
         name: json["name"],
         thumbnailimg: json["thumbnailimg"] == null ? null : json["thumbnailimg"],
+        sourcepath: json["sourcepath"] == null ? null : json["sourcepath"],
         entitysourcetype: json["entitysourcetype"] == null ? null : Entitysourcetype.fromJson(json["entitysourcetype"]),
         hasfulltext: json["hasfulltext"] == null ? null : json["hasfulltext"],
         parentid: json["parentid"] == null ? null : Entitysourcetype.fromJson(json["parentid"]),
@@ -100,6 +103,7 @@ class Sample {
         "collectionid": collectionid == null ? null : collectionid,
         "id": id,
         "name": name,
+        "sourcepath": sourcepath == null ? null : sourcepath,
         "thumbnailimg": thumbnailimg == null ? null : thumbnailimg,
         "entitysourcetype": entitysourcetype == null ? null : entitysourcetype.toJson(),
         "hasfulltext": hasfulltext == null ? null : hasfulltext,

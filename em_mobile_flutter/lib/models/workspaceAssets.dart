@@ -19,6 +19,8 @@ class workspaceAssets with ChangeNotifier {
   List filterUrls;
   List filterEvents;
   List filterProjects;
+  List imageSourcePath;
+  List imageName;
   int filterPageCount = 1;
   int currentPageNumber = 1;
 
@@ -26,11 +28,15 @@ class workspaceAssets with ChangeNotifier {
 
   getAssetSampleUrls<List>(String instanceUrl) {
     var images = <String>[];
+    var sources = <String>[];
+    var name = <String>[];
 
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       if (searchedhits.organizedhits[0].id == "asset") {
         for (final i in searchedhits.organizedhits[0].samples) {
           images.add(instanceUrl + i.thumbnailimg);
+          sources.add(instanceUrl + i.sourcepath);
+          name.add(instanceUrl + i.name);
         }
       }
     }
@@ -44,11 +50,15 @@ class workspaceAssets with ChangeNotifier {
 
   getFilteredAssetSampleUrls<List>(String instanceUrl, bool appendResult) {
     var images = <String>[];
+    var sources = <String>[];
+    var name = <String>[];
 
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       if (searchedhits.organizedhits[0].id == "asset") {
         for (final i in searchedhits.organizedhits[0].samples) {
           images.add(instanceUrl + i.thumbnailimg);
+          sources.add(i.sourcepath);
+          name.add(instanceUrl + i.name);
         }
       }
     }

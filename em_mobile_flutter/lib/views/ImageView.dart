@@ -1,12 +1,17 @@
+import 'package:em_mobile_flutter/models/userData.dart';
+import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_downloader/image_downloader.dart';
+import 'package:provider/provider.dart';
 
 class ImageView extends StatefulWidget {
   final List<dynamic> imageUrls;
   final int currentIndex;
-  ImageView(this.imageUrls, this.currentIndex);
+  final List<dynamic> name;
+  final String instanceUrl;
+  ImageView({@required this.imageUrls, @required this.currentIndex, @required this.instanceUrl, @required this.name});
 
   @override
   _ImageViewState createState() => _ImageViewState();
@@ -14,9 +19,11 @@ class ImageView extends StatefulWidget {
 
 class _ImageViewState extends State<ImageView> {
   PageController _controller;
+  var myUser;
   @override
   void initState() {
     _controller = new PageController(initialPage: widget.currentIndex);
+    myUser = Provider.of<userData>(context, listen: false);
     super.initState();
   }
 
@@ -31,11 +38,16 @@ class _ImageViewState extends State<ImageView> {
             itemCount: widget.imageUrls.length,
             scrollDirection: Axis.horizontal,
             itemBuilder: (BuildContext context, int index) {
+              String url =
+                  ("${widget.instanceUrl.toString()}/finder/mediadb/services/module/asset/downloads/originals/${widget.imageUrls[index].replaceAll(" ", "%20")}/${widget.name[index]}")
+                      .trim();
               return Center(
                 child: Container(
-                  child: Image.network(
-                    widget.imageUrls[index],
-                    fit: BoxFit.cover,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(url, headers: {"X-tokentype": "entermedia", 'X-token': '${myUser.entermediakey}'}),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               );

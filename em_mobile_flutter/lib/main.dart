@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import 'models/userData.dart';
@@ -107,11 +109,28 @@ reLoginUser(BuildContext context) async {
   print('Trying to relogin');
 
   if (emkey != null && myUser.entermediakey == null) {
-    final userInfo = await EM.emAutoLoginWithKey(context, emkey);
-    print('RELOGGING IN WITH STORED KEY');
-    print(emkey);
+    final EmUser userInfo = await EM.emAutoLoginWithKey(context, emkey);
+    if (userInfo.response.status == "ok") {
+      print('RELOGGING IN WITH STORED KEY');
+      print(emkey);
 
-    myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
-        userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
+      myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
+          userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
+    } else {
+      showErrorFlushbar(context, "Unable to log in using saved key! Please try again.");
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    }
   }
+}
+
+void showErrorFlushbar(BuildContext context, String message) {
+  Fluttertoast.showToast(
+    msg: "$message",
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 10,
+    backgroundColor: Colors.orange.withOpacity(0.8),
+    textColor: Colors.white,
+    fontSize: 16.0,
+  );
 }

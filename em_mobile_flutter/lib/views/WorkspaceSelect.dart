@@ -91,7 +91,6 @@ Future<bool> loadWorkspaces(BuildContext context) async {
   for (final project in userWorkspaces2.results) {
     myWorkspaces2.names.add(project.name);
     myWorkspaces2.colId.add(project.id);
-
     //Loop through response, add urls and check if blank.
     if (project.servers.isEmpty == true) {
       myWorkspaces2.instUrl.add("no instance url");
@@ -108,7 +107,6 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[0]);
     hitTracker.initializeFilters();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
     return wkspcs;
   }
   if (savedColId != null && savedColId < userWorkspaces2.results.length) {
@@ -118,7 +116,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[savedColId]);
     hitTracker.initializeFilters();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMenu()));
   }
+  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
   return wkspcs;
 }

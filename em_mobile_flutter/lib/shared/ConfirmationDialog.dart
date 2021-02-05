@@ -38,13 +38,6 @@ class ConfirmationDialog {
             ),
           ),
           actions: <Widget>[
-            FlatButton(
-              child: Text(
-                "$actionButtonLabel",
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
-              onPressed: actionButtonCallback != null ? actionButtonCallback : () => Navigator.of(popupContext).pop(),
-            ),
             if (hasSecondActionButton)
               FlatButton(
                 child: Text(
@@ -53,6 +46,13 @@ class ConfirmationDialog {
                 ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
+            FlatButton(
+              child: Text(
+                "$actionButtonLabel",
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+              onPressed: actionButtonCallback != null ? () => popPage(actionButtonCallback) : () => Navigator.of(popupContext).pop(),
+            ),
           ],
         ),
       ),
@@ -86,10 +86,15 @@ class ConfirmationDialog {
               "$actionButtonLabel",
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
-            onPressed: actionButtonCallback != null ? actionButtonCallback : () => Navigator.of(popupContext).pop(),
+            onPressed: actionButtonCallback != null ? () => popPage(actionButtonCallback) : () => Navigator.of(popupContext).pop(),
           ),
         ],
       ),
     );
+  }
+
+  popPage(Function callback) {
+    Navigator.of(context).pop();
+    callback();
   }
 }

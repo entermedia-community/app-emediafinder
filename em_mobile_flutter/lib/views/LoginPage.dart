@@ -8,6 +8,7 @@ import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
@@ -142,12 +143,19 @@ class _LoginPageState extends State<LoginPage> {
     print(sharedPref().getEMKey());
     //Get User info from entermedia website
     final EmUser userInfo = await EM.emLoginWithKey(context, entermediakey);
-    print(userInfo.results.screenname);
-    // Here we call and update global myUser class with Entermediadb.org user information after logging in.
-    myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
-        userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
-    //Firebase Authentication sign in.
-    context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
+    if (userInfo.response.status == "ok") {
+      await sharedPref().saveEMKey(entermediakey);
+      print(await sharedPref().getEMKey());
+      print(userInfo.results.screenname);
+      // Here we call and update global myUser class with Entermediadb.org user information after logging in.
+      myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
+          userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
+      //Firebase Authentication sign in.
+      context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
+    } else {
+      showErrorFlushbar(context, "Login failed! Please try again.");
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    }
   }
 
   Future<void> initPlatformState() async {
@@ -182,5 +190,17 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     _newUri = _initialUri;
+  }
+
+  void showErrorFlushbar(BuildContext context, String message) {
+    Fluttertoast.showToast(
+      msg: "$message",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 10,
+      backgroundColor: Colors.orange.withOpacity(0.8),
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 }

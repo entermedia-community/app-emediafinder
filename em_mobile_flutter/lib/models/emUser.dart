@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 //todo; NOTE: Don't touch make copy!
 EmUser emUserFromJson(String str) => EmUser.fromJson(json.decode(str));
 
@@ -14,14 +15,14 @@ class EmUser {
   Results results;
 
   factory EmUser.fromJson(Map<String, dynamic> json) => EmUser(
-    response: Response.fromJson(json["response"]),
-    results: Results.fromJson(json["results"]),
-  );
+        response: Response.fromJson(json["response"]),
+        results: Results.fromJson(json["results"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "response": response.toJson(),
-    "results": results.toJson(),
-  };
+        "response": response.toJson(),
+        "results": results.toJson(),
+      };
 }
 
 class Response {
@@ -34,14 +35,14 @@ class Response {
   String user;
 
   factory Response.fromJson(Map<String, dynamic> json) => Response(
-    status: json["status"],
-    user: json["user"],
-  );
+        status: json["status"],
+        user: json["user"] == null ? null : json["user"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "status": status,
-    "user": user,
-  };
+        "status": status,
+        "user": user == null ? null : user,
+      };
 }
 
 class Results {
@@ -64,22 +65,22 @@ class Results {
   String screenname;
 
   factory Results.fromJson(Map<String, dynamic> json) => Results(
-    entermediakey: json["entermediakey"],
-    firstname: json["firstname"],
-    lastname: json["lastname"],
-    email: json["email"],
-    firebasepassword: json["firebasepassword"],
-    userid: json["userid"],
-    screenname: json["screenname"],
-  );
+        entermediakey: json["entermediakey"] == null ? null : json["entermediakey"],
+        firstname: json["firstname"] == null ? null : json["firstname"],
+        lastname: json["lastname"] == null ? null : json["lastname"],
+        email: json["email"] == null ? null : json["email"],
+        firebasepassword: json["firebasepassword"] == null ? null : json["firebasepassword"],
+        userid: json["userid"] == null ? null : json["userid"],
+        screenname: json["screenname"] == null ? null : json["screenname"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "entermediakey": entermediakey,
-    "firstname": firstname,
-    "lastname": lastname,
-    "email": email,
-    "firebasepassword": firebasepassword,
-    "userid": userid,
-    "screenname": screenname,
-  };
+        "entermediakey": entermediakey == null ? null : entermediakey,
+        "firstname": firstname == null ? null : firstname,
+        "lastname": lastname == null ? null : lastname,
+        "email": email == null ? null : email,
+        "firebasepassword": firebasepassword == null ? null : firebasepassword,
+        "userid": userid == null ? null : userid,
+        "screenname": screenname == null ? null : screenname,
+      };
 }

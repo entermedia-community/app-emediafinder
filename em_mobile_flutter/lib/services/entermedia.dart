@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:em_mobile_flutter/Helper/customException.dart';
+import 'package:em_mobile_flutter/models/assetEntityModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
@@ -15,6 +17,7 @@ class EnterMedia {
   final String EM = 'https://entermediadb.org/entermediadb/app';
   final String MEDIADB = 'https://entermediadb.org/entermediadb/mediadb';
   final String EMFinder = 'https://emediafinder.com/entermediadb/mediadb';
+  final String EMImage = "/finder/mediadb/services/module/asset/downloads/originals/";
 
 //  final String MEDIADB = 'http://cburkey.entermediadb.org:8080/entermediadb/mediadb';
   var client = http.Client();
@@ -22,7 +25,7 @@ class EnterMedia {
   var tempKey;
 
   //Generic post method to entermedias server
-  Future<Map> postEntermedia(String url, Map jsonBody, BuildContext context, {String customError}) async {
+  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError}) async {
     //Set headers
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
@@ -45,7 +48,7 @@ class EnterMedia {
 
     // print(response.statusCode);
     if (response != null && response.statusCode == 200) {
-      print("Success user info is:" + response.body);
+      log("Success user info is:" + response.body);
       final String responseString = response.body;
       //returns map!
       return json.decode(responseString);
@@ -195,11 +198,11 @@ class EnterMedia {
     }
   }
 
-  Future<Map> renameWorkspaces(String emkey, BuildContext context) async {
+  Future<Map> renameWorkspaces(String newname, String colId, BuildContext context) async {
     final resMap = await postEntermedia(
       //TODO: Complete the URL here to get correct response
-      'https://emediafinder.com/entermediadb/mediadb/',
-      {"entermediakey": "$emkey"},
+      'https://emediafinder.com/entermediadb/app/services/relabelworkspace.json?newname=$newname&collectionid=$colId',
+      null,
       context,
     );
     print("Creating workspaces...");
@@ -213,11 +216,11 @@ class EnterMedia {
     }
   }
 
-  Future<Map> deleteWorkspaces(String emkey, BuildContext context) async {
+  Future<Map> deleteWorkspaces(String colId, BuildContext context) async {
     final resMap = await postEntermedia(
       //TODO: Complete the URL here to get correct response
-      'https://emediafinder.com/entermediadb/mediadb/',
-      {"entermediakey": "$emkey"},
+      'https://emediafinder.com/entermediadb/app/services/removeworkspace.json?collectionid=$colId',
+      null,
       context,
     );
     print("Creating workspaces...");
@@ -267,6 +270,48 @@ class EnterMedia {
       print(resMap);
       String response = json.encode(resMap);
       return WorkspaceAssetsModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<AssetEntityModel> getMediaAssets(BuildContext context, String url) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/module/asset/search',
+      null,
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return AssetEntityModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<AssetEntityModel> searchMediaAssets(BuildContext context, String url, String searchtext, String page) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/module/asset/search',
+      json.encode({
+        "query": {
+          "terms": [
+            {"field": "description", "operation": "freeform", "value": searchtext}
+          ]
+        },
+        "hitsperpage": "20",
+        "page": page,
+      }),
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return AssetEntityModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;

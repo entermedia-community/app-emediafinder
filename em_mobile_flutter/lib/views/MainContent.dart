@@ -13,6 +13,7 @@ import 'package:em_mobile_flutter/shared/ConfirmationDialog.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/ImageView.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
+import 'package:em_mobile_flutter/views/MediaAssetsSearch.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
@@ -31,7 +32,7 @@ class MainContent extends StatelessWidget {
 
   final userWorkspaces myWorkspaces;
   final TextEditingController newWorkspaceController = new TextEditingController();
-  final TextEditingController renameController = new TextEditingController();
+  TextEditingController renameController;
   String searchText = "";
   int currentWorkspace = 0;
   ValueNotifier<bool> isLoading = ValueNotifier(false);
@@ -235,12 +236,21 @@ class MainContent extends StatelessWidget {
                             children: [
                               Text('Media (' + assets.filterUrls?.length.toString() + ')'),
                               IconButton(
-                                  icon: Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 19,
-                                    color: Colors.deepOrangeAccent,
+                                icon: Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 19,
+                                  color: Colors.deepOrangeAccent,
+                                ),
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MediaAssetsSearch(
+                                      myWorkspaces: myWorkspaces,
+                                      currentWorkspace: currentWorkspace,
+                                    ),
                                   ),
-                                  onPressed: null)
+                                ),
+                              )
                             ],
                           ))),
                     )),
@@ -256,7 +266,17 @@ class MainContent extends StatelessWidget {
                             child: Image.network(
                               assets.filterUrls[i],
                             ),
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ImageView(assets.filterUrls, i))),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ImageView(
+                                  imageUrls: assets.imageSourcePath,
+                                  currentIndex: i,
+                                  instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                  name: assets.imageName,
+                                ),
+                              ),
+                            ),
                           ),
                       childCount: assets.filterUrls?.length),
                 ),
@@ -477,9 +497,11 @@ class MainContent extends StatelessWidget {
   }
 
   deleteWorkspace(BuildContext context) {
+    print("Viola!");
+    print(myWorkspaces.colId[currentWorkspace]);
     ConfirmationDialog(
       context: context,
-      title: "Delete Wokspace",
+      title: "Delete Workspace",
       alertMessage: "Are you sure you want to delete ${myWorkspaces.names[currentWorkspace]}?",
       hasSecondActionButton: true,
       actionButtonLabel: "Yes",
@@ -488,9 +510,9 @@ class MainContent extends StatelessWidget {
         final EM = Provider.of<EnterMedia>(context, listen: false);
         final myUser = Provider.of<userData>(context, listen: false);
         print(myUser.entermediakey);
-        final Map createWorkspaceResponse = await EM.deleteWorkspaces(myUser.entermediakey, context);
+        final Map createWorkspaceResponse = await EM.deleteWorkspaces("${myWorkspaces.colId[currentWorkspace]}", context);
         print(createWorkspaceResponse);
-        if (json.encode(createWorkspaceResponse).contains("ok")) {
+        if (json.encode(createWorkspaceResponse).contains("complete")) {
           Fluttertoast.showToast(
             msg: "Deletion initiated. Workspace will be deleted within 30 days.",
             toastLength: Toast.LENGTH_SHORT,
@@ -511,9 +533,12 @@ class MainContent extends StatelessWidget {
   }
 
   renameWorkspace(BuildContext context, TextEditingController renameController) async {
+    renameController = new TextEditingController()..text = myWorkspaces.names[currentWorkspace];
+    print("Viola!");
+    print(myWorkspaces.colId[currentWorkspace]);
     popupWithTextInput(
         context: context,
-        controller: newWorkspaceController,
+        controller: renameController,
         textFieldHint: "Rename Workspace",
         buttonLabel: "Rename Workspace",
         footerText: "",
@@ -522,9 +547,10 @@ class MainContent extends StatelessWidget {
           final EM = Provider.of<EnterMedia>(context, listen: false);
           final myUser = Provider.of<userData>(context, listen: false);
           print(myUser.entermediakey);
-          final Map createWorkspaceResponse = await EM.renameWorkspaces(myUser.entermediakey, context);
+          final Map createWorkspaceResponse =
+              await EM.renameWorkspaces("${renameController.text}", "${myWorkspaces.colId[currentWorkspace]}", context);
           print(createWorkspaceResponse);
-          if (json.encode(createWorkspaceResponse).contains("ok")) {
+          if (json.encode(createWorkspaceResponse).contains("complete")) {
             Fluttertoast.showToast(
               msg: "Workspace renamed successfully!",
               toastLength: Toast.LENGTH_SHORT,
@@ -534,10 +560,9 @@ class MainContent extends StatelessWidget {
               fontSize: 16.0,
             );
           }
-          //TODO:Reload workspace after getting instUrl
-          // if (createWorkspaceResponse != null) {
-          //   reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
-          // }
+          if (createWorkspaceResponse != null) {
+            reloadWorkspaces(context, myWorkspaces.instUrl[currentWorkspace]);
+          }
           isLoading.value = false;
         });
   }

@@ -25,25 +25,30 @@ class _HomeMenuState extends State<HomeMenu> {
     final EM = Provider.of<EnterMedia>(context);
     final myWorkspaces = Provider.of<userWorkspaces>(context);
 
-    return Scaffold(
-      backgroundColor: Color(0xff0c223a),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: () async {
-          Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Color(0xff0c223a),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.refresh),
+          onPressed: () async {
+            Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
 
-          final testWorkspaces = await EM.getEMWorkspaces(context);
-          print(testWorkspaces);
-        },
-      ),
-      body: Row(
-        children: <Widget>[
-          //From NavRail.dart
-          NavRail(),
-          Expanded(
-            child: MainContent(myWorkspaces: myWorkspaces),
-          )
-        ],
+            final testWorkspaces = await EM.getEMWorkspaces(context);
+            print(testWorkspaces);
+          },
+        ),
+        body: Row(
+          children: <Widget>[
+            //From NavRail.dart
+            NavRail(),
+            Expanded(
+              child: MainContent(myWorkspaces: myWorkspaces),
+            )
+          ],
+        ),
       ),
     );
   }
