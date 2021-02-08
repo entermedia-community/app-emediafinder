@@ -107,6 +107,8 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[0]);
     hitTracker.initializeFilters();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+
     return wkspcs;
   }
   if (savedColId != null && savedColId < userWorkspaces2.results.length) {
@@ -116,7 +118,7 @@ Future<bool> loadWorkspaces(BuildContext context) async {
     hitTracker.organizeData();
     hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[savedColId]);
     hitTracker.initializeFilters();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
   }
-  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
   return wkspcs;
 }
