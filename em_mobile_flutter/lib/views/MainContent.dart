@@ -113,11 +113,13 @@ class MainContent extends StatelessWidget {
                                                       size: 18,
                                                     ),
                                                     SizedBox(width: 5),
-                                                    customPopupMenuItem(
-                                                      context,
-                                                      popupContext,
-                                                      "Rename",
-                                                      () => renameWorkspace(context, renameController),
+                                                    Expanded(
+                                                      child: customPopupMenuItem(
+                                                        context,
+                                                        popupContext,
+                                                        "Rename",
+                                                        () => renameWorkspace(context, renameController),
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -132,11 +134,13 @@ class MainContent extends StatelessWidget {
                                                       size: 18,
                                                     ),
                                                     SizedBox(width: 5),
-                                                    customPopupMenuItem(
-                                                      context,
-                                                      popupContext,
-                                                      "Delete",
-                                                      () => deleteWorkspace(context),
+                                                    Expanded(
+                                                      child: customPopupMenuItem(
+                                                        context,
+                                                        popupContext,
+                                                        "Delete",
+                                                        () => deleteWorkspace(context),
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -158,14 +162,14 @@ class MainContent extends StatelessWidget {
                                           ),
                                       ],
                                       tilePadding: EdgeInsets.all(0),
-                                      childrenPadding: EdgeInsets.only(left: 8),
+                                      // childrenPadding: EdgeInsets.only(left: 8),
                                       initiallyExpanded: true,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            value: 0,
+                            value: null,
                           ),
                           PopupMenuItem(
                             child: customPopupMenuItem(
@@ -187,6 +191,19 @@ class MainContent extends StatelessWidget {
                         ];
                       },
                       offset: Offset(0, 50),
+                      onSelected: (value) {
+                        if (value == 1) {
+                          ConfirmationDialog(
+                            context: context,
+                            title: "Log out?",
+                            alertMessage: "Are you sure you want to log out?",
+                            hasSecondActionButton: true,
+                            actionButtonLabel: "Yes",
+                            actionButtonCallback: () => logOutUser(context),
+                            secondActionButtonLabel: "No",
+                          ).showPopUpDialog();
+                        }
+                      },
                     ),
                     SizedBox(width: 8),
                   ],
@@ -234,7 +251,7 @@ class MainContent extends StatelessWidget {
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Media (' + assets.filterUrls?.length.toString() + ')'),
+                              Text('Media (' + hitTracker?.sampleMediaCount.toString() + ')'),
                               IconButton(
                                 icon: Icon(
                                   Icons.arrow_forward_ios_rounded,
@@ -266,7 +283,8 @@ class MainContent extends StatelessWidget {
                             child: Image.network(
                               assets.filterUrls[i],
                             ),
-                            onTap: () => Navigator.push(
+                            onTap: () =>
+                                null /*Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ImageView(
@@ -276,7 +294,8 @@ class MainContent extends StatelessWidget {
                                   name: assets.imageName,
                                 ),
                               ),
-                            ),
+                            )*/
+                            ,
                           ),
                       childCount: assets.filterUrls?.length),
                 ),
@@ -291,7 +310,7 @@ class MainContent extends StatelessWidget {
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Projects (' + assets.filterProjects?.length.toString() + ')'),
+                              Text('Projects (' + hitTracker?.sampleProjectCount.toString() + ')'),
                               IconButton(
                                   icon: Icon(
                                     Icons.arrow_forward_ios_rounded,
@@ -325,7 +344,7 @@ class MainContent extends StatelessWidget {
                           color: Color(0xff384964),
                           child: Center(
                               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('Events (' + assets.filterEvents?.length.toString() + ')'),
+                            Text('Events (' + hitTracker?.sampleEventCount.toString() + ')'),
                             IconButton(
                                 icon: Icon(
                                   Icons.arrow_forward_ios_rounded,
@@ -431,20 +450,20 @@ class MainContent extends StatelessWidget {
   }
 
   Widget customPopupMenuItem(BuildContext context, BuildContext popupContext, String title, Function onTap) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      child: InkWell(
+    return InkWell(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 5),
         child: Text(
           "$title",
           style: TextStyle(
             color: Color(0xff92e184),
           ),
         ),
-        onTap: () {
-          Navigator.of(popupContext).pop();
-          onTap();
-        },
       ),
+      onTap: () {
+        Navigator.of(popupContext).pop();
+        onTap();
+      },
     );
   }
 

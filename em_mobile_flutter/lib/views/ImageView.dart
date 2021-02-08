@@ -35,7 +35,7 @@ class _ImageViewState extends State<ImageView> {
         children: [
           PageView.builder(
             controller: _controller,
-            itemCount: widget.imageUrls.length,
+            itemCount: widget.imageUrls?.length,
             scrollDirection: Axis.horizontal,
             itemBuilder: (BuildContext context, int index) {
               String url =

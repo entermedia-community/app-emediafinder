@@ -33,6 +33,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
   @override
   void initState() {
     _getAllImages();
+
     super.initState();
   }
 
@@ -72,6 +73,15 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
                       ),
                     );
             },
+          ),
+          SafeArea(
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
         ],
       ),
@@ -135,6 +145,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
 
   Widget _searchBar(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(top: 35),
       height: 80,
       child: SearchBar(
         icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
@@ -169,17 +180,26 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
               String url =
-                  ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}/finder/mediadb/services/module/asset/downloads/originals/${result[index].sourcepath.replaceAll(" ", "%20")}/${result[index].name}")
+                  ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}/finder/mediadb/services/module/asset/downloads/originals/${Uri.encodeFull(result[index].sourcepath)}/${result[index].name}")
                       .trim();
               print(url);
               return Container(
                 width: MediaQuery.of(context).size.width * 0.3,
+                height: 100,
                 padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
+                /*decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(url, headers: {"X-tokentype": "entermedia", 'X-token': '${myUser.entermediakey}'}),
                     fit: BoxFit.contain,
                   ),
+                ),*/
+                child: Image.network(
+                  url,
+                  headers: {"X-tokentype": "entermedia", 'X-token': '${myUser.entermediakey}'},
+                  errorBuilder: (context, _, e) {
+                    print(e);
+                    return Text(e.toString());
+                  },
                 ),
               );
             },

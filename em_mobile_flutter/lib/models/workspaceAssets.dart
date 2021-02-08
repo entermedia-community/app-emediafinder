@@ -23,6 +23,9 @@ class workspaceAssets with ChangeNotifier {
   List imageName;
   int filterPageCount = 1;
   int currentPageNumber = 1;
+  int sampleMediaCount = 0;
+  int sampleProjectCount = 0;
+  int sampleEventCount = 0;
 
   workspaceAssets({this.searchedhits});
 
@@ -38,6 +41,7 @@ class workspaceAssets with ChangeNotifier {
           sources.add(instanceUrl + i.sourcepath);
           name.add(instanceUrl + i.name);
         }
+        sampleMediaCount = int.parse(searchedhits.organizedhits[0].sampletotal.toString());
       }
     }
     imageUrls = images;
@@ -135,7 +139,6 @@ class workspaceAssets with ChangeNotifier {
         projects.forEach((element) {
           filterProjects.add(element);
         });
-
         print(workspaceProjects);
 
         //Find events in response object
@@ -172,6 +175,7 @@ class workspaceAssets with ChangeNotifier {
           }
 
           workspaceProjects = projects;
+          sampleProjectCount = int.parse(i.sampletotal.toString());
           print(workspaceProjects);
 
           //Find events in response object
@@ -184,6 +188,7 @@ class workspaceAssets with ChangeNotifier {
           }
 
           workspaceEvents = events;
+          sampleEventCount = int.parse(i.sampletotal.toString());
         } else if (i.id == "entityproduct") {
           print("These are workspace PRODUCTS");
           print(i.samples);
