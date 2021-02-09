@@ -37,6 +37,18 @@ class sharedPref {
     return intValue;
   }
 
+  setDeepLinkHandler(bool hasPassed) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('hasPassed', hasPassed);
+  }
+
+  getDeepLinkHandler() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //Return index of workspace
+    bool boolValue = prefs.getBool('hasPassed');
+    return boolValue;
+  }
+
   //todo; EX:Handle null int intValue= await prefs.getInt('intValue') ?? 0;
   //todo; EX: Check value SharedPreferences prefs = await SharedPreferences.getInstance();
   //todo; bool CheckValue = prefs.containsKey('value');

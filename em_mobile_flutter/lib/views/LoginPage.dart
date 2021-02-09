@@ -5,26 +5,52 @@ import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/services/authentication.dart';
-
+import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
+import 'package:uni_links/uni_links.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController entermediakeyController = TextEditingController();
 
   @override
-  void initState() {
+  initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      /* bool hasDeeplinkPassed = await sharedPref().getDeepLinkHandler();
+      if (hasDeeplinkPassed == true) {
+        try {
+          final _initialUri = await getInitialUri();
+          if (_initialUri != null) {
+            sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
+            onSignInWithKey(_initialUri?.queryParameters['entermedia.key'].toString(), context);
+          }
+        } on PlatformException {
+          print("Error");
+        }
+      }*/
+    }
   }
 
   @override
@@ -132,31 +158,14 @@ void onSignInWithKey(String entermediakey, BuildContext context) async {
   final myUser = Provider.of<userData>(context, listen: false);
   final EM = Provider.of<EnterMedia>(context, listen: false);
   //store the entermediakey from this login screent to local storage.
+  await sharedPref().saveEMKey(entermediakey);
+  print(sharedPref().getEMKey());
   //Get User info from entermedia website
   final EmUser userInfo = await EM.emLoginWithKey(context, entermediakey);
-  if (userInfo.response.status == "ok") {
-    await sharedPref().saveEMKey(entermediakey);
-    print(await sharedPref().getEMKey());
-    print(userInfo.results.screenname);
-    // Here we call and update global myUser class with Entermediadb.org user information after logging in.
-    myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
-        userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
-    //Firebase Authentication sign in.
-    context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
-  } else {
-    showErrorFlushbar(context, "Login failed! Please try again.");
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
-  }
-}
-
-void showErrorFlushbar(BuildContext context, String message) {
-  Fluttertoast.showToast(
-    msg: "$message",
-    toastLength: Toast.LENGTH_SHORT,
-    gravity: ToastGravity.BOTTOM,
-    timeInSecForIosWeb: 10,
-    backgroundColor: Colors.orange.withOpacity(0.8),
-    textColor: Colors.white,
-    fontSize: 16.0,
-  );
+  print(userInfo.results.screenname);
+  // Here we call and update global myUser class with Entermediadb.org user information after logging in.
+  myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
+      userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
+  //Firebase Authentication sign in.
+  context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
 }

@@ -469,6 +469,7 @@ class MainContent extends StatelessWidget {
 
   void logOutUser(BuildContext context) {
     sharedPref().resetValues();
+    sharedPref().setDeepLinkHandler(false);
     context.read<AuthenticationService>().signOut();
     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }

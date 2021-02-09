@@ -4,11 +4,10 @@ import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
-import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:uni_links/uni_links.dart';
+
 import 'models/userData.dart';
 import 'models/userWorkspaces.dart';
 import 'models/workspaceAssets.dart';
@@ -54,7 +53,9 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<workspaceAssets>(create: (context) => workspaceAssets()),
         Provider<EnterMedia>(create: (context) => EnterMedia()),
         Provider<sharedPref>(create: (context) => sharedPref()),
-        Provider<AuthenticationService>(create: (_) => AuthenticationService(FirebaseAuth.instance)),
+        Provider<AuthenticationService>(
+          create: (_) => AuthenticationService(FirebaseAuth.instance),
+        ),
         StreamProvider(
           create: (context) => context.read<AuthenticationService>().authStateChanges,
         ),
@@ -89,83 +90,98 @@ class AuthenticationWrapper extends StatefulWidget {
 class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   Uri _initialUri;
   Uri _newUri;
-  StreamSubscription _stream;
 
+  StreamSubscription _stream;
+  var firebaseUser;
+  @override
+  void initState() {
+    sharedPref().setDeepLinkHandler(true);
+    firebaseUser = context.watch<User>();
+    initPlatformState();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _stream.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final firebaseUser = context.watch<User>();
-    initPlatformStateForUriUniLinks();
     if (firebaseUser == null) {
       return LoginPage();
     } else {
       //Attempt relogin with current stored shared preferences key.
-      reLoginUser(context);
+      reLoginUser();
+
       return WorkspaceSelect();
     }
   }
 
-  Future<void> initPlatformStateForUriUniLinks() async {
-    _stream = getUriLinksStream().listen((Uri uri) {
-      if (_initialUri != null) {
-        onSignInWithKey(_initialUri?.queryParameters['entermedia.key'], context);
-      }
-      _newUri = uri;
-    }, onError: (Object err) {
-      _newUri = null;
-    });
-
-    getUriLinksStream().listen((Uri uri) {
-      if (uri != null) {
-        onSignInWithKey(uri?.queryParameters['entermedia.key'], context);
-      }
-      print('got uri: ${uri?.path} ${uri?.queryParametersAll}');
-    }, onError: (Object err) {
-      print('got err: $err');
-    });
-
-    try {
-      _initialUri = await getInitialUri();
-      if (_initialUri != null) {
-        onSignInWithKey(_initialUri?.queryParameters['entermedia.key'], context);
-      }
-    } on PlatformException {
-      _initialUri = null;
-    }
-
-    _newUri = _initialUri;
-    _stream.cancel();
+  Future<void> initPlatformState() async {
+    await initPlatformStateForUriUniLinks();
   }
-}
 
-reLoginUser(BuildContext context) async {
-  final EM = Provider.of<EnterMedia>(context);
-  final myUser = Provider.of<userData>(context);
-  String emkey = await sharedPref().getEMKey();
+  Future<void> initPlatformStateForUriUniLinks() async {
+    try {
+      _stream = getUriLinksStream().listen((Uri uri) {
+        if (_initialUri != null) {
+          sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
+          reLoginUser().then((value) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+          });
+        }
+        _newUri = uri;
+      }, onError: (Object err) {
+        _newUri = null;
+      });
 
-  print('Trying to relogin');
+      getUriLinksStream().listen((Uri uri) {
+        if (uri != null) {
+          sharedPref().saveEMKey(uri?.queryParameters['entermedia.key'].toString());
+          reLoginUser().then((value) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+          });
+        }
+        print('got uri: ${uri?.path} ${uri?.queryParametersAll}');
+      }, onError: (Object err) {
+        print('got err: $err');
+      });
 
-  if (emkey != null && myUser.entermediakey == null) {
-    final EmUser userInfo = await EM.emAutoLoginWithKey(context, emkey);
-    if (userInfo.response.status == "ok") {
+      try {
+        _initialUri = await getInitialUri();
+        if (_initialUri != null) {
+          sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
+          reLoginUser().then((value) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+          });
+        }
+      } on PlatformException {
+        _initialUri = null;
+      }
+
+      _newUri = _initialUri;
+    } catch (e) {
+      print("Error");
+    }
+  }
+
+  Future<void> reLoginUser() async {
+    final EM = Provider.of<EnterMedia>(context);
+    final myUser = Provider.of<userData>(context);
+    String emkey = await sharedPref().getEMKey();
+
+    print('Trying to relogin');
+
+    if (emkey != null && myUser.entermediakey == null) {
+      final userInfo = await EM.emAutoLoginWithKey(context, emkey);
       print('RELOGGING IN WITH STORED KEY');
       print(emkey);
 
       myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
           userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
-    } else {
-      showErrorFlushbar(context, "Unable to log in using saved key! Please try again.");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
     }
+    print("called again");
   }
-}
-
-void showErrorFlushbar(BuildContext context, String message) {
-  Fluttertoast.showToast(
-    msg: "$message",
-    toastLength: Toast.LENGTH_SHORT,
-    gravity: ToastGravity.BOTTOM,
-    timeInSecForIosWeb: 10,
-    backgroundColor: Colors.orange.withOpacity(0.8),
-    textColor: Colors.white,
-    fontSize: 16.0,
-  );
 }
