@@ -3,10 +3,12 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:em_mobile_flutter/Helper/customException.dart';
-import 'package:em_mobile_flutter/models/assetEntityModel.dart';
+import 'package:em_mobile_flutter/models/eventAssetModel.dart';
+import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
+import 'package:em_mobile_flutter/models/projectAssetModel.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -276,7 +278,7 @@ class EnterMedia {
     }
   }
 
-  Future<AssetEntityModel> getMediaAssets(BuildContext context, String url) async {
+  Future<MediaAssetModel> getMediaAssets(BuildContext context, String url) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/asset/search',
       null,
@@ -286,14 +288,14 @@ class EnterMedia {
     if (resMap != null) {
       print(resMap);
       String response = json.encode(resMap);
-      return AssetEntityModel.fromJson(json.decode(response));
+      return MediaAssetModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;
     }
   }
 
-  Future<AssetEntityModel> searchMediaAssets(BuildContext context, String url, String searchtext, String page) async {
+  Future<MediaAssetModel> searchMediaAssets(BuildContext context, String url, String searchtext, String page) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/asset/search',
       json.encode({
@@ -311,7 +313,91 @@ class EnterMedia {
     if (resMap != null) {
       print(resMap);
       String response = json.encode(resMap);
-      return AssetEntityModel.fromJson(json.decode(response));
+      return MediaAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<ProjectAssetModel> getProjectsAssets(BuildContext context, String url) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/entityproject',
+      null,
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityproject");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return ProjectAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<ProjectAssetModel> searchProjectsAssets(BuildContext context, String url, String searchtext, String page) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/entityproject',
+      json.encode({
+        "query": {
+          "terms": [
+            {"field": "description", "operation": "freeform", "value": searchtext}
+          ]
+        },
+        "hitsperpage": "20",
+        "page": page,
+      }),
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityproject");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return ProjectAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<EventAssetModel> getEventsAssets(BuildContext context, String url) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/entityevent',
+      null,
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityevent");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return EventAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<EventAssetModel> searchEventsAssets(BuildContext context, String url, String searchtext, String page) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/entityevent',
+      json.encode({
+        "query": {
+          "terms": [
+            {"field": "description", "operation": "freeform", "value": searchtext}
+          ]
+        },
+        "hitsperpage": "20",
+        "page": page,
+      }),
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityevent");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return EventAssetModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;

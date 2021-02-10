@@ -1,10 +1,10 @@
-class AssetEntityModel {
+class MediaAssetModel {
   Response response;
   List<MediaResults> results;
 
-  AssetEntityModel({this.response, this.results});
+  MediaAssetModel({this.response, this.results});
 
-  AssetEntityModel.fromJson(Map<String, dynamic> json) {
+  MediaAssetModel.fromJson(Map<String, dynamic> json) {
     response = json['response'] != null ? new Response.fromJson(json['response']) : null;
     if (json['results'] != null) {
       results = new List<MediaResults>();

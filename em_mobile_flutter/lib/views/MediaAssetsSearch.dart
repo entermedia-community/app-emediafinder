@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:em_mobile_flutter/models/assetEntityModel.dart';
+import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
@@ -93,7 +93,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     print(myUser.entermediakey);
-    final AssetEntityModel assetResponse = await EM.getMediaAssets(
+    final MediaAssetModel assetResponse = await EM.getMediaAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
     );
@@ -111,7 +111,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     print(myUser.entermediakey);
-    final AssetEntityModel assetSearchResponse = await EM.getMediaAssets(
+    final MediaAssetModel assetSearchResponse = await EM.getMediaAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
     );
@@ -129,7 +129,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     print(myUser.entermediakey);
-    final AssetEntityModel assetSearchResponse = await EM.searchMediaAssets(
+    final MediaAssetModel assetSearchResponse = await EM.searchMediaAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
       searchText,

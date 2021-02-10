@@ -10,10 +10,12 @@ import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/shared/ConfirmationDialog.dart';
+import 'package:em_mobile_flutter/views/EventSearch.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/ImageView.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/views/MediaAssetsSearch.dart';
+import 'package:em_mobile_flutter/views/ProjectSearch.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
@@ -312,12 +314,18 @@ class MainContent extends StatelessWidget {
                             children: [
                               Text('Projects (' + hitTracker?.sampleProjectCount.toString() + ')'),
                               IconButton(
-                                  icon: Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 19,
-                                    color: Colors.deepOrangeAccent,
+                                icon: Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 19,
+                                  color: Colors.deepOrangeAccent,
+                                ),
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProjectSearch(myWorkspaces: myWorkspaces, currentWorkspace: currentWorkspace),
                                   ),
-                                  onPressed: null)
+                                ),
+                              )
                             ],
                           ))),
                     )),
@@ -346,12 +354,18 @@ class MainContent extends StatelessWidget {
                               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                             Text('Events (' + hitTracker?.sampleEventCount.toString() + ')'),
                             IconButton(
-                                icon: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 19,
-                                  color: Colors.deepOrangeAccent,
+                              icon: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 19,
+                                color: Colors.deepOrangeAccent,
+                              ),
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EventSearch(myWorkspaces: myWorkspaces, currentWorkspace: currentWorkspace),
                                 ),
-                                onPressed: null)
+                              ),
+                            )
                           ]))),
                     )),
                 SliverList(
@@ -603,14 +617,15 @@ class MainContent extends StatelessWidget {
         final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
         print(createWorkspaceResponse);
         if (json.encode(createWorkspaceResponse).contains("ok")) {
-          Fluttertoast.showToast(
+          /*Fluttertoast.showToast(
             msg: "Workspace created successfully!",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 10,
             backgroundColor: Color(0xff61af56),
             fontSize: 16.0,
-          );
+            webPosition: Alignment.bottomCenter,
+          );*/
         }
 
         if (createWorkspaceResponse != null) {
