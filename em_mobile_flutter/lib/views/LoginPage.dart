@@ -38,18 +38,19 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      /* bool hasDeeplinkPassed = await sharedPref().getDeepLinkHandler();
+      bool hasDeeplinkPassed = await sharedPref().getDeepLinkHandler();
       if (hasDeeplinkPassed == true) {
         try {
           final _initialUri = await getInitialUri();
           if (_initialUri != null) {
             sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
             onSignInWithKey(_initialUri?.queryParameters['entermedia.key'].toString(), context);
+            sharedPref().setDeepLinkHandler(false);
           }
         } on PlatformException {
           print("Error");
         }
-      }*/
+      }
     }
   }
 
@@ -94,7 +95,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
               SizedBox(height: 15),
               RaisedButton(
                 onPressed: () async {
-                  onSignInWithKey(entermediakeyController.text.trim(), context);
+                  if (entermediakeyController.text.trim().length > 0) {
+                    onSignInWithKey(entermediakeyController.text.trim(), context);
+                  }
                 },
                 child: Text("Sign In With Key"),
               ),

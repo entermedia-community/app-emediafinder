@@ -92,12 +92,10 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   Uri _newUri;
 
   StreamSubscription _stream;
-  var firebaseUser;
   @override
   void initState() {
-    sharedPref().setDeepLinkHandler(true);
-    firebaseUser = context.watch<User>();
-    initPlatformState();
+    sharedPref().setDeepLinkHandler(false);
+
     super.initState();
   }
 
@@ -109,6 +107,8 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final firebaseUser = context.watch<User>();
+    initPlatformState();
     if (firebaseUser == null) {
       return LoginPage();
     } else {
@@ -127,6 +127,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     try {
       _stream = getUriLinksStream().listen((Uri uri) {
         if (_initialUri != null) {
+          sharedPref().setDeepLinkHandler(true);
           sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
@@ -139,6 +140,8 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
       getUriLinksStream().listen((Uri uri) {
         if (uri != null) {
+          sharedPref().setDeepLinkHandler(true);
+
           sharedPref().saveEMKey(uri?.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
@@ -152,6 +155,8 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       try {
         _initialUri = await getInitialUri();
         if (_initialUri != null) {
+          sharedPref().setDeepLinkHandler(true);
+
           sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
@@ -168,8 +173,8 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   }
 
   Future<void> reLoginUser() async {
-    final EM = Provider.of<EnterMedia>(context);
-    final myUser = Provider.of<userData>(context);
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    final myUser = Provider.of<userData>(context, listen: false);
     String emkey = await sharedPref().getEMKey();
 
     print('Trying to relogin');
