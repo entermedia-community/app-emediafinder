@@ -121,8 +121,9 @@ class MediaResults {
   String name;
   String sourcepath;
   String hasfulltext;
+  List<Downloads> downloads;
 
-  MediaResults({this.datatype, this.collectionid, this.id, this.entitysourcetype, this.name, this.sourcepath, this.hasfulltext});
+  MediaResults({this.datatype, this.collectionid, this.id, this.entitysourcetype, this.name, this.sourcepath, this.hasfulltext, this.downloads});
 
   MediaResults.fromJson(Map<String, dynamic> json) {
     datatype = json['datatype'] != null ? new Datatype.fromJson(json['datatype']) : null;
@@ -132,6 +133,12 @@ class MediaResults {
     name = json['name'];
     sourcepath = json['sourcepath'];
     hasfulltext = json['hasfulltext'];
+    if (json['downloads'] != null) {
+      downloads = new List<Downloads>();
+      json['downloads'].forEach((v) {
+        downloads.add(new Downloads.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -148,6 +155,11 @@ class MediaResults {
     data['sourcepath'] = this.sourcepath;
     data['hasfulltext'] = this.hasfulltext;
     return data;
+  }
+
+  getThumbPath() {
+    Downloads download =  downloads.where((element) => element.id == Downloads.thumbImage).first;
+    return download?.url ?? '';
   }
 }
 
@@ -166,6 +178,29 @@ class Datatype {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['name'] = this.name;
+    return data;
+  }
+}
+
+class Downloads {
+  static String thumbImage = 'thumbimage';
+  String name;
+  String id;
+  String url;
+
+  Downloads({this.name, this.id, this.url});
+
+  Downloads.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    id = json['id'];
+    url = json['url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = this.name;
+    data['id'] = this.id;
+    data['url'] = this.url;
     return data;
   }
 }

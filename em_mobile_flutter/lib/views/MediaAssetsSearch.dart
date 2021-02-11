@@ -180,33 +180,21 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
               String url =
-                  ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}/finder/mediadb/services/module/asset/downloads/originals/${Uri.encodeFull(result[index].sourcepath)}/${result[index].name}")
+                  ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(result[index].getThumbPath())}")
                       .trim();
+              print('image url');
               print(url);
-              Map<String, String> headers = {
-                'Content-type': 'application/json',
-                'Accept': 'application/json',
-                "Authorization": '${myUser.entermediakey}',
-                "X-tokentype": 'entermedia',
-              };
-              return CachedNetworkImage(
-                imageUrl: "$url",
-                httpHeaders: headers,
-                imageRenderMethodForWeb: ImageRenderMethodForWeb.HttpGet,
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(
-                        Colors.red,
-                        BlendMode.colorBurn,
-                      ),
-                    ),
+
+              return Container(
+                width: MediaQuery.of(context).size.width * 0.3,
+                height: 100,
+                padding: EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(url),
+                    fit: BoxFit.contain,
                   ),
                 ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Text(error.toString()),
               );
             },
           ),
