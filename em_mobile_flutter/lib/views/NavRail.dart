@@ -31,20 +31,21 @@ class _NavRailState extends State<NavRail> {
         ),
         NavigationRailDestination(
           icon: Icon(Icons.account_tree_rounded),
-          label: Text('Linked Folders'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.face_retouching_natural),
-          label: Text('Facial Recognition'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.bookmark_rounded),
-          label: Text('Favorites'),
+          label: Text('Show Categories'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.photo_library_outlined),
           label: Text('Albums'),
         ),
+        NavigationRailDestination(
+          icon: Icon(Icons.cloud),
+          label: Text('Facial Recognition'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.replay),
+          label: Text('Recent'),
+        ),
+
 //        NavigationRailDestination(
 //            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
