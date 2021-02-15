@@ -39,7 +39,7 @@ class _NavRailState extends State<NavRail> {
         ),
         NavigationRailDestination(
           icon: Icon(Icons.cloud),
-          label: Text('Facial Recognition'),
+          label: Text('AI Facial Recognition'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.replay),
