@@ -174,7 +174,12 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListView.builder(
+          GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisSpacing: 1,
+              mainAxisSpacing: 1,
+              crossAxisCount: 3,
+            ),
             itemCount: result?.length,
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
