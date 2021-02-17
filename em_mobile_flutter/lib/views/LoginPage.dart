@@ -8,6 +8,7 @@ import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/views/WorkspaceSelect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
@@ -43,8 +44,11 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         try {
           final _initialUri = await getInitialUri();
           if (_initialUri != null) {
-            sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
-            onSignInWithKey(_initialUri?.queryParameters['entermedia.key'].toString(), context);
+            sharedPref().saveEMKey(
+                _initialUri?.queryParameters['entermedia.key'].toString());
+            onSignInWithKey(
+                _initialUri?.queryParameters['entermedia.key'].toString(),
+                context);
             sharedPref().setDeepLinkHandler(false);
           }
         } on PlatformException {
@@ -87,51 +91,99 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                 child: TextField(
                   autofocus: true,
                   cursorColor: Color(0xff61af56),
-                  controller: entermediakeyController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "EnterMedia Key", focusColor: Color(0xff61af56)),
+                  controller:
+                      emailController, // if needed change back to entermediakeyController
+                  decoration: InputDecoration(
+                      labelText: "E-mail", focusColor: Color(0xff61af56)),
                 ),
               ),
               SizedBox(height: 15),
               RaisedButton(
                 onPressed: () async {
-                  if (entermediakeyController.text.trim().length > 0) {
-                    onSignInWithKey(entermediakeyController.text.trim(), context);
+                  if (emailController.text.trim().length > 0) {
+                    String email = emailController.text.trim();
+                    //Send email entermedia website and send key in email if email exists.
+                    final bool emailResp = await EM.emEmailKey(context, email);
+
+                    if(emailResp == true){
+                      Fluttertoast.showToast(
+                        msg: "E-mail Sent! Please check your e-mail.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 10,
+                        backgroundColor: Color(0xff61af56),
+                        fontSize: 16.0,
+                      );
+                    }else{
+                      Fluttertoast.showToast(
+                        msg: "Error. E-mail not sent!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 10,
+                        backgroundColor: Colors.deepOrangeAccent,
+                        fontSize: 16.0,
+                      );
+                    }
                   }
                 },
-                child: Text("Sign In With Key"),
+                child: Text("Send Key"),
               ),
+//              RaisedButton(
+//                onPressed: () async {
+//                  if (entermediakeyController.text.trim().length > 0) {
+//                    onSignInWithKey(entermediakeyController.text.trim(), context);
+//                  }
+//                },
+//                child: Text("Sign In With Key"),
+//              ),
               FlatButton(
-                  child: Text('E-Mail Me a Key?', style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300, color: Color(0xff61af56))),
+                  child: Text('Paste key here',
+                      style: new TextStyle(
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w300,
+                          color: Color(0xff61af56))),
                   onPressed: () {
                     showDialog(
                         context: context,
                         builder: (context) {
                           return Dialog(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
                               elevation: 16,
                               child: Container(
                                 height: 200.0,
                                 width: 600.0,
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(15, 50, 15, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 50, 15, 0),
                                   child: Column(
                                     children: [
                                       TextField(
-                                        controller: emailController,
+                                        autofocus: true,
+                                        controller: entermediakeyController,
                                         decoration: InputDecoration(
-                                          labelText: "E- mail",
+                                          labelText: "eMedia Key",
                                         ),
                                       ),
                                       SizedBox(height: 10),
                                       RaisedButton(
                                         onPressed: () async {
-                                          String email = emailController.text.trim();
+                                          String emkey = entermediakeyController
+                                              .text
+                                              .trim();
                                           //Send email entermedia website and send key in email if email exists.
-                                          EM.emEmailKey(context, email);
-                                          Navigator.of(context).pop();
+                                          if (entermediakeyController.text
+                                                  .trim()
+                                                  .length >
+                                              0) {
+                                            onSignInWithKey(
+                                                emkey,
+                                                context);
+                                          }
+//                                          EM.emEmailKey(context, email);
+//                                          Navigator.of(context).pop();
                                         },
-                                        child: Text("E-mail Key"),
+                                        child: Text("Sign-in"),
                                       ),
                                     ],
                                   ),
@@ -167,8 +219,15 @@ void onSignInWithKey(String entermediakey, BuildContext context) async {
   final EmUser userInfo = await EM.emLoginWithKey(context, entermediakey);
   print(userInfo.results.screenname);
   // Here we call and update global myUser class with Entermediadb.org user information after logging in.
-  myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
-      userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
+  myUser.addUser(
+      userInfo.results.userid,
+      userInfo.results.screenname,
+      userInfo.results.entermediakey,
+      userInfo.results.firstname,
+      userInfo.results.lastname,
+      userInfo.results.email,
+      userInfo.results.firebasepassword);
   //Firebase Authentication sign in.
-  context.read<AuthenticationService>().signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
+  context.read<AuthenticationService>().signIn(
+      email: myUser.email, password: myUser.firebasepassword, context: context);
 }

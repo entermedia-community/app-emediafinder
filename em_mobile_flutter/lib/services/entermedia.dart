@@ -147,7 +147,7 @@ class EnterMedia {
     final resMap = await postEntermedia(
       EMFinder + '/services/authentication/sendmagiclink.json',
       {"to": email},
-      context,
+      context
     );
 
     print("Sending email...");
