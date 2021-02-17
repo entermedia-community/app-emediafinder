@@ -47,7 +47,7 @@
                 <data
                     android:host="emediafinder.com"
                     android:pathPrefix="/app/workspaces/"
-                    android:scheme="http" />
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
