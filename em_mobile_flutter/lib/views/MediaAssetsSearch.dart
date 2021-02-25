@@ -148,14 +148,14 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       margin: EdgeInsets.only(top: 35),
       height: 80,
       child: SearchBar(
-        icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
+        icon: Icon(Icons.search_rounded, color: Color(0xff237C9C)),
         hintText: "Search your media...",
         hintStyle: TextStyle(color: Colors.grey),
         minimumChars: 0,
         cancellationWidget: Icon(Icons.clear),
         onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
         searchBarStyle: SearchBarStyle(
-          backgroundColor: Color(0xff384964),
+          backgroundColor: Colors.white70,
           padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
         ),
         onSearch: (val) async {

@@ -169,7 +169,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
             alignment: Alignment.center,
             height: 80,
             child: SearchBar(
-              icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
+              icon: Icon(Icons.search_rounded, color: Color(0xff237C9C)),
               hintText: "Search your project...",
               hintStyle: TextStyle(color: Colors.grey),
               minimumChars: 0,

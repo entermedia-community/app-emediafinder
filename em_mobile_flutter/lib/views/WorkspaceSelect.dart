@@ -27,7 +27,7 @@ class WorkspaceSelect extends StatelessWidget {
                   children: [
                     Text(
                       "Select a Workspace",
-                      style: TextStyle(color: Color(0xff61af56)),
+                      style: TextStyle(color: Color(0xff237C9C)),
                     ),
                     emLogoIcon(),
                   ],
@@ -58,7 +58,7 @@ class WorkspaceSelect extends StatelessWidget {
                   children: [
                     Text(
                       "Select a Workspace",
-                      style: TextStyle(color: Color(0xff61af56)),
+                      style: TextStyle(color: Color(0xff237C9C)),
                     ),
                     emLogoIcon(),
                   ],
