@@ -21,6 +21,8 @@ class workspaceAssets with ChangeNotifier {
   List filterProjects;
   List imageSourcePath;
   List imageName;
+  List ids;
+  List filterIds;
   int filterPageCount = 1;
   int currentPageNumber = 1;
   int totalMediaCount = 0;
@@ -33,6 +35,7 @@ class workspaceAssets with ChangeNotifier {
     var images = <String>[];
     var sources = <String>[];
     var name = <String>[];
+    var id = <String>[];
 
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       if (searchedhits.organizedhits[0].id == "asset") {
@@ -40,10 +43,12 @@ class workspaceAssets with ChangeNotifier {
           images.add(instanceUrl + i.thumbnailimg);
           sources.add(instanceUrl + i.sourcepath);
           name.add(instanceUrl + i.name);
+          id.add(i.id);
         }
         totalMediaCount = int.parse(searchedhits.organizedhits[0].sampletotal.toString());
       }
     }
+    ids = id;
     imageUrls = images;
     print(images);
 
@@ -56,6 +61,7 @@ class workspaceAssets with ChangeNotifier {
     var images = <String>[];
     var sources = <String>[];
     var name = <String>[];
+    var id = <String>[];
 
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       if (searchedhits.organizedhits[0].id == "asset") {
@@ -63,14 +69,17 @@ class workspaceAssets with ChangeNotifier {
           images.add(instanceUrl + i.thumbnailimg);
           sources.add(i.sourcepath);
           name.add(instanceUrl + i.name);
+          id.add(i.id);
         }
       }
     }
     if (!appendResult) {
       filterUrls = images;
+      filterIds = id;
       print(images);
     } else {
       filterUrls.addAll(images);
+      filterIds.addAll(id);
       print(images);
     }
 
@@ -83,6 +92,7 @@ class workspaceAssets with ChangeNotifier {
     filterUrls = imageUrls;
     filterEvents = workspaceEvents;
     filterProjects = workspaceProjects;
+    filterIds = ids;
     notifyListeners();
   }
 

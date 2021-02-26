@@ -1,5 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
+import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,24 +10,59 @@ import 'package:image_downloader/image_downloader.dart';
 import 'package:provider/provider.dart';
 
 class ImageView extends StatefulWidget {
-  final List<dynamic> imageUrls;
-  final int currentIndex;
-  final List<dynamic> name;
+  final String collectionId;
   final String instanceUrl;
-  ImageView({@required this.imageUrls, @required this.currentIndex, @required this.instanceUrl, @required this.name});
+  final bool hasDirectLink;
+  final String directLink;
+  ImageView({@required this.collectionId, @required this.instanceUrl, @required this.hasDirectLink, @required this.directLink});
 
   @override
   _ImageViewState createState() => _ImageViewState();
 }
 
 class _ImageViewState extends State<ImageView> {
-  PageController _controller;
+  ValueNotifier<bool> isLoading = ValueNotifier(false);
+  List<MediaResults> result = new List<MediaResults>();
   var myUser;
+  String imageUrl = '';
+
   @override
   void initState() {
-    _controller = new PageController(initialPage: widget.currentIndex);
     myUser = Provider.of<userData>(context, listen: false);
+    if (widget.hasDirectLink) {
+      setState(() {
+        imageUrl = widget.directLink;
+      });
+    } else {
+      getFullSizeImage();
+    }
     super.initState();
+  }
+
+  Future<void> getFullSizeImage() async {
+    isLoading.value = true;
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    final myUser = Provider.of<userData>(context, listen: false);
+    print(myUser.entermediakey);
+    final MediaAssetModel assetResponse = await EM.getMediaAssets(
+      context,
+      widget.instanceUrl,
+    );
+    if (assetResponse != null && assetResponse.response.status == "ok") {
+      result = assetResponse.results;
+      for (var i in result) {
+        if (i.id == widget.collectionId) {
+          print("collection id is : ${widget.collectionId}");
+          imageUrl = i.downloads[2].url.toString();
+          setState(() {});
+          isLoading.value = false;
+          return;
+        }
+      }
+      setState(() {});
+    }
+    print(assetResponse);
+    isLoading.value = false;
   }
 
   @override
@@ -33,24 +71,30 @@ class _ImageViewState extends State<ImageView> {
       backgroundColor: Color(0xff0c223a),
       body: Stack(
         children: [
-          PageView.builder(
-            controller: _controller,
-            itemCount: widget.imageUrls?.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext context, int index) {
-              String url =
-                  ("${widget.instanceUrl.toString()}/finder/mediadb/services/module/asset/downloads/originals/${widget.imageUrls[index].replaceAll(" ", "%20")}/${widget.name[index]}")
-                      .trim();
-              return Center(
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(url, headers: {"X-tokentype": "entermedia", 'X-token': '${myUser.entermediakey}'}),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              );
+          ValueListenableBuilder<bool>(
+            valueListenable: isLoading,
+            builder: (BuildContext context, bool value, _) {
+              return value
+                  ? InkWell(
+                      enableFeedback: false,
+                      onTap: () => print(""),
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: CachedNetworkImage(
+                        imageUrl: widget.instanceUrl + imageUrl,
+                        placeholder: (context, url) => CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
+                    );
             },
           ),
           SafeArea(
@@ -74,26 +118,6 @@ class _ImageViewState extends State<ImageView> {
               ),
             ),
           ),*/
-          Positioned(
-            bottom: 10,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _arrow(Icons.arrow_back_ios, () {
-                      _controller.previousPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
-                    }),
-                    _arrow(Icons.arrow_forward_ios, () {
-                      _controller.nextPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
-                    }),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

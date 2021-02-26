@@ -232,14 +232,7 @@ class MainContent extends StatelessWidget {
                         searchText = val;
                         Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
                         isSearching.value = false;
-                        Provider.of<workspaceAssets>(context, listen: false)
-                            .filterResult(
-                          val,
-                          context,
-                          myWorkspaces,
-                          false,
-                        )
-                            .then((value) {
+                        Provider.of<workspaceAssets>(context, listen: false).filterResult(val, context, myWorkspaces, false).then((value) {
                           isSearching.value = true;
                         });
                         return null;
@@ -287,6 +280,7 @@ class MainContent extends StatelessWidget {
                                       myWorkspaces: myWorkspaces,
                                       currentWorkspace: currentWorkspace,
                                       searchText: searchText,
+                                      organizedHits: assets.searchedhits.organizedhits[0],
                                     ),
                                   ),
                                 ),
@@ -303,23 +297,23 @@ class MainContent extends StatelessWidget {
                   //todo; This is where images are loaded
                   delegate: SliverChildBuilderDelegate(
                       (ctx, i) => InkWell(
-                            child: Image.network(
-                              assets.filterUrls[i],
-                            ),
-                            onTap: () =>
-                                null /*Navigator.push(
+                          child: Image.network(
+                            assets.filterUrls[i],
+                          ),
+                          onTap: () {
+                            // print("PrinceIsHere ${assets.searchedhits.organizedhits[0].samples[i].name}");
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ImageView(
-                                  imageUrls: assets.imageSourcePath,
-                                  currentIndex: i,
+                                  collectionId: assets.filterIds[i],
                                   instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                  name: assets.imageName,
+                                  hasDirectLink: false,
+                                  directLink: '',
                                 ),
                               ),
-                            )*/
-                            ,
-                          ),
+                            );
+                          }),
                       childCount: assets.filterUrls?.length),
                 ),
                 SliverPersistentHeader(

@@ -3,8 +3,10 @@ import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
+import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
+import 'package:em_mobile_flutter/views/ImageView.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,11 +18,13 @@ class MediaAssetsSearch extends StatefulWidget {
   final userWorkspaces myWorkspaces;
   final int currentWorkspace;
   final String searchText;
+  final Organizedhit organizedHits;
   MediaAssetsSearch({
     Key key,
     @required this.myWorkspaces,
     @required this.currentWorkspace,
     @required this.searchText,
+    @required this.organizedHits,
   }) : super(key: key);
 
   @override
@@ -182,19 +186,35 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
               String url = ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
+              String fullResolutionImageurl = ("${(filteredResult[index].downloads[2].url)}").trim();
               print('image url');
               print(url);
 
-              return Container(
-                width: MediaQuery.of(context).size.width * 0.3,
-                height: 100,
-                padding: EdgeInsets.all(0),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(url),
-                    fit: BoxFit.contain,
+              return InkWell(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  height: 100,
+                  padding: EdgeInsets.all(0),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(url),
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ImageView(
+                        collectionId: null,
+                        instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                        hasDirectLink: true,
+                        directLink: '$fullResolutionImageurl',
+                      ),
+                    ),
+                  );
+                },
               );
             },
           ),

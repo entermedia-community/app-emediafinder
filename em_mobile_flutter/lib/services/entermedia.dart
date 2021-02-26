@@ -144,11 +144,7 @@ class EnterMedia {
 
   //Entermedia Login with key pasted in
   Future<bool> emEmailKey(BuildContext context, String email) async {
-    final resMap = await postEntermedia(
-      EMFinder + '/services/authentication/sendmagiclink.json',
-      {"to": email},
-      context
-    );
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email}, context);
 
     print("Sending email...");
 
