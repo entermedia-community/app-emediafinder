@@ -5,6 +5,7 @@ import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
@@ -15,10 +16,12 @@ import 'package:provider/provider.dart';
 class ProjectSearch extends StatefulWidget {
   final userWorkspaces myWorkspaces;
   final int currentWorkspace;
+  final String searchText;
   ProjectSearch({
     Key key,
     @required this.myWorkspaces,
     @required this.currentWorkspace,
+    @required this.searchText,
   }) : super(key: key);
 
   @override
@@ -32,11 +35,19 @@ class _ProjectSearchState extends State<ProjectSearch> {
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   int totalPages = 1;
   int currentPage = 1;
+  TextEditingController searchController = new TextEditingController();
+
+  void filterContent() async {
+    searchText = widget.searchText;
+    setState(() {});
+    _filterResult();
+  }
 
   @override
   void initState() {
     _getAllProjects();
-
+    searchController..text = widget.searchText;
+    filterContent();
     super.initState();
   }
 
@@ -143,55 +154,20 @@ class _ProjectSearchState extends State<ProjectSearch> {
       (currentPage + 1).toString(),
     );
     if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
-      filteredResult = [];
-      filteredResult = assetSearchResponse.results;
+      filteredResult.addAll(assetSearchResponse.results);
+      currentPage = assetSearchResponse.response.page;
+      totalPages = assetSearchResponse.response.pages;
       setState(() {});
     }
     print(assetSearchResponse);
   }
 
   Widget _searchBar(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          height: 80,
-          child: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            alignment: Alignment.center,
-            height: 80,
-            child: SearchBar(
-              icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
-              hintText: "Search your project...",
-              hintStyle: TextStyle(color: Colors.grey),
-              minimumChars: 0,
-              cancellationWidget: Icon(Icons.clear),
-              onCancelled: resetData,
-              searchBarStyle: SearchBarStyle(
-                backgroundColor: Color(0xff384964),
-                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              ),
-              onSearch: (val) async {
-                searchText = val;
-                setState(() {});
-                _filterResult();
-                return null;
-              },
-              loader: CircularProgressIndicator(),
-              onItemFound: null,
-            ),
-          ),
-        ),
-      ],
-    );
+    return CustomSearchBar(searchController, (val) {
+      searchText = val;
+      _filterResult();
+      setState(() {});
+    }, context);
   }
 
   Widget _projectView(BuildContext context) {
@@ -209,6 +185,17 @@ class _ProjectSearchState extends State<ProjectSearch> {
               return emWorkspaceRow('assets/EM Logo Basic.jpg', filteredResult[index].name.toString(), null, null, context, index);
             },
           ),
+          currentPage < totalPages
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Center(
+                    child: RaisedButton(
+                      child: Text("Load more"),
+                      onPressed: () => _loadMoreProjects(),
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );

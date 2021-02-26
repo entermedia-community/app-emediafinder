@@ -38,6 +38,7 @@ class MainContent extends StatelessWidget {
   String searchText = "";
   int currentWorkspace = 0;
   ValueNotifier<bool> isLoading = ValueNotifier(false);
+  ValueNotifier<bool> isSearching = ValueNotifier(false);
 
   getWorkspace() async {
     currentWorkspace = await sharedPref().getRecentWorkspace();
@@ -218,7 +219,11 @@ class MainContent extends StatelessWidget {
                       hintStyle: TextStyle(color: Colors.grey),
                       minimumChars: 0,
                       cancellationWidget: Icon(Icons.clear),
-                      onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
+                      onCancelled: () {
+                        searchText = '';
+                        Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
+                        isSearching.value = false;
+                      },
                       searchBarStyle: SearchBarStyle(
                         backgroundColor: Color(0xff384964),
                         padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -226,12 +231,17 @@ class MainContent extends StatelessWidget {
                       onSearch: (val) async {
                         searchText = val;
                         Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-                        Provider.of<workspaceAssets>(context, listen: false).filterResult(
+                        isSearching.value = false;
+                        Provider.of<workspaceAssets>(context, listen: false)
+                            .filterResult(
                           val,
                           context,
                           myWorkspaces,
                           false,
-                        );
+                        )
+                            .then((value) {
+                          isSearching.value = true;
+                        });
                         return null;
                       },
                       loader: CircularProgressIndicator(),
@@ -253,7 +263,17 @@ class MainContent extends StatelessWidget {
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Media (' + hitTracker?.sampleMediaCount.toString() + ')'),
+                              ValueListenableBuilder<bool>(
+                                valueListenable: isSearching,
+                                builder: (BuildContext context, bool value, _) {
+                                  return value
+                                      ? Text('Media (' +
+                                          (searchText.length <= 2 ? hitTracker?.totalMediaCount.toString() : assets.filterUrls.length.toString()) +
+                                          ')')
+                                      : Text('Media (' + hitTracker?.totalMediaCount.toString() + ')');
+                                },
+                              ),
+                              // Text('Media (' + hitTracker?.sampleMediaCount.toString() + ')'),
                               IconButton(
                                 icon: Icon(
                                   Icons.arrow_forward_ios_rounded,
@@ -266,6 +286,7 @@ class MainContent extends StatelessWidget {
                                     builder: (context) => MediaAssetsSearch(
                                       myWorkspaces: myWorkspaces,
                                       currentWorkspace: currentWorkspace,
+                                      searchText: searchText,
                                     ),
                                   ),
                                 ),
@@ -312,7 +333,18 @@ class MainContent extends StatelessWidget {
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Projects (' + hitTracker?.sampleProjectCount.toString() + ')'),
+                              ValueListenableBuilder<bool>(
+                                valueListenable: isSearching,
+                                builder: (BuildContext context, bool value, _) {
+                                  return value
+                                      ? Text('Projects (' +
+                                          (searchText.length <= 2
+                                              ? hitTracker?.totalProjectCount.toString()
+                                              : assets.filterProjects.length.toString()) +
+                                          ')')
+                                      : Text('Projects (' + hitTracker?.totalProjectCount.toString() + ')');
+                                },
+                              ),
                               IconButton(
                                 icon: Icon(
                                   Icons.arrow_forward_ios_rounded,
@@ -322,7 +354,11 @@ class MainContent extends StatelessWidget {
                                 onPressed: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ProjectSearch(myWorkspaces: myWorkspaces, currentWorkspace: currentWorkspace),
+                                    builder: (context) => ProjectSearch(
+                                      myWorkspaces: myWorkspaces,
+                                      currentWorkspace: currentWorkspace,
+                                      searchText: searchText,
+                                    ),
                                   ),
                                 ),
                               )
@@ -352,7 +388,16 @@ class MainContent extends StatelessWidget {
                           color: Color(0xff384964),
                           child: Center(
                               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('Events (' + hitTracker?.sampleEventCount.toString() + ')'),
+                            ValueListenableBuilder<bool>(
+                              valueListenable: isSearching,
+                              builder: (BuildContext context, bool value, _) {
+                                return value
+                                    ? Text('Events (' +
+                                        (searchText.length <= 2 ? hitTracker?.totalEventCount.toString() : assets.filterEvents.length.toString()) +
+                                        ')')
+                                    : Text('Events (' + hitTracker?.totalEventCount.toString() + ')');
+                              },
+                            ),
                             IconButton(
                               icon: Icon(
                                 Icons.arrow_forward_ios_rounded,
@@ -362,7 +407,11 @@ class MainContent extends StatelessWidget {
                               onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EventSearch(myWorkspaces: myWorkspaces, currentWorkspace: currentWorkspace),
+                                  builder: (context) => EventSearch(
+                                    myWorkspaces: myWorkspaces,
+                                    currentWorkspace: currentWorkspace,
+                                    searchText: searchText,
+                                  ),
                                 ),
                               ),
                             )

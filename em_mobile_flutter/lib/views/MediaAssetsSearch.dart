@@ -4,8 +4,10 @@ import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +15,12 @@ import 'package:provider/provider.dart';
 class MediaAssetsSearch extends StatefulWidget {
   final userWorkspaces myWorkspaces;
   final int currentWorkspace;
+  final String searchText;
   MediaAssetsSearch({
     Key key,
     @required this.myWorkspaces,
     @required this.currentWorkspace,
+    @required this.searchText,
   }) : super(key: key);
 
   @override
@@ -26,14 +30,23 @@ class MediaAssetsSearch extends StatefulWidget {
 class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
   String searchText = "";
   List<MediaResults> result = new List<MediaResults>();
+  List<MediaResults> filteredResult = new List<MediaResults>();
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   int totalPages = 1;
   int currentPage = 1;
+  TextEditingController searchController = new TextEditingController();
+
+  void filterContent() async {
+    searchText = widget.searchText;
+    setState(() {});
+    _filterResult();
+  }
 
   @override
   void initState() {
     _getAllImages();
-
+    searchController..text = widget.searchText;
+    filterContent();
     super.initState();
   }
 
@@ -41,49 +54,36 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xff0c223a),
-      body: Stack(
-        children: [
-          ValueListenableBuilder<bool>(
-            valueListenable: isLoading,
-            builder: (BuildContext context, bool value, _) {
-              return value
-                  ? InkWell(
-                      enableFeedback: false,
-                      onTap: () => print(""),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    )
-                  : Container(
-                      margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            _searchBar(context),
-                            SizedBox(height: 15),
-                            _imageView(context),
-                          ],
-                        ),
-                      ),
-                    );
-            },
-          ),
-          SafeArea(
-            child: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ],
+      body: ValueListenableBuilder<bool>(
+        valueListenable: isLoading,
+        builder: (BuildContext context, bool value, _) {
+          return value
+              ? InkWell(
+                  enableFeedback: false,
+                  onTap: () => print(""),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                )
+              : Container(
+                  margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _searchBar(context),
+                        SizedBox(height: 15),
+                        _imageView(context),
+                      ],
+                    ),
+                  ),
+                );
+        },
       ),
     );
   }
@@ -99,30 +99,44 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     );
     if (assetResponse != null && assetResponse.response.status == "ok") {
       result = assetResponse.results;
+      filteredResult = result;
       setState(() {});
     }
     print(assetResponse);
     isLoading.value = false;
   }
 
-  _filterResult() async {
-    totalPages = 1;
+  void resetData() {
+    filteredResult = result;
     currentPage = 1;
-    final EM = Provider.of<EnterMedia>(context, listen: false);
-    final myUser = Provider.of<userData>(context, listen: false);
-    print(myUser.entermediakey);
-    final MediaAssetModel assetSearchResponse = await EM.getMediaAssets(
-      context,
-      widget.myWorkspaces.instUrl[widget.currentWorkspace],
-    );
-    if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
-      result = [];
-      result = assetSearchResponse.results;
-      currentPage = assetSearchResponse.response.page;
-      totalPages = assetSearchResponse.response.pages;
-    }
+    totalPages = 1;
     setState(() {});
-    print(assetSearchResponse);
+  }
+
+  _filterResult() async {
+    if (searchText.length <= 2) {
+      resetData();
+    } else {
+      totalPages = 1;
+      currentPage = 1;
+      final EM = Provider.of<EnterMedia>(context, listen: false);
+      final myUser = Provider.of<userData>(context, listen: false);
+      print(myUser.entermediakey);
+      final MediaAssetModel assetSearchResponse = await EM.searchMediaAssets(
+        context,
+        widget.myWorkspaces.instUrl[widget.currentWorkspace],
+        searchText,
+        (currentPage).toString(),
+      );
+      if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
+        filteredResult = [];
+        filteredResult = assetSearchResponse.results;
+        currentPage = assetSearchResponse.response.page;
+        totalPages = assetSearchResponse.response.pages;
+      }
+      setState(() {});
+      print(assetSearchResponse);
+    }
   }
 
   _loadMoreImages() async {
@@ -136,40 +150,23 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       (currentPage + 1).toString(),
     );
     if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
-      result = [];
-      result = assetSearchResponse.results;
+      filteredResult.addAll(assetSearchResponse.results);
+      currentPage = assetSearchResponse.response.page;
+      totalPages = assetSearchResponse.response.pages;
       setState(() {});
     }
     print(assetSearchResponse);
   }
 
   Widget _searchBar(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 35),
-      height: 80,
-      child: SearchBar(
-        icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
-        hintText: "Search your media...",
-        hintStyle: TextStyle(color: Colors.grey),
-        minimumChars: 0,
-        cancellationWidget: Icon(Icons.clear),
-        onCancelled: () => Provider.of<workspaceAssets>(context, listen: false).initializeFilters(),
-        searchBarStyle: SearchBarStyle(
-          backgroundColor: Color(0xff384964),
-          padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-        ),
-        onSearch: (val) async {
-          _filterResult();
-          return null;
-        },
-        loader: CircularProgressIndicator(),
-        onItemFound: null,
-      ),
-    );
+    return CustomSearchBar(searchController, (val) {
+      searchText = val;
+      _filterResult();
+      setState(() {});
+    }, context);
   }
 
   Widget _imageView(BuildContext context) {
-    final myUser = Provider.of<userData>(context, listen: false);
     return Container(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -180,13 +177,11 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
               mainAxisSpacing: 1,
               crossAxisCount: 3,
             ),
-            itemCount: result?.length,
+            itemCount: filteredResult?.length,
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              String url =
-                  ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(result[index].getThumbPath())}")
-                      .trim();
+              String url = ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
               print('image url');
               print(url);
 
@@ -203,6 +198,17 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
               );
             },
           ),
+          currentPage < totalPages
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Center(
+                    child: RaisedButton(
+                      child: Text("Load more"),
+                      onPressed: () => _loadMoreImages(),
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
