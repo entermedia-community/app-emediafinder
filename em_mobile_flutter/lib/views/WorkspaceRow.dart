@@ -32,9 +32,9 @@ Column emWorkspaceRow(String imageVal, String workspaceName, String instanceUrl,
         height: 3,
       ),
       Material(
-        color: Color(0xff0c223a),
+        color: Colors.white70,
         borderRadius: BorderRadius.circular(24.0),
-        shadowColor: Color(0x8092e184),
+        shadowColor: Color(0xff92e184),
         child: Center(
             child: Column(
           children: <Widget>[
@@ -63,7 +63,7 @@ Widget leftSide(String imageVal, String workspaceName) {
       Container(
         child: Text(
           workspaceName,
-          style: TextStyle(color: Color(0xff61af56), fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 16.0),
+          style: TextStyle(color: Color(0xff237C9C), fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 16.0),
         ),
       ),
     ],
@@ -82,8 +82,8 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context, int ind
       Container(
         child: IconButton(
           icon: Icon(
-            Icons.auto_awesome_mosaic,
-            color: Color(0x8092e184),
+            Icons.account_tree_rounded,
+            color: Color(0xff237C9C),
           ),
           onPressed: () async {
             await EM.createTeamAccount(context, instanceUrl, myUser.entermediakey, colId);

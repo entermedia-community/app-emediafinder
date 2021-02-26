@@ -64,7 +64,7 @@ class MainContent extends StatelessWidget {
                     SizedBox(width: 10),
                     PopupMenuButton(
                       child: Icon(Icons.menu),
-                      color: Color(0xff0c223a),
+                      color: Colors.grey,
                       itemBuilder: (BuildContext popupContext) {
                         return [
                           PopupMenuItem(
@@ -74,15 +74,15 @@ class MainContent extends StatelessWidget {
                                 Theme(
                                   data: ThemeData(
                                     dividerColor: Colors.transparent,
-                                    accentColor: Color(0xff92e184),
-                                    unselectedWidgetColor: Color(0xff92e184),
+                                    accentColor: Color(0xff237C9C),
+                                    unselectedWidgetColor: Color(0xff237C9C),
                                   ),
                                   child: ListTileTheme(
                                     contentPadding: EdgeInsets.all(0),
                                     child: ExpansionTile(
                                       title: Text(
                                         "Workspaces",
-                                        style: TextStyle(color: Color(0xff92e184)),
+                                        style: TextStyle(color: Color(0xff237C9C)),
                                       ),
                                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -100,7 +100,7 @@ class MainContent extends StatelessWidget {
                                                   ),
                                                   Icon(
                                                     Icons.album_outlined,
-                                                    color: Color(0xff92e184),
+                                                    color: Color(0xff237C9C),
                                                     size: 15,
                                                   ),
                                                   SizedBox(width: 7)
@@ -112,7 +112,7 @@ class MainContent extends StatelessWidget {
                                                   children: [
                                                     Icon(
                                                       Icons.edit,
-                                                      color: Color(0xff92e184),
+                                                      color: Color(0xff237C9C),
                                                       size: 18,
                                                     ),
                                                     SizedBox(width: 5),
@@ -133,7 +133,7 @@ class MainContent extends StatelessWidget {
                                                   children: [
                                                     Icon(
                                                       Icons.delete,
-                                                      color: Color(0xff92e184),
+                                                      color: Color(0xff237C9C),
                                                       size: 18,
                                                     ),
                                                     SizedBox(width: 5),
@@ -153,7 +153,7 @@ class MainContent extends StatelessWidget {
                                               ExpansionTile(
                                                 title: Text(
                                                   "Change Workspace",
-                                                  style: TextStyle(color: Color(0xff92e184)),
+                                                  style: TextStyle(color: Color(0xff237C9C)),
                                                 ),
                                                 children: getWorkspaces(context, popupContext, myWorkspaces.names),
                                                 tilePadding: EdgeInsets.all(0),
@@ -214,7 +214,7 @@ class MainContent extends StatelessWidget {
                   title: Container(
                     height: 80,
                     child: SearchBar(
-                      icon: Icon(Icons.search_rounded, color: Color(0xff92e184)),
+                      icon: Icon(Icons.search_rounded, color: Color(0xff237C9C)),
                       hintText: "Search your media...",
                       hintStyle: TextStyle(color: Colors.grey),
                       minimumChars: 0,
@@ -225,7 +225,7 @@ class MainContent extends StatelessWidget {
                         isSearching.value = false;
                       },
                       searchBarStyle: SearchBarStyle(
-                        backgroundColor: Color(0xff384964),
+                        backgroundColor: Colors.white70,
                         padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                       ),
                       onSearch: (val) async {
@@ -251,7 +251,8 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
-                          color: Color(0xff384964),
+                        //changes color of sliver bar header
+                          color: Colors.white70,
                           child: Center(
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -322,7 +323,8 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
-                          color: Color(0xff384964),
+                        //changes color of sliver bar header
+                          color: Colors.white70,
                           child: Center(
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -379,7 +381,8 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
-                          color: Color(0xff384964),
+                        //changes color of sliver bar header
+                          color: Colors.white70,
                           child: Center(
                               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                             ValueListenableBuilder<bool>(
@@ -513,7 +516,7 @@ class MainContent extends StatelessWidget {
         child: Text(
           "$title",
           style: TextStyle(
-            color: Color(0xff92e184),
+            color: Color(0xff237C9C),
           ),
         ),
       ),

@@ -66,13 +66,13 @@ class _MyAppState extends State<MyApp> {
           //Entermedia Theme Colors
           theme: ThemeData(
             primaryColor: Color(0xff0c223a),
-            accentColor: Color(0xff61af56),
+            accentColor: Color(0xff237C9C),
             backgroundColor: Colors.white38,
             //Text Colors
-            textTheme: TextTheme(bodyText1: TextStyle(color: Colors.white), bodyText2: TextStyle(color: Color(0xff92e184))),
+            textTheme: TextTheme(bodyText1: TextStyle(color: Colors.white), bodyText2: TextStyle(color: Color(0xff237C9C))),
             //Button Colors
             buttonTheme: ButtonThemeData(
-              buttonColor: Color(0xff61af56),
+              buttonColor: Colors.white,
             ),
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),

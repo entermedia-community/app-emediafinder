@@ -90,11 +90,11 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                 width: 250,
                 child: TextField(
                   autofocus: true,
-                  cursorColor: Color(0xff61af56),
+                  cursorColor: Color(0xff237C9C),
                   controller:
                       emailController, // if needed change back to entermediakeyController
                   decoration: InputDecoration(
-                      labelText: "E-mail", focusColor: Color(0xff61af56)),
+                      labelText: "E-mail", focusColor: Color(0xff237C9C)),
                 ),
               ),
               SizedBox(height: 15),
@@ -141,7 +141,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                       style: new TextStyle(
                           fontSize: 11.0,
                           fontWeight: FontWeight.w300,
-                          color: Color(0xff61af56))),
+                          color: Color(0xff237C9C))),
                   onPressed: () {
                     showDialog(
                         context: context,
