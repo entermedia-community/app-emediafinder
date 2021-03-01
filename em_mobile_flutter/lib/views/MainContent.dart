@@ -251,7 +251,7 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
-                        //changes color of sliver bar header
+                          //changes color of sliver bar header
                           color: Colors.white70,
                           child: Center(
                               child: Row(
@@ -302,7 +302,6 @@ class MainContent extends StatelessWidget {
                             assets.filterUrls[i],
                           ),
                           onTap: () {
-                            // print("PrinceIsHere ${assets.searchedhits.organizedhits[0].samples[i].name}");
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -323,7 +322,7 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
-                        //changes color of sliver bar header
+                          //changes color of sliver bar header
                           color: Colors.white70,
                           child: Center(
                               child: Row(
@@ -381,7 +380,7 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
-                        //changes color of sliver bar header
+                          //changes color of sliver bar header
                           color: Colors.white70,
                           child: Center(
                               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [

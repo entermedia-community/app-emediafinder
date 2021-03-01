@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
@@ -5,9 +7,11 @@ import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_downloader/image_downloader.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class ImageView extends StatefulWidget {
   final String collectionId;
@@ -68,6 +72,10 @@ class _ImageViewState extends State<ImageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.file_download),
+        onPressed: _downloadImage,
+      ),
       backgroundColor: Color(0xff0c223a),
       body: Stack(
         children: [
@@ -123,16 +131,19 @@ class _ImageViewState extends State<ImageView> {
     );
   }
 
-  Widget _arrow(IconData icon, Function onTap) {
-    return IconButton(
-      icon: Icon(
-        icon,
-        color: Colors.white,
-        size: 40,
-      ),
-      onPressed: onTap,
-    );
+  void _downloadImage() async {
+    Directory imageDir = await getApplicationDocumentsDirectory();
+    String imagePath = imageDir.path;
+    try {
+      final taskId = await FlutterDownloader.enqueue(
+        url: widget.instanceUrl + imageUrl,
+        savedDir: imagePath,
+        showNotification: true, // show download progress in status bar (for Android)
+        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+      );
+      print(taskId);
+    } on PlatformException catch (error) {
+      print(error);
+    }
   }
-
-  void _downloadImage(imageUrl) async {}
 }

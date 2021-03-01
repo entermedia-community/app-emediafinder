@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:uni_links/uni_links.dart';
 
@@ -23,7 +24,7 @@ Future<void> main() async {
   //but as we want to initialize a class asynchronously then, before that is done we need to say:  "Hey, can we do the initialization now and after that we initialize the class"
   //binding is required before/inorder to call native code. - 10/2/2020
   await Firebase.initializeApp();
-
+  await FlutterDownloader.initialize(debug: true);
   //initialize firebase.
   runApp(MyApp());
 }
@@ -181,6 +182,20 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
     if (emkey != null && myUser.entermediakey == null) {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
+      if (userInfo.response.status != 'ok') {
+        sharedPref().resetValues();
+
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+        Fluttertoast.showToast(
+          msg: "Invalid login. Please try again.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 10,
+          backgroundColor: Color(0xff61af56),
+          fontSize: 16.0,
+        );
+        return;
+      }
       print('RELOGGING IN WITH STORED KEY');
       print(emkey);
 
