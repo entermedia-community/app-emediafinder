@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.e_media_finder.flutter",
+    "sha256_cert_fingerprints":
+    ["51:E9:B5:99:BF:75:D2:D8:8B:27:3E:5E:AC:97:80:15:1D:B7:B2:38:E3:2A:26:D8:17:3F:EC:86:29:8F:C6:CC"]
+  }
+}]

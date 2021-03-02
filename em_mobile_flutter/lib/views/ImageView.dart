@@ -5,6 +5,7 @@ import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/views/FilesUploadPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -132,7 +133,8 @@ class _ImageViewState extends State<ImageView> {
   }
 
   void _downloadImage() async {
-    Directory imageDir = await getApplicationDocumentsDirectory();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FilesUploadPage()));
+    /*Directory imageDir = await getApplicationDocumentsDirectory();
     String imagePath = imageDir.path;
     try {
       final taskId = await FlutterDownloader.enqueue(
@@ -144,6 +146,6 @@ class _ImageViewState extends State<ImageView> {
       print(taskId);
     } on PlatformException catch (error) {
       print(error);
-    }
+    }*/
   }
 }
