@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>279466694094-3f55enppasfo57l7okkjfd7kss5t9h2m.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.279466694094-3f55enppasfo57l7okkjfd7kss5t9h2m</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>279466694094-1jvta0i8u3nji7hgntb74l43b0v7hlfa.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBEx-LlIE444uxkWLMNBDb-fr3X-Ry6vCI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>279466694094</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com-entermediadb-flutter</string>
+	<key>PROJECT_ID</key>
+	<string>entermediadb-177816</string>
+	<key>STORAGE_BUCKET</key>
+	<string>entermediadb-177816.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:279466694094:ios:f1b720625e3dd0eafec79f</string>
+	<key>DATABASE_URL</key>
+	<string>https://entermediadb-177816.firebaseio.com</string>
+</dict>
+</plist>
