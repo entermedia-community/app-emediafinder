@@ -12,12 +12,12 @@ import flutter_downloader
   ) -> Bool {
     FirebaseApp.configure()
     GeneratedPluginRegistrant.register(with: self)
+    [FlutterDownloaderPlugin setPluginRegistrantCallback:registerPlugins];
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
 
-private func registerPlugins(registry: FlutterPluginRegistry) {
-    if (!registry.hasPlugin("FlutterDownloaderPlugin")) {
-       FlutterDownloaderPlugin.register(with: registry.registrar(forPlugin: "FlutterDownloaderPlugin")!)
-    }
+void registerPlugins(NSObject<FlutterPluginRegistry>* registry) {
+  // [GeneratedPluginRegistrant registerWithRegistry:registry];
+    [FlutterDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"vn.hunghd.flutter_downloader"]];
 }
