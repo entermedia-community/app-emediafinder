@@ -48,6 +48,11 @@ class WorkspaceSelect extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Container(
+                              margin: EdgeInsets.only(top: 15),
+                              child: Text("You don't seem to have a workspace. Get started by creating a new workspace.", textAlign: TextAlign.center,),
+                            ),
+                            SizedBox(height: 20),
                             TextField(
                               autofocus: true,
                               cursorColor: Color(0xff237C9C),
