@@ -33,7 +33,7 @@ class EnterMedia {
     headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
       String tokenKey = handleTokenKey(emUser.results.entermediakey);
-
+      print("princeTest $tokenKey");
       print("Setting Headers.");
       // todo: Important must specify types! Dart defaults to dynamic and http.post requires definitive types. - mando
       headers.addAll({"X-token": tokenKey});
