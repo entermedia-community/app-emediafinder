@@ -133,8 +133,8 @@ class _ImageViewState extends State<ImageView> {
   }
 
   void _downloadImage() async {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FilesUploadPage()));
-    /*Directory imageDir = await getApplicationDocumentsDirectory();
+    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FilesUploadPage()));
+    Directory imageDir = await getApplicationDocumentsDirectory();
     String imagePath = imageDir.path;
     try {
       final taskId = await FlutterDownloader.enqueue(
@@ -146,6 +146,6 @@ class _ImageViewState extends State<ImageView> {
       print(taskId);
     } on PlatformException catch (error) {
       print(error);
-    }*/
+    }
   }
 }
