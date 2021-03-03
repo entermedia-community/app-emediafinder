@@ -150,17 +150,20 @@ class MainContent extends StatelessWidget {
                                               ),
                                               customPopupMenuItem(context, popupContext, "Create New Workspace",
                                                   () => createWorkspace(context, newWorkspaceController)),
-                                              ExpansionTile(
-                                                title: Text(
-                                                  "Change Workspace",
-                                                  style: TextStyle(color: Color(0xff237C9C)),
-                                                ),
-                                                children: getWorkspaces(context, popupContext, myWorkspaces.names),
-                                                tilePadding: EdgeInsets.all(0),
-                                                childrenPadding: EdgeInsets.all(0),
-                                                initiallyExpanded: false,
-                                                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                                              ),
+                                              myWorkspaces.names.length > 0
+                                                  ? ExpansionTile(
+                                                      ///TODO REMOVE TILE WHEN THERE IN ONLY ONE WORKSPACE
+                                                      title: Text(
+                                                        "Change Workspace",
+                                                        style: TextStyle(color: Color(0xff237C9C)),
+                                                      ),
+                                                      children: getWorkspaces(context, popupContext, myWorkspaces.names),
+                                                      tilePadding: EdgeInsets.all(0),
+                                                      childrenPadding: EdgeInsets.all(0),
+                                                      initiallyExpanded: false,
+                                                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                                                    )
+                                                  : Container(),
                                             ],
                                           ),
                                       ],

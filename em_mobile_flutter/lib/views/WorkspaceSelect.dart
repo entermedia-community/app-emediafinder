@@ -44,8 +44,9 @@ class WorkspaceSelect extends StatelessWidget {
                     )
                   : Center(
                       child: Container(
-                        margin: EdgeInsets.all(10),
+                        margin: EdgeInsets.all(20),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             TextField(
                               autofocus: true,
@@ -56,6 +57,7 @@ class WorkspaceSelect extends StatelessWidget {
                                 focusColor: Color(0xff237C9C),
                               ),
                             ),
+                            SizedBox(height: 19),
                             RaisedButton(
                               child: Text("Create Workspace"),
                               onPressed: () async {
@@ -109,6 +111,10 @@ class WorkspaceSelect extends StatelessWidget {
       }
     }
     print("workspace count ${userWorkspaces2.results.length}");
+
+    if (userWorkspaces2.results.length == 0) {
+      isLoading.value = false;
+    }
 
     if (savedColId == null && userWorkspaces2.results.length > 0) {
       await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
