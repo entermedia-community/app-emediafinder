@@ -96,7 +96,7 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context, int ind
 
             //todo; Save this shit
             hitTracker.getAssetSampleUrls(instanceUrl);
-            print("priceIndex ${index.toString()}");
+
             hitTracker.initializeFilters();
             if (index != null) {
               sharedPref().saveRecentWorkspace(index);

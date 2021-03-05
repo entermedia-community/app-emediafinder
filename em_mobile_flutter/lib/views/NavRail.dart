@@ -26,32 +26,37 @@ class _NavRailState extends State<NavRail> {
           label: Text('Account Options'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.filter_alt_rounded,
-          color: Colors.blueGrey,
+          icon: Icon(
+            Icons.filter_alt_rounded,
+            color: Colors.blueGrey,
           ),
           label: Text('Search'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.folder_rounded,
+          icon: Icon(
+            Icons.folder_rounded,
             color: Colors.yellow,
           ),
           label: Text('Show Categories'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.photo_library_outlined,
+          icon: Icon(
+            Icons.photo_library_outlined,
             color: Colors.orange,
           ),
           label: Text('Albums'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.cloud,
+          icon: Icon(
+            Icons.cloud,
             color: Colors.red,
           ),
           label: Text('AI Facial Recognition'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.replay,
-          color: Color(0xff61af56),
+          icon: Icon(
+            Icons.replay,
+            color: Color(0xff61af56),
           ),
           label: Text('Recent'),
         ),

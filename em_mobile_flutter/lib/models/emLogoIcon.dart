@@ -17,23 +17,8 @@ class _emLogoIconState extends State<emLogoIcon> {
     return PopupMenuButton(
       icon: EmLogo(),
       elevation: 10,
-      itemBuilder: (BuildContext context) => [
-        PopupMenuItem(
-          value: 1,
-          child: Text("Logout"),
-        ),
-      ],
-      onSelected: (value) => {
-        if (value == 1)
-          {
-            //clear out stored entermediakey value
-            sharedPref().resetValues(),
-            sharedPref().setDeepLinkHandler(false),
-            //firebase signout which should auto redirect to LoginPage()
-            context.read<AuthenticationService>().signOut(),
-            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
-          }
-      },
+      itemBuilder: (BuildContext context) => null,
+      onSelected: null,
     );
   }
 }

@@ -33,7 +33,7 @@ class EnterMedia {
     headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
       String tokenKey = handleTokenKey(emUser.results.entermediakey);
-      print("princeTest $tokenKey");
+      print("$tokenKey");
       print("Setting Headers.");
       // todo: Important must specify types! Dart defaults to dynamic and http.post requires definitive types. - mando
       headers.addAll({"X-token": tokenKey});
@@ -398,6 +398,33 @@ class EnterMedia {
       print("Request failed!");
       return null;
     }
+  }
+
+  Future<dynamic> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
+    Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
+
+    var request = new http.MultipartRequest("POST", url);
+    print(url);
+    Map<String, String> headers = {
+      "X-tokentype": "entermedia",
+      "Accept": "application/json",
+    };
+
+    if (emUser != null) {
+      headers.addAll({"X-token": "em" + emUser.results.entermediakey.toString()});
+    }
+
+    request.headers.addAll(headers);
+    request.files.add(
+      new http.MultipartFile.fromBytes(
+        'file',
+        await File.fromUri(Uri.parse("$filePath")).readAsBytes(),
+      ),
+    );
+
+    http.Response response = await http.Response.fromStream(await request.send());
+    print("Result: ${response.statusCode}");
+    return response.body;
   }
 
   Future<Map> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {

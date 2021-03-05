@@ -184,14 +184,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
       if (userInfo.response.status != 'ok') {
         sharedPref().resetValues();
-
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
         Fluttertoast.showToast(
           msg: "Invalid login. Please try again.",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 10,
-          backgroundColor: Color(0xff61af56),
+          backgroundColor: Colors.red.withOpacity(0.8),
           fontSize: 16.0,
         );
         return;

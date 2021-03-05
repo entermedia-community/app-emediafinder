@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:em_mobile_flutter/models/userData.dart';
+import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class FilesUploadPage extends StatefulWidget {
+  final String instanceUrl;
+  FilesUploadPage(this.instanceUrl);
   @override
   FilesUploadPageState createState() => FilesUploadPageState();
 }
@@ -58,18 +63,12 @@ class FilesUploadPageState extends State<FilesUploadPage> {
     return s;
   }
 
-  Future<bool> httpSend(Map params) async {
-    String endpoint = '';
-    return await http.post(endpoint, body: params).then((response) {
-      print(response.body);
-      if (response.statusCode == 201) {
-        Map<String, dynamic> body = jsonDecode(response.body);
-        if (body['status'] == 'OK') {
-          return true;
-        }
-      }
-      return false;
-    });
+  Future httpSend(Map params, BuildContext context, File file) async {
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    final myUser = Provider.of<userData>(context, listen: false);
+    print(myUser.entermediakey);
+    final Map response = await EM.uploadAsset(context, widget.instanceUrl, file?.path);
+    print(response);
   }
 
   @override
@@ -96,14 +95,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
       )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          List<Map> attch = toBase64(fileList);
-          params["attachment"] = jsonEncode(attch);
-          httpSend(params).then((sukses) {
-            if (sukses == true) {
-              print("success");
-            } else
-              print("fail");
-          });
+          await httpSend(params, context, fileList[0]);
         },
         tooltip: 'Upload File',
         child: const Icon(Icons.cloud_upload),

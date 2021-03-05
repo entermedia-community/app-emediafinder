@@ -185,8 +185,12 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              String url = ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
-              String fullResolutionImageurl = ("${(filteredResult[index].downloads[2].url)}").trim();
+              String errorUrl = "https://img.icons8.com/FF0000/error";
+              String url = filteredResult[index].downloads.length == 0
+                  ? errorUrl
+                  : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
+              String fullResolutionImageurl =
+                  filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
               print('image url');
               print(url);
 

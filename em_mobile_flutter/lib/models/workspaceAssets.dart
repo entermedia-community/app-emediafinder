@@ -36,11 +36,12 @@ class workspaceAssets with ChangeNotifier {
     var sources = <String>[];
     var name = <String>[];
     var id = <String>[];
+    totalMediaCount = 0;
 
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       if (searchedhits.organizedhits[0].id == "asset") {
         for (final i in searchedhits.organizedhits[0].samples) {
-          images.add(instanceUrl + i.thumbnailimg);
+          images.add(instanceUrl.toString() + i.thumbnailimg.toString());
           sources.add(instanceUrl + i.sourcepath);
           name.add(instanceUrl + i.name);
           id.add(i.id);
@@ -173,6 +174,8 @@ class workspaceAssets with ChangeNotifier {
     var people = <String>[];
     var products = <String>[];
     var projects = <String>[];
+    totalProjectCount = 0;
+    totalEventCount = 0;
     if (searchedhits != null && searchedhits.organizedhits.length > 0) {
       for (final i in searchedhits.organizedhits) {
         //Find projects in response object

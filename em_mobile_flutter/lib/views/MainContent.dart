@@ -64,7 +64,7 @@ class MainContent extends StatelessWidget {
                     SizedBox(width: 10),
                     PopupMenuButton(
                       child: Icon(Icons.menu),
-                      color: Colors.grey,
+                      color: Colors.white,
                       itemBuilder: (BuildContext popupContext) {
                         return [
                           PopupMenuItem(
@@ -284,7 +284,7 @@ class MainContent extends StatelessWidget {
                                       myWorkspaces: myWorkspaces,
                                       currentWorkspace: currentWorkspace,
                                       searchText: searchText,
-                                      organizedHits: assets.searchedhits.organizedhits[0],
+                                      organizedHits: assets.searchedhits == null ? null : assets.searchedhits.organizedhits[0],
                                     ),
                                   ),
                                 ),
@@ -579,7 +579,6 @@ class MainContent extends StatelessWidget {
   }
 
   deleteWorkspace(BuildContext context) {
-    print("Viola!");
     print(myWorkspaces.colId[currentWorkspace]);
     ConfirmationDialog(
       context: context,
@@ -616,7 +615,6 @@ class MainContent extends StatelessWidget {
 
   renameWorkspace(BuildContext context, TextEditingController renameController) async {
     renameController = new TextEditingController()..text = myWorkspaces.names[currentWorkspace];
-    print("Viola!");
     print(myWorkspaces.colId[currentWorkspace]);
     popupWithTextInput(
         context: context,
