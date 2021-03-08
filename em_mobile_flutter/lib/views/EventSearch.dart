@@ -45,9 +45,8 @@ class _EventSearchState extends State<EventSearch> {
 
   @override
   void initState() {
-    _getAllEvents();
     searchController..text = widget.searchText;
-    filterContent();
+    _getAllEvents().whenComplete(() => filterContent());
     super.initState();
   }
 
@@ -92,7 +91,7 @@ class _EventSearchState extends State<EventSearch> {
     );
   }
 
-  _getAllEvents() async {
+  Future _getAllEvents() async {
     isLoading.value = true;
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
@@ -119,7 +118,8 @@ class _EventSearchState extends State<EventSearch> {
     setState(() {});
   }
 
-  _filterResult() async {
+  Future _filterResult() async {
+    isLoading.value = true;
     if (searchText.length <= 2) {
       resetData();
     } else {
@@ -143,6 +143,7 @@ class _EventSearchState extends State<EventSearch> {
       setState(() {});
       print(assetSearchResponse);
     }
+    isLoading.value = false;
   }
 
   _loadMoreEvents() async {

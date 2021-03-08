@@ -196,7 +196,7 @@ class MainContent extends StatelessWidget {
                           ),
                         ];
                       },
-                      offset: Offset(0, 50),
+                      offset: Offset(0, 20),
                       onSelected: (value) {
                         if (value == 1) {
                           ConfirmationDialog(
@@ -301,8 +301,20 @@ class MainContent extends StatelessWidget {
                   //todo; This is where images are loaded
                   delegate: SliverChildBuilderDelegate(
                       (ctx, i) => InkWell(
-                          child: Image.network(
-                            assets.filterUrls[i],
+                          child: Card(
+                            color: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8),
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              child: Image.network(
+                                assets.filterUrls[i],
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                           ),
                           onTap: () {
                             Navigator.push(
@@ -383,6 +395,7 @@ class MainContent extends StatelessWidget {
                       minHeight: 33,
                       maxHeight: 33,
                       child: Container(
+                          margin: EdgeInsets.only(top: 3),
                           //changes color of sliver bar header
                           color: Colors.white70,
                           child: Center(

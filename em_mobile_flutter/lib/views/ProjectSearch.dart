@@ -45,9 +45,8 @@ class _ProjectSearchState extends State<ProjectSearch> {
 
   @override
   void initState() {
-    _getAllProjects();
     searchController..text = widget.searchText;
-    filterContent();
+    _getAllProjects().whenComplete(() => filterContent());
     super.initState();
   }
 
@@ -92,7 +91,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
     );
   }
 
-  _getAllProjects() async {
+  Future _getAllProjects() async {
     isLoading.value = true;
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
@@ -118,6 +117,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
   }
 
   _filterResult() async {
+    isLoading.value = true;
     if (searchText.length <= 2) {
       resetData();
     } else {
@@ -141,6 +141,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
       setState(() {});
       print(assetSearchResponse);
     }
+    isLoading.value = false;
   }
 
   _loadMoreProjects() async {

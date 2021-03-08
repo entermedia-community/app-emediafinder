@@ -80,7 +80,6 @@ class EnterMedia {
     if (response != null && response.statusCode == 200) {
       print("Success workspace data is:" + response.body);
       final String responseString = response.body;
-
       //returns map!
       return json.decode(responseString);
     } else {

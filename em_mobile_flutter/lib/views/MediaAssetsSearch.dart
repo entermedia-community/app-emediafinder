@@ -175,52 +175,8 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 1,
-              mainAxisSpacing: 1,
-              crossAxisCount: 3,
-            ),
-            itemCount: filteredResult?.length,
-            shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              String errorUrl = "https://img.icons8.com/FF0000/error";
-              String url = filteredResult[index].downloads.length == 0
-                  ? errorUrl
-                  : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
-              String fullResolutionImageurl =
-                  filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
-              print('image url');
-              print(url);
-
-              return InkWell(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  height: 100,
-                  padding: EdgeInsets.all(0),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(url),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ImageView(
-                        collectionId: null,
-                        instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
-                        hasDirectLink: true,
-                        directLink: '$fullResolutionImageurl',
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+          Wrap(
+            children: getImages(),
           ),
           currentPage < totalPages
               ? Padding(
@@ -234,6 +190,72 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
                 )
               : Container(),
         ],
+      ),
+    );
+  }
+
+  List<Widget> getImages() {
+    String errorUrl = "https://img.icons8.com/FF0000/error";
+    List<Widget> portraitImage = [];
+    List<Widget> landscapeImage = [];
+    for (int index = 0; index < filteredResult.length; index++) {
+      String url = filteredResult[index].downloads.length == 0
+          ? errorUrl
+          : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
+      String fullResolutionImageurl = filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
+      double imageWidth = double.parse(filteredResult[index].width);
+      double imageHeight = double.parse(filteredResult[index].height);
+      print('image url');
+      print(url);
+      if (imageWidth < imageHeight) {
+        portraitImage.add(
+          _singleImageTile(
+              imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, imageHeight: 200, imageWidth: MediaQuery.of(context).size.width * 0.45),
+        );
+      } else {
+        landscapeImage.add(
+          _singleImageTile(
+              imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, imageHeight: 100, imageWidth: MediaQuery.of(context).size.width * 0.45),
+        );
+      }
+    }
+    if (portraitImage.length == 0 && landscapeImage.length == 0) {
+      portraitImage.add(Container());
+    }
+    List<Widget> allImages = portraitImage + landscapeImage;
+    return allImages;
+  }
+
+  Widget _singleImageTile(
+      {@required String imageUrl, @required String fullScreenImageUrl, @required double imageHeight, @required double imageWidth}) {
+    return Card(
+      elevation: 10,
+      color: Colors.transparent,
+      child: InkWell(
+        child: Container(
+          width: imageWidth,
+          height: imageHeight,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(imageUrl),
+              fit: BoxFit.fill,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ImageView(
+                collectionId: null,
+                instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                hasDirectLink: true,
+                directLink: '$fullScreenImageUrl',
+              ),
+            ),
+          );
+        },
       ),
     );
   }

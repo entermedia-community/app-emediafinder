@@ -1,4 +1,6 @@
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
+import 'package:em_mobile_flutter/views/AddTeamMember.dart';
+import 'package:em_mobile_flutter/views/FilesUploadPage.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:flutter/material.dart';
 
@@ -68,7 +70,7 @@ class _NavRailState extends State<NavRail> {
         icon: Icon(Icons.add_box_outlined),
         color: Colors.white70,
         onPressed: () {
-          print('Create Upload Function');
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddTeamMember()));
         },
       ),
       selectedIndex: _selectedIndex,
@@ -78,6 +80,14 @@ class _NavRailState extends State<NavRail> {
           print("NavRail index is: ");
           print(_selectedIndex);
         });
+        if (index == 5) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilesUploadPage("https://em100.media128.com"),
+            ),
+          );
+        }
       },
     );
   }

@@ -119,11 +119,23 @@ class MediaResults {
   String id;
   Datatype entitysourcetype;
   String name;
+  String width;
+  String height;
   String sourcepath;
   String hasfulltext;
   List<Downloads> downloads;
 
-  MediaResults({this.datatype, this.collectionid, this.id, this.entitysourcetype, this.name, this.sourcepath, this.hasfulltext, this.downloads});
+  MediaResults(
+      {this.datatype,
+      this.collectionid,
+      this.id,
+      this.entitysourcetype,
+      this.name,
+      this.width,
+      this.height,
+      this.sourcepath,
+      this.hasfulltext,
+      this.downloads});
 
   MediaResults.fromJson(Map<String, dynamic> json) {
     datatype = json['datatype'] != null ? new Datatype.fromJson(json['datatype']) : null;
@@ -131,6 +143,8 @@ class MediaResults {
     id = json['id'];
     entitysourcetype = json['entitysourcetype'] != null ? new Datatype.fromJson(json['entitysourcetype']) : null;
     name = json['name'];
+    width = json['width'];
+    height = json['height'];
     sourcepath = json['sourcepath'];
     hasfulltext = json['hasfulltext'];
     if (json['downloads'] != null) {
@@ -152,13 +166,15 @@ class MediaResults {
       data['entitysourcetype'] = this.entitysourcetype.toJson();
     }
     data['name'] = this.name;
+    data['width'] = this.width;
+    data['height'] = this.height;
     data['sourcepath'] = this.sourcepath;
     data['hasfulltext'] = this.hasfulltext;
     return data;
   }
 
   getThumbPath() {
-    Downloads download =  downloads.where((element) => element.id == Downloads.thumbImage).first;
+    Downloads download = downloads.where((element) => element.id == Downloads.thumbImage).first;
     return download?.url ?? '';
   }
 }
