@@ -210,7 +210,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       if (imageWidth < imageHeight) {
         portraitImage.add(
           _singleImageTile(
-              imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, imageHeight: 200, imageWidth: MediaQuery.of(context).size.width * 0.45),
+              imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, imageHeight: 160, imageWidth: MediaQuery.of(context).size.width * 0.297),
         );
       } else {
         landscapeImage.add(
