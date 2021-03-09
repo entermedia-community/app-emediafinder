@@ -33,6 +33,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    entermediakeyController.dispose();
     super.dispose();
   }
 

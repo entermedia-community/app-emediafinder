@@ -338,6 +338,7 @@ class MainContent extends StatelessWidget {
                       maxHeight: 33,
                       child: Container(
                           //changes color of sliver bar header
+                          margin: EdgeInsets.only(top: 3),
                           color: Colors.white70,
                           child: Center(
                               child: Row(
@@ -675,18 +676,6 @@ class MainContent extends StatelessWidget {
         print(myUser.entermediakey);
         final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
         print(createWorkspaceResponse);
-        if (json.encode(createWorkspaceResponse).contains("ok")) {
-          /*Fluttertoast.showToast(
-            msg: "Workspace created successfully!",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 10,
-            backgroundColor: Color(0xff61af56),
-            fontSize: 16.0,
-            webPosition: Alignment.bottomCenter,
-          );*/
-        }
-
         if (createWorkspaceResponse != null) {
           reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
         }
@@ -752,16 +741,18 @@ class MainContent extends StatelessWidget {
     myWorkspaces2.colId = [];
     myWorkspaces2.instUrl = [];
     //Loop thru API 'results'
-    for (final project in userWorkspaces2.results) {
-      myWorkspaces2.names.add(project.name);
-      myWorkspaces2.colId.add(project.id);
+    if (userWorkspaces2 != null) {
+      for (final project in userWorkspaces2.results) {
+        myWorkspaces2.names.add(project.name);
+        myWorkspaces2.colId.add(project.id);
 
-      //Loop through response, add urls and check if blank.
-      if (project.servers.isEmpty == true) {
-        myWorkspaces2.instUrl.add("no instance url");
-      } else {
-        myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
-        print(project.servers[0].instanceurl);
+        //Loop through response, add urls and check if blank.
+        if (project.servers.isEmpty == true) {
+          myWorkspaces2.instUrl.add("no instance url");
+        } else {
+          myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
+          print(project.servers[0].instanceurl);
+        }
       }
     }
     Provider.of<userWorkspaces>(context, listen: false).notify();
@@ -785,17 +776,20 @@ class MainContent extends StatelessWidget {
     myWorkspaces2.colId = [];
     myWorkspaces2.instUrl = [];
     //Loop thru API 'results'
-    for (final project in userWorkspaces2?.results) {
-      myWorkspaces2.names.add(project.name);
-      myWorkspaces2.colId.add(project.id);
-      //Loop through response, add urls and check if blank.
-      if (project.servers.isEmpty == true) {
-        myWorkspaces2.instUrl.add("no instance url");
-      } else {
-        myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
-        print(project.servers[0].instanceurl);
+    if (userWorkspaces2 != null) {
+      for (final project in userWorkspaces2?.results) {
+        myWorkspaces2.names.add(project.name);
+        myWorkspaces2.colId.add(project.id);
+        //Loop through response, add urls and check if blank.
+        if (project.servers.isEmpty == true) {
+          myWorkspaces2.instUrl.add("no instance url");
+        } else {
+          myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
+          print(project.servers[0].instanceurl);
+        }
       }
     }
+
     print("CHeck here");
     print(myWorkspaces2.instUrl[index]);
     print(myUser.entermediakey);

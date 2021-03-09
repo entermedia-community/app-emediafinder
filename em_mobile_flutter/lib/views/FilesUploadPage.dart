@@ -18,17 +18,38 @@ class FilesUploadPage extends StatefulWidget {
 
 class FilesUploadPageState extends State<FilesUploadPage> {
   // variable section
-  List<Widget> fileListThumb;
-  List<File> fileList = new List<File>();
+  Widget fileListThumb;
+  File fileList;
   Future pickFiles() async {
-    List<Widget> thumbs = new List<Widget>();
-    fileListThumb.forEach((element) {
-      thumbs.add(element);
-    });
+    Widget thumbs;
+    thumbs = fileListThumb;
 
     await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowMultiple: true,
+      allowedExtensions: ['jpg', 'jpeg', 'bmp', 'pdf', 'doc', 'docx'],
+    ).then((file) {
+      File myFile = File(file.files.single.path);
+      print(myFile.absolute.path);
+      if (myFile != null) {
+        List<String> picExt = ['.jpg', '.jpeg', '.bmp'];
+        if (picExt.contains(extension(myFile.path))) {
+          thumbs = Padding(padding: EdgeInsets.all(1), child: new Image.file(myFile));
+        } else
+          thumbs = Container(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[Icon(Icons.insert_drive_file), Text(extension(myFile.path))]));
+        fileList = myFile;
+        setState(() {
+          fileListThumb = thumbs;
+        });
+      }
+    });
+
+/*    await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
       allowedExtensions: ['jpg', 'jpeg', 'bmp', 'pdf', 'doc', 'docx'],
     ).then((selectedFiles) {
       List<File> files = selectedFiles.paths.map((path) => File(path)).toList();
@@ -50,52 +71,41 @@ class FilesUploadPageState extends State<FilesUploadPage> {
           fileListThumb = thumbs;
         });
       }
-    });
-  }
-
-  List<Map> toBase64(List<File> fileList) {
-    List<Map> s = new List<Map>();
-    if (fileList.length > 0)
-      fileList.forEach((element) {
-        Map a = {'fileName': basename(element.path), 'encoded': base64Encode(element.readAsBytesSync())};
-        s.add(a);
-      });
-    return s;
+    });*/
   }
 
   Future httpSend(Map params, BuildContext context, File file) async {
     final EM = Provider.of<EnterMedia>(context, listen: false);
-    final myUser = Provider.of<userData>(context, listen: false);
-    print(myUser.entermediakey);
-    final Map response = await EM.uploadAsset(context, widget.instanceUrl, file?.path);
+    print(file.path);
+    final response = await EM.uploadAsset(
+      context,
+      widget.instanceUrl,
+      file?.path,
+    );
     print(response);
   }
 
   @override
   Widget build(BuildContext context) {
     if (fileListThumb == null)
-      fileListThumb = [
-        InkWell(
-          onTap: pickFiles,
-          child: Container(child: Icon(Icons.add)),
-        )
-      ];
+      fileListThumb = InkWell(
+        onTap: pickFiles,
+        child: Container(child: Icon(Icons.add)),
+      );
     final Map params = new Map();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Uploader"),
+        title: Text("Upload Media"),
+        centerTitle: true,
       ),
       body: Center(
           child: Padding(
         padding: EdgeInsets.all(5),
-        child: GridView.count(
-          crossAxisCount: 4,
-          children: fileListThumb,
-        ),
+        child: fileListThumb,
       )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await httpSend(params, context, fileList[0]);
+          await httpSend(params, context, fileList);
         },
         tooltip: 'Upload File',
         child: const Icon(Icons.cloud_upload),

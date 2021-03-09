@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:em_mobile_flutter/Helper/customException.dart';
 import 'package:em_mobile_flutter/models/eventAssetModel.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
+import 'package:em_mobile_flutter/models/moduleListModel.dart';
 import 'package:em_mobile_flutter/models/projectAssetModel.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart' as parser;
 import 'dart:convert';
 
 class EnterMedia {
@@ -111,10 +112,12 @@ class EnterMedia {
 
 //Entermedia Login with key pasted in
   Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey) async {
+    tempKey = entermediakey;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermediakey": entermediakey}, context,
         customError: "Invalid credentials. Please try again!");
 
     print("Logging in with key...");
+    print(entermediakey);
 
     if (resMap != null) {
       //save local emUser from response object
@@ -127,6 +130,7 @@ class EnterMedia {
 
   //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(BuildContext context, emkey) async {
+    tempKey = emkey;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermediakey": emkey}, context,
         customError: "Invalid credentials. Please try again!");
 
@@ -143,7 +147,8 @@ class EnterMedia {
 
   //Entermedia Login with key pasted in
   Future<bool> emEmailKey(BuildContext context, String email) async {
-    final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email}, context);
+    // final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email}, context);
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/emailonlysendmagiclinkfinish.json', {"to": email}, context);
 
     print("Sending email...");
 
@@ -401,12 +406,13 @@ class EnterMedia {
 
   Future<dynamic> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
-
+    print(filePath);
     var request = new http.MultipartRequest("POST", url);
     print(url);
     Map<String, String> headers = {
       "X-tokentype": "entermedia",
-      "Accept": "application/json",
+      "Accept": "text/plain",
+      "Content-Type": "image/jpeg",
     };
 
     if (emUser != null) {
@@ -418,12 +424,32 @@ class EnterMedia {
       new http.MultipartFile.fromBytes(
         'file',
         await File.fromUri(Uri.parse("$filePath")).readAsBytes(),
+        contentType: parser.MediaType('application', 'x-tar'),
+        filename: filePath.split('/').last,
       ),
     );
+    request.fields.addAll({'jsonrequest': '{}'});
 
     http.Response response = await http.Response.fromStream(await request.send());
     print("Result: ${response.statusCode}");
     return response.body;
+  }
+
+  Future<ModuleListModel> getAllModulesList(BuildContext context, String url) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/settings/modules/list',
+      null,
+      context,
+    );
+    print("Fetching modules from " + url + "/finder/mediadb/services/settings/modules/list");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return ModuleListModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
   }
 
   Future<Map> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {
