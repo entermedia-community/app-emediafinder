@@ -7,6 +7,7 @@ import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/emUser.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
+import 'package:em_mobile_flutter/models/moduleAssetModel.dart';
 import 'package:em_mobile_flutter/models/moduleListModel.dart';
 import 'package:em_mobile_flutter/models/projectAssetModel.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
@@ -401,6 +402,40 @@ class EnterMedia {
     } else {
       print("Request failed!");
       return null;
+    }
+  }
+
+  Future<ModuleAssetModel> getModulesData(BuildContext context, String url, String entity) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/$entity',
+      null,
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return ModuleAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<bool> createModulesData(BuildContext context, String url, String entity, String name) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/$entity',
+      null,
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return true;
+    } else {
+      print("Request failed!");
+      return false;
     }
   }
 
