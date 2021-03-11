@@ -4,6 +4,7 @@ import 'package:em_mobile_flutter/models/projectAssetModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomExpansionTile.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class ModuleListingPage extends StatefulWidget {
@@ -19,11 +20,9 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
   List<ModulesDetails> modulesDetails = <ModulesDetails>[];
   EnterMedia EM;
 
-  List<ValueNotifier<bool>> isContentLoading = List<ValueNotifier<bool>>.filled(
-    0,
-    ValueNotifier(false),
-    growable: true,
-  );
+  List<TextEditingController> nameControllers = <TextEditingController>[];
+  List<ValueNotifier<bool>> isContentLoading = List<ValueNotifier<bool>>.filled(0, ValueNotifier(false), growable: true);
+  List<ValueNotifier<bool>> isTextFieldActive = List<ValueNotifier<bool>>.filled(0, ValueNotifier(false), growable: true);
 
   Future<ModuleListModel> fetchModulesData() async {
     isLoading.value = true;
@@ -34,6 +33,8 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
     for (int i = 0; i < moduleListData.results.length; i++) {
       modulesDetails.add(new ModulesDetails(moduleListData.results[i].id, moduleListData.results[i].name, []));
       isContentLoading.add(ValueNotifier(false));
+      isTextFieldActive.add(ValueNotifier(false));
+      nameControllers.add(new TextEditingController());
     }
     isLoading.value = false;
     return moduleListData;
@@ -111,7 +112,7 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
             return CustomExpansionTile(
               header: Row(
                 children: [
-                  modules[index].isentity == 'true'
+                  modules[index].isentity == 'true' && modules[index].id != 'asset'
                       ? Expanded(
                           child: Container(
                             padding: EdgeInsets.fromLTRB(15, 13, 10, 13),
@@ -131,6 +132,11 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
               ),
               children: [
                 ValueListenableBuilder<bool>(
+                    valueListenable: isTextFieldActive[index],
+                    builder: (BuildContext context, bool value, _) {
+                      return value ? textFieldWithButton(index) : Container();
+                    }),
+                ValueListenableBuilder<bool>(
                   valueListenable: isContentLoading[index],
                   builder: (BuildContext context, bool value, _) {
                     return value
@@ -147,7 +153,7 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
                                 itemCount: modulesDetails[index].entityName.length + 2,
                                 itemBuilder: (BuildContext context, int childIndex) {
                                   return childIndex == 0
-                                      ? addButton()
+                                      ? addButton(index)
                                       : childIndex == 1
                                           ? refreshButton(index)
                                           : Card(
@@ -210,24 +216,128 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
     );
   }
 
-  Widget addButton() {
-    return Card(
-      color: Colors.blue.withOpacity(0.5),
-      child: Container(
-        padding: EdgeInsets.all(5),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 45,
+  Widget textFieldWithButton(int index) {
+    return Container(
+      child: Column(
+        children: [
+          TextFormField(
+            style: TextStyle(fontSize: 17, color: Colors.white),
+            controller: nameControllers[index],
+            decoration: InputDecoration(
+                filled: true,
+                fillColor: Color(0xff384964),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                ),
+                errorBorder:
+                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
+                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
+                hintText: "Name",
+                hintStyle: TextStyle(color: Colors.grey),
+                prefixIcon: Icon(
+                  Icons.drive_file_rename_outline,
+                  color: Color(0xff92e184),
+                ),
+                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
+            keyboardType: TextInputType.emailAddress,
+            onChanged: (text) => print(text),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  isTextFieldActive[index].value = false;
+                },
+                child: Text("Cancel"),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red[300],
+                ),
               ),
-            )
-          ],
+              SizedBox(width: 5),
+              ElevatedButton(
+                child: Text("Create"),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green[300],
+                ),
+                onPressed: () async {
+                  if (nameControllers[index].text.trim().length > 0) {
+                    bool response = await EM.createModulesData(context, widget.instanceUrl, modulesDetails[index].id, nameControllers[index].text);
+                    if (response) {
+                      Fluttertoast.showToast(
+                        msg: "${modulesDetails[index].name} created successfully!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 10,
+                        backgroundColor: Color(0xff61af56),
+                        fontSize: 16.0,
+                      );
+                      nameControllers[index]..text = "";
+                      isTextFieldActive[index].value = false;
+                      fetchEntityData(modulesDetails[index].id, index);
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Failed to create ${modulesDetails[index].name}!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 10,
+                        backgroundColor: Colors.red.withOpacity(0.7),
+                        fontSize: 16.0,
+                      );
+                    }
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "${modulesDetails[index].name} name can't be empty.",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 10,
+                      backgroundColor: Colors.red.withOpacity(0.7),
+                      fontSize: 16.0,
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget addButton(int index) {
+    return InkWell(
+      child: Card(
+        color: Colors.blue.withOpacity(0.5),
+        child: Container(
+          padding: EdgeInsets.all(5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 45,
+                ),
+              )
+            ],
+          ),
         ),
       ),
+      onTap: () {
+        setState(() {
+          isTextFieldActive[index].value = true;
+        });
+      },
     );
   }
 

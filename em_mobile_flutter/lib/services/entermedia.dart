@@ -424,14 +424,13 @@ class EnterMedia {
 
   Future<bool> createModulesData(BuildContext context, String url, String entity, String name) async {
     final resMap = await postFinder(
-      url + '/finder/mediadb/services/lists/search/$entity',
-      null,
+      url + '/finder/mediadb/services/lists/create/$entity',
+      json.encode({"name": "$name"}),
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/create/$entity");
     if (resMap != null) {
       print(resMap);
-      String response = json.encode(resMap);
       return true;
     } else {
       print("Request failed!");

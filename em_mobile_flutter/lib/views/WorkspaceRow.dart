@@ -62,7 +62,7 @@ Widget leftSide(String imageVal, String workspaceName) {
       ),
       Container(
         child: Text(
-          workspaceName,
+          "${workspaceName}",
           style: TextStyle(color: Color(0xff237C9C), fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 16.0),
         ),
       ),

@@ -265,9 +265,11 @@ class MainContent extends StatelessWidget {
                                 builder: (BuildContext context, bool value, _) {
                                   return value
                                       ? Text('Media (' +
-                                          (searchText.length <= 2 ? hitTracker?.totalMediaCount.toString() : assets.filterUrls.length.toString()) +
+                                          (searchText.length <= 2
+                                              ? "${hitTracker?.totalMediaCount.toString()}"
+                                              : "${assets.filterUrls.length.toString()}") +
                                           ')')
-                                      : Text('Media (' + hitTracker?.totalMediaCount.toString() + ')');
+                                      : Text('Media (' + "${hitTracker?.totalMediaCount.toString()}" + ')');
                                 },
                               ),
                               // Text('Media (' + hitTracker?.sampleMediaCount.toString() + ')'),
@@ -350,10 +352,10 @@ class MainContent extends StatelessWidget {
                                   return value
                                       ? Text('Projects (' +
                                           (searchText.length <= 2
-                                              ? hitTracker?.totalProjectCount.toString()
-                                              : assets.filterProjects.length.toString()) +
+                                              ? "${hitTracker?.totalProjectCount.toString()}"
+                                              : "${assets.filterProjects.length.toString()}") +
                                           ')')
-                                      : Text('Projects (' + hitTracker?.totalProjectCount.toString() + ')');
+                                      : Text('Projects (' + "${hitTracker?.totalProjectCount.toString()}" + ')');
                                 },
                               ),
                               IconButton(
@@ -406,9 +408,11 @@ class MainContent extends StatelessWidget {
                               builder: (BuildContext context, bool value, _) {
                                 return value
                                     ? Text('Events (' +
-                                        (searchText.length <= 2 ? hitTracker?.totalEventCount.toString() : assets.filterEvents.length.toString()) +
+                                        (searchText.length <= 2
+                                            ? "${hitTracker?.totalEventCount.toString()}"
+                                            : "${assets.filterEvents.length.toString()}") +
                                         ')')
-                                    : Text('Events (' + hitTracker?.totalEventCount.toString() + ')');
+                                    : Text('Events (' + "${hitTracker?.totalEventCount.toString()}" + ')');
                               },
                             ),
                             IconButton(
