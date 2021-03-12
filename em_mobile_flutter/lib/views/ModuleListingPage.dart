@@ -182,7 +182,7 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
                                             );
                                 },
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
+                                  crossAxisCount: 3,
                                 ),
                               ),
                               /*  Container(

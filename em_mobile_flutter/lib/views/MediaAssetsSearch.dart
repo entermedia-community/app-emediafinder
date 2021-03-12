@@ -12,6 +12,8 @@ import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:masonry_grid/masonry_grid.dart';
 import 'package:provider/provider.dart';
 
 class MediaAssetsSearch extends StatefulWidget {
@@ -175,9 +177,14 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Wrap(
+          MasonryGrid(
+            staggered: true,
             children: getImages(),
+            column: 2,
           ),
+          /*Wrap(
+            children: getImages(),
+          ),*/
           currentPage < totalPages
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -196,51 +203,40 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
 
   List<Widget> getImages() {
     String errorUrl = "https://img.icons8.com/FF0000/error";
-    List<Widget> portraitImage = [];
-    List<Widget> landscapeImage = [];
+    List<Widget> image = [];
     for (int index = 0; index < filteredResult.length; index++) {
       String url = filteredResult[index].downloads.length == 0
           ? errorUrl
           : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
       String fullResolutionImageurl = filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
-      double imageWidth = double.parse(filteredResult[index].width);
-      double imageHeight = double.parse(filteredResult[index].height);
-      print('image url');
       print(url);
-      if (imageWidth < imageHeight) {
-        portraitImage.add(
-          _singleImageTile(
-              imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, imageHeight: 160, imageWidth: MediaQuery.of(context).size.width * 0.297),
-        );
-      } else {
-        landscapeImage.add(
-          _singleImageTile(
-              imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, imageHeight: 100, imageWidth: MediaQuery.of(context).size.width * 0.45),
-        );
-      }
+      image.add(
+        _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl),
+      );
     }
-    if (portraitImage.length == 0 && landscapeImage.length == 0) {
-      portraitImage.add(Container());
+    if (image.length == 0) {
+      image.add(Container());
     }
-    List<Widget> allImages = portraitImage + landscapeImage;
-    return allImages;
+    return image;
   }
 
-  Widget _singleImageTile(
-      {@required String imageUrl, @required String fullScreenImageUrl, @required double imageHeight, @required double imageWidth}) {
+  Widget _singleImageTile({
+    @required String imageUrl,
+    @required String fullScreenImageUrl,
+  }) {
     return Card(
-      elevation: 10,
+      elevation: 20,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      shadowColor: Colors.black,
       color: Colors.transparent,
       child: InkWell(
-        child: Container(
-          width: imageWidth,
-          height: imageHeight,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(imageUrl),
-              fit: BoxFit.fill,
-            ),
-            borderRadius: BorderRadius.circular(10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.contain,
           ),
         ),
         onTap: () {

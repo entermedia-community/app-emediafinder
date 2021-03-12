@@ -5,6 +5,7 @@ import 'package:em_mobile_flutter/views/AddTeamMember.dart';
 import 'package:em_mobile_flutter/views/FilesUploadPage.dart';
 import 'package:em_mobile_flutter/views/ModuleListingPage.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
 class NavRail extends StatefulWidget {
@@ -59,22 +60,29 @@ class _NavRailState extends State<NavRail> {
         ),
         NavigationRailDestination(
           icon: Icon(
-            Icons.photo_library_outlined,
+            MdiIcons.viewGrid,
             color: Colors.orange,
           ),
           label: Text('Albums'),
         ),
         NavigationRailDestination(
           icon: Icon(
-            Icons.cloud,
+            MdiIcons.database,
             color: Colors.red,
           ),
           label: Text('AI Facial Recognition'),
         ),
         NavigationRailDestination(
           icon: Icon(
-            Icons.replay,
-            color: Color(0xff61af56),
+            MdiIcons.history,
+            color: Colors.lightGreenAccent,
+          ),
+          label: Text('AI Facial Recognition'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.upload_file,
+            color: Colors.cyan,
           ),
           label: Text('Recent'),
         ),
@@ -83,7 +91,7 @@ class _NavRailState extends State<NavRail> {
 //            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
       trailing: IconButton(
-        icon: Icon(Icons.add_box_outlined),
+        icon: Icon(Icons.person_add),
         color: Colors.white70,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => AddTeamMember()));

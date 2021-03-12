@@ -22,6 +22,7 @@ import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:masonry_grid/masonry_grid.dart';
 import 'dart:math' as math;
 
 import 'package:provider/provider.dart';
@@ -294,14 +295,52 @@ class MainContent extends StatelessWidget {
                             ],
                           ))),
                     )),
-                SliverGrid(
+                SliverToBoxAdapter(
+                  child: MasonryGrid(
+                    column: 3,
+                    children: List.generate(
+                      assets.filterUrls?.length,
+                      (i) => Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        shadowColor: Colors.black,
+                        color: Colors.transparent,
+                        child: InkWell(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              assets.filterUrls[i],
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ImageView(
+                                  collectionId: assets.filterIds[i],
+                                  instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                  hasDirectLink: false,
+                                  directLink: '',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    staggered: true,
+                  ),
+                )
+                /*SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisSpacing: 1,
                     mainAxisSpacing: 1,
                     crossAxisCount: 3,
                   ),
                   //todo; This is where images are loaded
-                  delegate: SliverChildBuilderDelegate(
+                  delegate: SliverChildListDelegate.fixed(children) */ /*SliverChildBuilderDelegate(
                       (ctx, i) => InkWell(
                           child: Card(
                             color: Colors.transparent,
@@ -331,8 +370,9 @@ class MainContent extends StatelessWidget {
                               ),
                             );
                           }),
-                      childCount: assets.filterUrls?.length),
-                ),
+                      childCount: assets.filterUrls?.length)*/ /*,
+                ),*/
+                ,
                 SliverPersistentHeader(
                     pinned: true,
                     delegate: _SliverAppBarDelegate(
