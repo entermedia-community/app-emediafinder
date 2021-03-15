@@ -29,10 +29,14 @@ class EnterMedia {
   var tempKey;
 
   //Generic post method to entermedias server
-  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError}) async {
+  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError /*, bool addContentHeader*/}) async {
     //Set headers
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
+    /* if (addContentHeader != null && addContentHeader) {
+      headers.addAll({"Content-type": "application/json"});
+    }*/
+
     if (emUser != null) {
       String tokenKey = handleTokenKey(emUser.results.entermediakey);
       print("$tokenKey");
@@ -68,7 +72,9 @@ class EnterMedia {
     headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
       String tokenKey = handleTokenKey(tempKey);
-
+      /*if (tokenKey.contains('em')) {
+        tokenKey.replaceFirst('em', '');
+      }*/
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
       headers.addAll({"X-token": tokenKey});
@@ -112,9 +118,9 @@ class EnterMedia {
   }
 
 //Entermedia Login with key pasted in
-  Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey) async {
+  Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey, {addContentHeader: true}) async {
     tempKey = entermediakey;
-    final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermediakey": entermediakey}, context,
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": entermediakey}, context,
         customError: "Invalid credentials. Please try again!");
 
     print("Logging in with key...");
@@ -164,6 +170,7 @@ class EnterMedia {
   }
 
 //This function retrieves list of workspaces the user is apart of. - Mando Oct 23rd
+
   Future<GetWorkspaceModel> getEMWorkspaces(
     BuildContext context,
   ) async {
@@ -177,6 +184,26 @@ class EnterMedia {
       print(resMap);
       String response = json.encode(resMap);
       return GetWorkspaceModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<Map> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/authentication/createteamaccount.json',
+      {"entermediacloudkey": entermediakey, "collectionid": colId},
+      context,
+    );
+    if (resMap != null) {
+      print(resMap);
+
+      print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
+
+      tempKey = resMap["results"]["entermediakey"];
+
+      return resMap;
     } else {
       print("Request failed!");
       return null;
@@ -438,6 +465,31 @@ class EnterMedia {
     }
   }
 
+  Future<ModuleAssetModel> searchFromModulesData(BuildContext context, String url, String entity, String searchText, String currentPage) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/search/$entity',
+      json.encode({
+        "page": "$currentPage",
+        "hitsperpage": "20",
+        "query": {
+          "terms": [
+            {"field": "name", "operation": "matches", "value": "$searchText*"}
+          ]
+        }
+      }),
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return ModuleAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
   Future<dynamic> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
     print(filePath);
@@ -480,26 +532,6 @@ class EnterMedia {
       print(resMap);
       String response = json.encode(resMap);
       return ModuleListModel.fromJson(json.decode(response));
-    } else {
-      print("Request failed!");
-      return null;
-    }
-  }
-
-  Future<Map> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {
-    final resMap = await postFinder(
-      url + '/finder/mediadb/services/authentication/createteamaccount.json',
-      {"entermediacloudkey": entermediakey, "collectionid": colId},
-      context,
-    );
-    if (resMap != null) {
-      print(resMap);
-
-      print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
-
-      tempKey = resMap["results"]["entermediakey"];
-
-      return resMap;
     } else {
       print("Request failed!");
       return null;
