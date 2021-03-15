@@ -138,7 +138,7 @@ class EnterMedia {
   //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(BuildContext context, emkey) async {
     tempKey = emkey;
-    final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermediakey": emkey}, context,
+    final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": emkey}, context,
         customError: "Invalid credentials. Please try again!");
 
     print("Logging in with key...");

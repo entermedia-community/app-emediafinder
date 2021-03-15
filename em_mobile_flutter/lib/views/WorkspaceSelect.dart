@@ -50,7 +50,10 @@ class WorkspaceSelect extends StatelessWidget {
                           children: [
                             Container(
                               margin: EdgeInsets.only(top: 15),
-                              child: Text("You don't seem to have a workspace. Get started by creating a new workspace.", textAlign: TextAlign.center,),
+                              child: Text(
+                                "You don't seem to have a workspace. Get started by creating a new workspace.",
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                             SizedBox(height: 20),
                             TextField(
@@ -91,7 +94,7 @@ class WorkspaceSelect extends StatelessWidget {
 
   Future<bool> loadWorkspaces(BuildContext context) async {
     var wkspcs = false;
-    final EM = Provider.of<EnterMedia>(context);
+    final EM = Provider.of<EnterMedia>(context, listen: false);
     final myWorkspaces2 = Provider.of<userWorkspaces>(context);
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
     final myUser = Provider.of<userData>(context);

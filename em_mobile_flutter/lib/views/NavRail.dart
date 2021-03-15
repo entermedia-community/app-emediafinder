@@ -104,14 +104,14 @@ class _NavRailState extends State<NavRail> {
           print("NavRail index is: ");
           print(_selectedIndex);
         });
-        if (index == 2) {
+        if (index == 4) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ModuleListingPage(instanceUrl),
             ),
           );
-        } else if (index == 5) {
+        } else if (index == 6) {
           Navigator.push(
             context,
             MaterialPageRoute(
