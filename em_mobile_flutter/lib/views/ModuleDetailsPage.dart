@@ -244,7 +244,6 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
 
   Widget listViewEntity() {
     return Column(
-      key: UniqueKey(),
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -444,7 +443,6 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
 
   Widget gridViewEntity() {
     return Column(
-      key: UniqueKey(),
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -558,18 +556,9 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(6)),
                 ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(6)),
                 ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
                 hintText: "Name",
                 hintStyle: TextStyle(color: Colors.grey),
                 prefixIcon: Icon(
@@ -588,7 +577,10 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                 style: ElevatedButton.styleFrom(
                   primary: Colors.red[400],
                 ),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  createEntityController..text = '';
+                  Navigator.of(context).pop();
+                },
               ),
               SizedBox(width: 5),
               ElevatedButton(

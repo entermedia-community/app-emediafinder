@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:em_mobile_flutter/Helper/customException.dart';
+import 'package:em_mobile_flutter/models/createTeamModel.dart';
 import 'package:em_mobile_flutter/models/eventAssetModel.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
@@ -29,15 +30,19 @@ class EnterMedia {
   var tempKey;
 
   //Generic post method to entermedias server
-  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError /*, bool addContentHeader*/}) async {
+  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError, String useAnotherToken}) async {
     //Set headers
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
     /* if (addContentHeader != null && addContentHeader) {
       headers.addAll({"Content-type": "application/json"});
     }*/
-
-    if (emUser != null) {
+    if (useAnotherToken != null && useAnotherToken.length > 0) {
+      String tokenKey = handleTokenKey(useAnotherToken);
+      print("$tokenKey");
+      print("Setting Headers.");
+      headers.addAll({"X-token": tokenKey});
+    } else if (emUser != null) {
       String tokenKey = handleTokenKey(emUser.results.entermediakey);
       print("$tokenKey");
       print("Setting Headers.");
@@ -48,12 +53,11 @@ class EnterMedia {
     final response = await httpRequest(
       requestUrl: url,
       context: context,
-      body: jsonBody,
+      body: json.encode(jsonBody),
       headers: headers,
       customError: customError,
     );
     print("Post started response is below!");
-
     // print(response.statusCode);
     if (response != null && response.statusCode == 200) {
       log("Success user info is:" + response.body);
@@ -79,9 +83,14 @@ class EnterMedia {
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
       headers.addAll({"X-token": tokenKey});
     }
-
     //make API post
-    final response = await httpRequest(requestUrl: url, context: context, body: jsonBody, headers: headers, customError: customError);
+    final response = await httpRequest(
+      requestUrl: url,
+      context: context,
+      body: json.encode(jsonBody),
+      headers: headers,
+      customError: customError,
+    );
     print("Post started response is below!");
     print("Response code: ");
     // print(response.statusCode);
@@ -118,12 +127,11 @@ class EnterMedia {
   }
 
 //Entermedia Login with key pasted in
-  Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey, {addContentHeader: true}) async {
+  Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey) async {
     tempKey = entermediakey;
     emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": entermediakey}, context,
-        customError: "Invalid credentials. Please try again!");
-
+        customError: "Invalid credentials. Please try again!", useAnotherToken: entermediakey);
     print("Logging in with key...");
     print(entermediakey);
 
@@ -139,11 +147,10 @@ class EnterMedia {
   //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(BuildContext context, emkey) async {
     tempKey = emkey;
+    emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": emkey}, context,
-        customError: "Invalid credentials. Please try again!");
-
+        customError: "Invalid credentials. Please try again!", useAnotherToken: emkey);
     print("Logging in with key...");
-
     if (resMap != null) {
       //save local emUser from response object
       emUser = emUserFromJson(json.encode(resMap));
@@ -155,6 +162,8 @@ class EnterMedia {
 
   //Entermedia Login with key pasted in
   Future<bool> emEmailKey(BuildContext context, String email) async {
+    emUser = null;
+    tempKey = null;
     // final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email}, context);
     final resMap = await postEntermedia(EMFinder + '/services/authentication/emailonlysendmagiclinkfinish.json', {"to": email}, context);
 
@@ -191,7 +200,7 @@ class EnterMedia {
     }
   }
 
-  Future<Map> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {
+  Future<CreateTeamModel> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/authentication/createteamaccount.json',
       {"entermediacloudkey": entermediakey, "collectionid": colId},
@@ -203,8 +212,8 @@ class EnterMedia {
       print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
 
       tempKey = resMap["results"]["entermediakey"];
-
-      return resMap;
+      String response = json.encode(resMap);
+      return CreateTeamModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;
@@ -285,7 +294,7 @@ class EnterMedia {
   Future<WorkspaceAssetsModel> searchWorkspaceAssets(BuildContext context, String url, String searchtext, String page) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/modulesearch/sample.json',
-      json.encode({
+      {
         "query": {
           "terms": [
             {"field": "description", "operation": "freeform", "value": searchtext}
@@ -293,7 +302,7 @@ class EnterMedia {
         },
         "hitsperpage": "20",
         "page": page,
-      }),
+      },
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
@@ -327,7 +336,7 @@ class EnterMedia {
   Future<MediaAssetModel> searchMediaAssets(BuildContext context, String url, String searchtext, String page) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/asset/search',
-      json.encode({
+      {
         "query": {
           "terms": [
             {"field": "description", "operation": "freeform", "value": searchtext}
@@ -335,7 +344,7 @@ class EnterMedia {
         },
         "hitsperpage": "20",
         "page": page,
-      }),
+      },
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
@@ -369,7 +378,7 @@ class EnterMedia {
   Future<ProjectAssetModel> searchProjectsAssets(BuildContext context, String url, String searchtext, String page) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/search/entityproject',
-      json.encode({
+      {
         "query": {
           "terms": [
             {"field": "description", "operation": "freeform", "value": searchtext}
@@ -377,7 +386,7 @@ class EnterMedia {
         },
         "hitsperpage": "20",
         "page": page,
-      }),
+      },
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityproject");
@@ -411,7 +420,7 @@ class EnterMedia {
   Future<EventAssetModel> searchEventsAssets(BuildContext context, String url, String searchtext, String page) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/search/entityevent',
-      json.encode({
+      {
         "query": {
           "terms": [
             {"field": "description", "operation": "freeform", "value": searchtext}
@@ -419,7 +428,7 @@ class EnterMedia {
         },
         "hitsperpage": "20",
         "page": page,
-      }),
+      },
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityevent");
@@ -453,7 +462,7 @@ class EnterMedia {
   Future<bool> createModulesData(BuildContext context, String url, String entity, String name) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/create/$entity',
-      json.encode({"name": "$name"}),
+      {"name": "$name"},
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/create/$entity");
@@ -469,7 +478,7 @@ class EnterMedia {
   Future<ModuleAssetModel> searchFromModulesData(BuildContext context, String url, String entity, String searchText, String currentPage) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/search/$entity',
-      json.encode({
+      {
         "page": "$currentPage",
         "hitsperpage": "20",
         "query": {
@@ -477,7 +486,7 @@ class EnterMedia {
             {"field": "name", "operation": "matches", "value": "$searchText*"}
           ]
         }
-      }),
+      },
       context,
     );
     print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");

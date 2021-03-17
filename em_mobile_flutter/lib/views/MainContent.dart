@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:em_mobile_flutter/models/createTeamModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
@@ -151,7 +152,7 @@ class MainContent extends StatelessWidget {
                                               ),
                                               customPopupMenuItem(context, popupContext, "Create New Workspace",
                                                   () => createWorkspace(context, newWorkspaceController)),
-                                              myWorkspaces.names.length > 0
+                                              myWorkspaces.names.length > 1
                                                   ? ExpansionTile(
                                                       ///TODO REMOVE TILE WHEN THERE IN ONLY ONE WORKSPACE
                                                       title: Text(
@@ -840,7 +841,11 @@ class MainContent extends StatelessWidget {
     print(myWorkspaces2.instUrl[index]);
     print(myUser.entermediakey);
     print(myWorkspaces2.colId[index]);
-    await EM.createTeamAccount(parentContext, myWorkspaces2.instUrl[index], myUser.entermediakey, myWorkspaces2.colId[index]);
+    /* CreateTeamModel data =*/ await EM.createTeamAccount(
+        parentContext, myWorkspaces2.instUrl[index], myUser.entermediakey, myWorkspaces2.colId[index]);
+    /* if (data.response.status != 'ok') {
+      print("Error creating team account");
+    }*/
     final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(parentContext, myWorkspaces2.instUrl[index]);
     hitTracker.searchedhits = searchedData;
     hitTracker.organizeData();

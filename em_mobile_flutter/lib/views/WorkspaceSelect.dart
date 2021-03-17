@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:em_mobile_flutter/models/createTeamModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/emLogoIcon.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
@@ -7,9 +8,11 @@ import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
+import 'package:em_mobile_flutter/services/authentication.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
+import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'WorkspaceRow.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +25,25 @@ class WorkspaceSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     final myWorkspaces2 = Provider.of<userWorkspaces>(context);
     return Scaffold(
+      backgroundColor: Color(0xff0c223a),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Text(""),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () async {
+                final EM = Provider.of<EnterMedia>(context, listen: false);
+                await EM.logOutUser();
+                sharedPref().resetValues();
+                sharedPref().setDeepLinkHandler(false);
+                context.read<AuthenticationService>().signOut();
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+              })
+        ],
+      ),
       body: FutureBuilder(
         future: loadWorkspaces(context),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -52,34 +74,56 @@ class WorkspaceSelect extends StatelessWidget {
                               margin: EdgeInsets.only(top: 15),
                               child: Text(
                                 "You don't seem to have a workspace. Get started by creating a new workspace.",
-                                textAlign: TextAlign.center,
+                                textAlign: TextAlign.left,
                               ),
                             ),
                             SizedBox(height: 20),
-                            TextField(
-                              autofocus: true,
-                              cursorColor: Color(0xff237C9C),
+                            TextFormField(
+                              style: TextStyle(fontSize: 17, color: Colors.white),
                               controller: workspaceController,
+                              autofocus: true,
                               decoration: InputDecoration(
-                                labelText: "Workspace Name",
-                                focusColor: Color(0xff237C9C),
-                              ),
+                                  filled: true,
+                                  fillColor: Color(0xff384964),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                                  ),
+                                  hintText: "Workspace name",
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                  prefixIcon: Icon(
+                                    Icons.drive_file_rename_outline,
+                                    color: Color(0xff237C9C),
+                                  ),
+                                  contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
+                              keyboardType: TextInputType.emailAddress,
+                              onChanged: (text) => print(text),
                             ),
-                            SizedBox(height: 19),
-                            RaisedButton(
-                              child: Text("Create Workspace"),
-                              onPressed: () async {
-                                isLoading.value = true;
-                                final EM = Provider.of<EnterMedia>(context, listen: false);
-                                final myUser = Provider.of<userData>(context, listen: false);
-                                print(myUser.entermediakey);
-                                final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
-                                print(createWorkspaceResponse);
-                                if (createWorkspaceResponse != null && createWorkspaceResponse.response.status == 'ok') {
-                                  loadWorkspaces(context);
-                                }
-                                isLoading.value = false;
-                              },
+                            SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton(
+                                  child: Text("Create"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Color(0xff237C9C),
+                                  ),
+                                  onPressed: () async {
+                                    isLoading.value = true;
+                                    final EM = Provider.of<EnterMedia>(context, listen: false);
+                                    final myUser = Provider.of<userData>(context, listen: false);
+                                    print(myUser.entermediakey);
+                                    final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
+                                    print(createWorkspaceResponse);
+                                    if (createWorkspaceResponse != null && createWorkspaceResponse.response.status == 'ok') {
+                                      loadWorkspaces(context);
+                                    }
+                                    isLoading.value = false;
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -125,7 +169,10 @@ class WorkspaceSelect extends StatelessWidget {
     }
 
     if (savedColId == null && userWorkspaces2.results.length > 0) {
-      await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
+      /*CreateTeamModel data =*/ await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
+      /* if (data.response.status != 'ok') {
+        print("Error creating team account");
+      }*/
       final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
       hitTracker.searchedhits = searchedData;
       hitTracker.organizeData();
@@ -137,7 +184,11 @@ class WorkspaceSelect extends StatelessWidget {
       return wkspcs;
     }
     if (savedColId != null && savedColId < userWorkspaces2.results.length) {
+      /*CreateTeamModel data =*/
       await EM.createTeamAccount(context, myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
+      /* if (data.response.status != 'ok') {
+        print("Error creating team account");
+      }*/
       final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[savedColId]);
       hitTracker.searchedhits = searchedData;
       hitTracker.organizeData();

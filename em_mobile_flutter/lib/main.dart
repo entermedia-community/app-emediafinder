@@ -184,8 +184,11 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     if (emkey != null && myUser.entermediakey == null) {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
       if (userInfo.response.status != 'ok') {
+        final EM = Provider.of<EnterMedia>(context, listen: false);
+        await EM.logOutUser();
         sharedPref().resetValues();
-        EM.logOutUser();
+        sharedPref().setDeepLinkHandler(false);
+        context.read<AuthenticationService>().signOut();
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
         Fluttertoast.showToast(
           msg: "Invalid login. Please try again.",

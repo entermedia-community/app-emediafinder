@@ -1,3 +1,4 @@
+import 'package:em_mobile_flutter/models/createTeamModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
@@ -86,7 +87,11 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context, int ind
             color: Color(0xff237C9C),
           ),
           onPressed: () async {
-            await EM.createTeamAccount(context, instanceUrl, myUser.entermediakey, colId);
+            /*CreateTeamModel data = */ await EM.createTeamAccount(context, instanceUrl, myUser.entermediakey, colId);
+
+            /*if (data.response.status != 'ok') {
+              print("Error creating team account");
+            }*/
 
             final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, instanceUrl);
 
