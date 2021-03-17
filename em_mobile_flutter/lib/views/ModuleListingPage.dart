@@ -3,6 +3,7 @@ import 'package:em_mobile_flutter/models/moduleListModel.dart';
 import 'package:em_mobile_flutter/models/projectAssetModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomExpansionTile.dart';
+import 'package:em_mobile_flutter/views/AddTeamMember.dart';
 import 'package:em_mobile_flutter/views/ModuleDetailsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -71,6 +72,7 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
                               child: Column(
                                 children: [
                                   modulesListing(moduleListData.results),
+                                  SizedBox(height: 80),
                                 ],
                               ),
                             ),
@@ -80,6 +82,30 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
               ],
             ),
           ),
+        ),
+        bottomSheet: BottomSheet(
+          builder: (BuildContext context) {
+            return ListTile(
+              tileColor: Color(0xff384964),
+              title: Text(
+                'Add a user to Workspace',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddTeamMember(),
+                ),
+              ),
+            );
+          },
+          onClosing: () => print(""),
         ),
       ),
     );

@@ -20,10 +20,12 @@ class ModuleDetailsPage extends StatefulWidget {
 class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   ValueNotifier<bool> isListModeEnabled = ValueNotifier(false);
+  ValueNotifier<bool> enableEdit = ValueNotifier(false);
   List<EntitiesDetails> entitiesDetails = <EntitiesDetails>[];
   List<EntitiesDetails> filteredEntitiesDetails = <EntitiesDetails>[];
   TextEditingController searchBarController = new TextEditingController();
   TextEditingController createEntityController = new TextEditingController();
+  TextEditingController nameEditController = new TextEditingController();
   int currentPage = 1;
   int totalPages = 1;
 
@@ -37,6 +39,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   void dispose() {
     searchBarController.dispose();
     createEntityController.dispose();
+    nameEditController.dispose();
     super.dispose();
   }
 
@@ -252,24 +255,23 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
           itemBuilder: (BuildContext myContext, int index) {
             return index == 0
                 ? customListTile(
-                    InkWell(
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        ),
+                    ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
 
-                        title: Text(
-                          "Add new ${widget.modulesDetails.name}",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
+                      title: Text(
+                        "Add new",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
                         ),
-                        // tileColor: Color(0xFF2680A0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                      ),
+                      // tileColor: Color(0xFF2680A0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       onTap: showBottomSheetTextField,
                     ),
@@ -277,6 +279,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                   )
                 : customListTile(
                     ListTile(
+                      dense: true,
                       title: Text(
                         "${filteredEntitiesDetails[index - 1].name}",
                         style: TextStyle(
@@ -288,6 +291,9 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      onTap: () => viewAndEditEntity(
+                        EntitiesDetails(filteredEntitiesDetails[index - 1].id, filteredEntitiesDetails[index - 1].name),
+                      ),
                     ),
                     Color(0xff0c223a),
                   );
@@ -298,59 +304,116 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   }
 
   void viewAndEditEntity(EntitiesDetails entity) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      isDismissible: true,
-      builder: (BuildContext popupContext) {
-        return Container(
-          color: Color(0xff0c223a),
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: EdgeInsets.only(bottom: 20),
-                child: Text(
-                  "${widget.modulesDetails.name}",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18),
-                ),
+    modalSheet(
+      Container(
+        color: Color(0xff0c223a),
+        padding: EdgeInsets.fromLTRB(15, 30, 15, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: EdgeInsets.only(bottom: 20),
+              child: Text(
+                "${widget.modulesDetails.name}",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18),
               ),
-              Container(
-                margin: EdgeInsets.only(bottom: 20),
-                child: Text(
-                  "${entity.name}",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.white70),
-                ),
-              ),
-              Container(
-                child: Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        print("");
-                      },
-                      child: Icon(Icons.clear),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: enableEdit,
+              builder: (BuildContext context, bool isEnabled, _) {
+                return !isEnabled
+                    ? Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          "${entity.name}",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontSize: 15, color: Colors.white70),
+                        ),
+                      )
+                    : Container(
+                        height: 45,
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                style: TextStyle(fontSize: 15),
+                                controller: nameEditController,
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Color(0xff384964),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                                    ),
+                                    hintText: "${entity.name}",
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                    alignLabelWithHint: true,
+                                    contentPadding: EdgeInsets.fromLTRB(12, 5, 5, 5)),
+                                keyboardType: TextInputType.emailAddress,
+                                onChanged: (v) => print(v),
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: ElevatedButton(
+                                child: Icon(Icons.check),
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.green[400],
+                                ),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+              },
+            ),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    child: Text("Cancel"),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red[400],
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        print("");
-                      },
-                      child: Text("Edit"),
-                      /*style: ButtonStyle(
-
-                      ),*/
-                    ),
-                  ],
-                ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  SizedBox(width: 5),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: enableEdit,
+                    builder: (BuildContext context, bool isActive, _) {
+                      return !isActive
+                          ? ElevatedButton(
+                              child: Text("Edit"),
+                              style: ElevatedButton.styleFrom(
+                                primary: Color(0xff237C9C),
+                              ),
+                              onPressed: () {
+                                enableEdit.value = !enableEdit.value;
+                              },
+                            )
+                          : ElevatedButton(
+                              child: Text("View"),
+                              style: ElevatedButton.styleFrom(
+                                primary: Color(0xff237C9C),
+                              ),
+                              onPressed: () {
+                                enableEdit.value = !enableEdit.value;
+                              },
+                            );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -465,20 +528,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   }
 
   void showBottomSheetTextField() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      isDismissible: true,
-      builder: (BuildContext popupContext) {
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              textFieldWithButton(),
-            ],
-          ),
-        );
-      },
-    );
+    modalSheet(textFieldWithButton());
   }
 
   Widget textFieldWithButton() {
@@ -489,200 +539,16 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            margin: EdgeInsets.only(bottom: 20),
+            margin: EdgeInsets.only(bottom: 20, top: 8),
             child: Text(
-              "Create new ${widget.modulesDetails.name.toLowerCase()}.",
+              "Create new",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          TextFormField(
-            style: TextStyle(fontSize: 17, color: Colors.white),
-            controller: createEntityController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (text) => print(text),
-          ),
-          TextFormField(
-            style: TextStyle(fontSize: 17, color: Colors.white),
-            controller: createEntityController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (text) => print(text),
-          ),
-          TextFormField(
-            style: TextStyle(fontSize: 17, color: Colors.white),
-            controller: createEntityController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (text) => print(text),
-          ),
-          TextFormField(
-            style: TextStyle(fontSize: 17, color: Colors.white),
-            controller: createEntityController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (text) => print(text),
-          ),
-          TextFormField(
-            style: TextStyle(fontSize: 17, color: Colors.white),
-            controller: createEntityController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (text) => print(text),
-          ),
-          TextFormField(
-            style: TextStyle(fontSize: 17, color: Colors.white),
-            controller: createEntityController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                errorBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4)), borderSide: BorderSide(width: 1, color: Colors.black)),
-                focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (text) => print(text),
-          ),
-          SizedBox(height: 300),
           TextFormField(
             style: TextStyle(fontSize: 17, color: Colors.white),
             controller: createEntityController,
@@ -718,6 +584,14 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               ElevatedButton(
+                child: Text("Cancel"),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red[400],
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              SizedBox(width: 5),
+              ElevatedButton(
                 child: Text("Create"),
                 style: ElevatedButton.styleFrom(
                   primary: Color(0xff237C9C),
@@ -728,6 +602,56 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void modalSheet(Widget child) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+      )),
+      enableDrag: true,
+      isDismissible: true,
+      backgroundColor: Colors.transparent,
+      elevation: 8,
+      builder: (BuildContext popupContext) {
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: Color(0xff237C9C), // Color(0xff0c223a),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FractionallySizedBox(
+                widthFactor: 0.25,
+                child: Container(
+                  margin: const EdgeInsets.only(
+                    top: 20.0,
+                    bottom: 18.0,
+                  ),
+                  child: Container(
+                    height: 5.0,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).dividerColor.withOpacity(0.9),
+                      borderRadius: const BorderRadius.all(Radius.circular(2.5)),
+                    ),
+                  ),
+                ),
+              ),
+              child,
+            ],
+          ),
+        );
+      },
     );
   }
 

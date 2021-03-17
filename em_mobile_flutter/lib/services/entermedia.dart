@@ -120,6 +120,7 @@ class EnterMedia {
 //Entermedia Login with key pasted in
   Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey, {addContentHeader: true}) async {
     tempKey = entermediakey;
+    emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": entermediakey}, context,
         customError: "Invalid credentials. Please try again!");
 
@@ -536,6 +537,11 @@ class EnterMedia {
       print("Request failed!");
       return null;
     }
+  }
+
+  Future<void> logOutUser() async {
+    tempKey = null;
+    emUser = null;
   }
 
   Future<http.Response> httpRequest({

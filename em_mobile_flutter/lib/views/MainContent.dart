@@ -587,7 +587,9 @@ class MainContent extends StatelessWidget {
     );
   }
 
-  void logOutUser(BuildContext context) {
+  void logOutUser(BuildContext context) async {
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    await EM.logOutUser();
     sharedPref().resetValues();
     sharedPref().setDeepLinkHandler(false);
     context.read<AuthenticationService>().signOut();
