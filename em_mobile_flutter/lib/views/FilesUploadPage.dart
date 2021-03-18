@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:em_mobile_flutter/models/uploadMediaModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -77,11 +79,33 @@ class FilesUploadPageState extends State<FilesUploadPage> {
   Future httpSend(Map params, BuildContext context, File file) async {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     print(file.path);
-    final response = await EM.uploadAsset(
+    final UploadMediaModel response = await EM.uploadAsset(
       context,
       widget.instanceUrl,
       file?.path,
     );
+    if (response.response.status == 'ok') {
+      Fluttertoast.showToast(
+        msg: "Media Uploaded successfully!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 10,
+        backgroundColor: Color(0xff61af56),
+        fontSize: 16.0,
+      );
+      fileListThumb = null;
+      fileList = null;
+      setState(() {});
+    } else {
+      Fluttertoast.showToast(
+        msg: "Failed to upload media.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 10,
+        backgroundColor: Colors.red.withOpacity(0.8),
+        fontSize: 16.0,
+      );
+    }
     print(response);
   }
 

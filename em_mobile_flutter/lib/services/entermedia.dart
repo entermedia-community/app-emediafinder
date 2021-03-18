@@ -13,6 +13,7 @@ import 'package:em_mobile_flutter/models/moduleAssetModel.dart';
 import 'package:em_mobile_flutter/models/moduleListModel.dart';
 import 'package:em_mobile_flutter/models/projectAssetModel.dart';
 import 'package:em_mobile_flutter/models/updateDataModulesModel.dart';
+import 'package:em_mobile_flutter/models/uploadMediaModel.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -32,23 +33,12 @@ class EnterMedia {
   var tempKey;
 
   //Generic post method to entermedias server
-  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError, String useAnotherToken}) async {
+  Future<Map> postEntermedia(String url, dynamic jsonBody, BuildContext context, {String customError}) async {
     //Set headers
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
-    /* if (addContentHeader != null && addContentHeader) {
-      headers.addAll({"Content-type": "application/json"});
-    }*/
-    if (useAnotherToken != null && useAnotherToken.length > 0) {
-      String tokenKey = handleTokenKey(useAnotherToken);
-      print("$tokenKey");
-      print("Setting Headers.");
-      headers.addAll({"X-token": tokenKey});
-    } else if (emUser != null) {
+    if (emUser != null) {
       String tokenKey = handleTokenKey(emUser.results.entermediakey);
-      print("$tokenKey");
-      print("Setting Headers.");
-      // todo: Important must specify types! Dart defaults to dynamic and http.post requires definitive types. - mando
       headers.addAll({"X-token": tokenKey});
     }
     //make API post
@@ -59,12 +49,9 @@ class EnterMedia {
       headers: headers,
       customError: customError,
     );
-    print("Post started response is below!");
-    // print(response.statusCode);
     if (response != null && response.statusCode == 200) {
       log("Success user info is:" + response.body);
       final String responseString = response.body;
-      //returns map!
       return json.decode(responseString);
     } else {
       return null;
@@ -73,14 +60,10 @@ class EnterMedia {
 
 //Generic post to client specific 'EMFinder' server.
   Future<Map> postFinder(String url, dynamic jsonBody, BuildContext context, {String customError, bool isPutMethod}) async {
-    //Set headers
     var headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
     if (emUser != null) {
       String tokenKey = handleTokenKey(tempKey);
-      /*if (tokenKey.contains('em')) {
-        tokenKey.replaceFirst('em', '');
-      }*/
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
       headers.addAll({"X-token": tokenKey});
@@ -94,13 +77,9 @@ class EnterMedia {
       customError: customError,
       isPutMethod: true,
     );
-    print("Post started response is below!");
-    print("Response code: ");
-    // print(response.statusCode);
     if (response != null && response.statusCode == 200) {
       print("Success workspace data is:" + response.body);
       final String responseString = response.body;
-      //returns map!
       return json.decode(responseString);
     } else {
       return null;
@@ -117,9 +96,7 @@ class EnterMedia {
   Future<EmUser> emLogin(BuildContext context, String email, String password) async {
     final resMap = await postEntermedia(MEDIADB + '/services/authentication/firebaselogin.json', {"email": email, "password": password}, context,
         customError: "Invalid credentials. Please try again!");
-
     print("Logging in");
-
     if (resMap != null) {
       //save local emUser from response object
       emUser = emUserFromJson(json.encode(resMap));
@@ -134,10 +111,9 @@ class EnterMedia {
     tempKey = entermediakey;
     emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": entermediakey}, context,
-        customError: "Invalid credentials. Please try again!", useAnotherToken: entermediakey);
+        customError: "Invalid credentials. Please try again!");
     print("Logging in with key...");
     print(entermediakey);
-
     if (resMap != null) {
       //save local emUser from response object
       emUser = emUserFromJson(json.encode(resMap));
@@ -152,7 +128,7 @@ class EnterMedia {
     tempKey = emkey;
     emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": emkey}, context,
-        customError: "Invalid credentials. Please try again!", useAnotherToken: emkey);
+        customError: "Invalid credentials. Please try again!");
     print("Logging in with key...");
     if (resMap != null) {
       //save local emUser from response object
@@ -169,13 +145,9 @@ class EnterMedia {
     tempKey = null;
     // final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email}, context);
     final resMap = await postEntermedia(EMFinder + '/services/authentication/emailonlysendmagiclinkfinish.json', {"to": email}, context);
-
     print("Sending email...");
-
     if (resMap != null) {
       var loggedin = true;
-      print(resMap);
-
       return loggedin;
     } else {
       return null;
@@ -194,11 +166,9 @@ class EnterMedia {
     );
     print("Fetching workspaces...");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return GetWorkspaceModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -210,15 +180,11 @@ class EnterMedia {
       context,
     );
     if (resMap != null) {
-      print(resMap);
-
       print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
-
       tempKey = resMap["results"]["entermediakey"];
       String response = json.encode(resMap);
       return CreateTeamModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -230,66 +196,44 @@ class EnterMedia {
       {"entermediakey": "$emkey"},
       context,
     );
-    print("Creating workspaces...");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return CreateWorkspaceModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
 
   Future<Map> renameWorkspaces(String newname, String colId, BuildContext context) async {
     final resMap = await postEntermedia(
-      //TODO: Complete the URL here to get correct response
       'https://emediafinder.com/entermediadb/app/services/relabelworkspace.json?newname=$newname&collectionid=$colId',
       null,
       context,
     );
-    print("Creating workspaces...");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return (json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
 
   Future<Map> deleteWorkspaces(String colId, BuildContext context) async {
-    final resMap = await postEntermedia(
-      //TODO: Complete the URL here to get correct response
-      'https://emediafinder.com/entermediadb/app/services/removeworkspace.json?collectionid=$colId',
-      null,
-      context,
-    );
-    print("Creating workspaces...");
+    final resMap = await postEntermedia('https://emediafinder.com/entermediadb/app/services/removeworkspace.json?collectionid=$colId', null, context);
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return (json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
 
   Future<WorkspaceAssetsModel> getWorkspaceAssets(BuildContext context, String url) async {
-    final resMap = await postFinder(
-      url + '/finder/mediadb/services/module/modulesearch/sample.json',
-      null,
-      context,
-    );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
+    final resMap = await postFinder(url + '/finder/mediadb/services/module/modulesearch/sample.json', null, context);
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return WorkspaceAssetsModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -308,30 +252,20 @@ class EnterMedia {
       },
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return WorkspaceAssetsModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
 
   Future<MediaAssetModel> getMediaAssets(BuildContext context, String url) async {
-    final resMap = await postFinder(
-      url + '/finder/mediadb/services/module/asset/search',
-      null,
-      context,
-    );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
+    final resMap = await postFinder(url + '/finder/mediadb/services/module/asset/search', null, context);
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return MediaAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -350,13 +284,10 @@ class EnterMedia {
       },
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/module/modulesearch/sample.json");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return MediaAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -367,13 +298,10 @@ class EnterMedia {
       null,
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityproject");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return ProjectAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -392,13 +320,10 @@ class EnterMedia {
       },
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityproject");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return ProjectAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -409,13 +334,10 @@ class EnterMedia {
       null,
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityevent");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return EventAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -434,13 +356,10 @@ class EnterMedia {
       },
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/entityevent");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return EventAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -451,13 +370,10 @@ class EnterMedia {
       null,
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return ModuleAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -468,12 +384,10 @@ class EnterMedia {
       {"name": "$name"},
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/create/$entity");
     if (resMap != null) {
       print(resMap);
       return true;
     } else {
-      print("Request failed!");
       return false;
     }
   }
@@ -485,13 +399,10 @@ class EnterMedia {
       context,
       isPutMethod: true,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/data/$entity/$moduleId");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return UpdateDataModulesModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -510,13 +421,10 @@ class EnterMedia {
       },
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/search/$entity");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return ModuleAssetModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -527,32 +435,25 @@ class EnterMedia {
       {"name": "$username", "password": "$password", "email": "$email"},
       context,
     );
-    print("Fetching workspace assets from " + url + "/finder/mediadb/services/settings/users/create");
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return CreateUserResponseModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
 
-  Future<dynamic> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
+  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
-    print(filePath);
     var request = new http.MultipartRequest("POST", url);
-    print(url);
     Map<String, String> headers = {
       "X-tokentype": "entermedia",
       "Accept": "text/plain",
       "Content-Type": "image/jpeg",
     };
-
     if (emUser != null) {
       headers.addAll({"X-token": "em" + emUser.results.entermediakey.toString()});
     }
-
     request.headers.addAll(headers);
     request.files.add(
       new http.MultipartFile.fromBytes(
@@ -563,25 +464,16 @@ class EnterMedia {
       ),
     );
     request.fields.addAll({'jsonrequest': '{}'});
-
     http.Response response = await http.Response.fromStream(await request.send());
-    print("Result: ${response.statusCode}");
-    return response.body;
+    return UploadMediaModel.fromJson(json.decode(response.body));
   }
 
   Future<ModuleListModel> getAllModulesList(BuildContext context, String url) async {
-    final resMap = await postFinder(
-      url + '/finder/mediadb/services/settings/modules/list',
-      null,
-      context,
-    );
-    print("Fetching modules from " + url + "/finder/mediadb/services/settings/modules/list");
+    final resMap = await postFinder(url + '/finder/mediadb/services/settings/modules/list', null, context);
     if (resMap != null) {
-      print(resMap);
       String response = json.encode(resMap);
       return ModuleListModel.fromJson(json.decode(response));
     } else {
-      print("Request failed!");
       return null;
     }
   }
@@ -617,7 +509,6 @@ class EnterMedia {
           headers: headers,
         );
       }
-      print("Get code");
       print(responseJson.statusCode);
       response = await handleException(responseJson);
     } on BadRequestException catch (error) {
@@ -628,12 +519,9 @@ class EnterMedia {
       showErrorFlushbar(context, "Request timed out. Please try again!");
     } on SocketException catch (error) {
       showErrorFlushbar(context, "Unable to connect to server. Please try again!");
-    } on Exception catch (error) {
+    } on HttpException catch (error) {
       showErrorFlushbar(
           context, customError != null ? customError : "Error occurred while communication with server. Please try again after some time.");
-    } catch (error) {
-      print("errorPrince ${error}");
-      showErrorFlushbar(context, "Error occurred while communication with server. Please try again after some time.");
     }
     return response;
   }
@@ -654,21 +542,17 @@ class EnterMedia {
       case 400:
         throw BadRequestException(response.body.toString());
         break;
-
       case 403:
         throw UnauthorisedException(response.body.toString());
         break;
-
       case 408:
         throw TimeoutException(response.body.toString());
         break;
-
       case 500:
-        throw Exception(response.body.toString());
+        throw HttpException(response.body.toString());
         break;
-
       default:
-        throw FetchDataException('Error occurred while Communication with Server with StatusCode : ${response.statusCode}');
+        // throw FetchDataException('Error occurred while Communication with Server with StatusCode : ${response.statusCode}');
         break;
     }
   }
