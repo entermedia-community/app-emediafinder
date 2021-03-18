@@ -79,22 +79,20 @@ class _NavRailState extends State<NavRail> {
           ),
           label: Text('AI Facial Recognition'),
         ),
-        NavigationRailDestination(
-          icon: Icon(
-            Icons.upload_file,
-            color: Colors.cyan,
-          ),
-          label: Text('Recent'),
-        ),
 
 //        NavigationRailDestination(
 //            icon: Icon(Icons.add_box_outlined), label: Text('Add New')),
       ],
       trailing: IconButton(
-        icon: Icon(Icons.person_add),
+        icon: Icon(Icons.upload_file),
         color: Colors.white70,
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddTeamMember()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilesUploadPage(instanceUrl),
+            ),
+          );
         },
       ),
       selectedIndex: _selectedIndex,
@@ -109,13 +107,6 @@ class _NavRailState extends State<NavRail> {
             context,
             MaterialPageRoute(
               builder: (context) => ModuleListingPage(instanceUrl),
-            ),
-          );
-        } else if (index == 6) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FilesUploadPage(instanceUrl),
             ),
           );
         }

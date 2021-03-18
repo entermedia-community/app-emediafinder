@@ -100,7 +100,7 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddTeamMember(),
+                  builder: (context) => AddTeamMember(widget.instanceUrl),
                 ),
               ),
             );
@@ -124,55 +124,104 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
             return Container(
               child: Row(
                 children: [
-                  modules[index].isentity == 'true' && modules[index].id != 'asset'
-                      ? Expanded(
-                          child: Card(
-                            elevation: 8.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Color(0xff0c223a),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.grey, width: 1),
-                              ),
-                              child: ListTile(
-                                title: Text(
-                                  "${modules[index].name}",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                trailing: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  color: Colors.white,
-                                ),
-                                // tileColor: Color(0xFF2680A0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ModuleDetailsPage(
-                                      ModulesDetails(modules[index].id, modules[index].name),
-                                      widget.instanceUrl,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Container(),
+                  modules[index].isentity == 'true' && modules[index].id != 'asset' ? customTiles(modules, index) : Container(),
                 ],
               ),
             );
           },
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                elevation: 8.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Color(0xff0c223a),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey, width: 1),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      "Users",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white,
+                    ),
+                    // tileColor: Color(0xFF2680A0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ModuleDetailsPage(
+                          ModulesDetails('user', 'Users'),
+                          widget.instanceUrl,
+                          true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         )
       ],
+    );
+  }
+
+  Widget customTiles(List<ModuleListResults> modules, int index) {
+    return Expanded(
+      child: Card(
+        elevation: 8.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(0xff0c223a),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey, width: 1),
+          ),
+          child: ListTile(
+            title: Text(
+              "${modules[index].name}",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            trailing: Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white,
+            ),
+            // tileColor: Color(0xFF2680A0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ModuleDetailsPage(
+                  ModulesDetails(modules[index].id, modules[index].name),
+                  widget.instanceUrl,
+                  false,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:em_mobile_flutter/models/moduleAssetModel.dart';
+import 'package:em_mobile_flutter/models/updateDataModulesModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/shared/SearchBarWithoutArrow.dart';
+import 'package:em_mobile_flutter/views/AddTeamMember.dart';
 import 'package:em_mobile_flutter/views/ModuleListingPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +14,8 @@ import 'package:provider/provider.dart';
 class ModuleDetailsPage extends StatefulWidget {
   final ModulesDetails modulesDetails;
   final String instanceUrl;
-  ModuleDetailsPage(this.modulesDetails, this.instanceUrl);
+  final bool isViewMode;
+  ModuleDetailsPage(this.modulesDetails, this.instanceUrl, this.isViewMode);
   @override
   _ModuleDetailsPageState createState() => _ModuleDetailsPageState();
 }
@@ -184,15 +187,14 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
 
   Future fetchEntityData() async {
     isLoading.value = true;
-
     entitiesDetails = <EntitiesDetails>[];
     filteredEntitiesDetails = <EntitiesDetails>[];
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final ModuleAssetModel moduleAssetModel = await EM.getModulesData(context, widget.instanceUrl, widget.modulesDetails.id.trim());
     if (moduleAssetModel.response.status == 'ok') {
       moduleAssetModel.results.forEach((element) {
-        entitiesDetails.add(EntitiesDetails(element.id, element.name));
-        filteredEntitiesDetails.add(EntitiesDetails(element.id, element.name));
+        entitiesDetails.add(EntitiesDetails(element.id, element.name, email: element.email != null ? element.email : null));
+        filteredEntitiesDetails.add(EntitiesDetails(element.id, element.name, email: element.email != null ? element.email : null));
       });
     }
     setState(() {});
@@ -272,7 +274,14 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      onTap: showBottomSheetTextField,
+                      onTap: widget.modulesDetails.id == 'user'
+                          ? () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddTeamMember(widget.instanceUrl),
+                                ),
+                              )
+                          : showBottomSheetTextField,
                     ),
                     Color(0xff237C9C),
                   )
@@ -303,6 +312,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   }
 
   void viewAndEditEntity(EntitiesDetails entity) {
+    final _formKey = GlobalKey<FormState>();
     modalSheet(
       Container(
         color: Color(0xff0c223a),
@@ -332,45 +342,117 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                         ),
                       )
                     : Container(
-                        height: 45,
-                        margin: EdgeInsets.only(bottom: 20),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                style: TextStyle(fontSize: 15),
-                                controller: nameEditController,
-                                decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Color(0xff384964),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(Radius.circular(6)),
-                                    ),
-                                    hintText: "${entity.name}",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    alignLabelWithHint: true,
-                                    contentPadding: EdgeInsets.fromLTRB(12, 5, 5, 5)),
-                                keyboardType: TextInputType.emailAddress,
-                                onChanged: (v) => print(v),
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: ElevatedButton(
-                                child: Icon(Icons.check),
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.green[400],
+                        height: 65,
+                        // margin: EdgeInsets.only(bottom: 20),
+                        child: Form(
+                          key: _formKey,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  style: TextStyle(fontSize: 15),
+                                  controller: nameEditController,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Color(0xff384964),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                                      ),
+                                      hintText: "${entity.name}",
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black,
+                                            offset: Offset(1, 1),
+                                            blurRadius: 2,
+                                          )
+                                        ],
+                                      ),
+                                      alignLabelWithHint: true,
+                                      contentPadding: EdgeInsets.fromLTRB(12, 5, 5, 5)),
+                                  keyboardType: TextInputType.emailAddress,
+                                  onChanged: (v) {},
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return "Name field can't be empty.";
+                                    }
+                                    if (value.toLowerCase() == entity.name.toLowerCase()) {
+                                      return "Field value is same as before.";
+                                    }
+
+                                    return null;
+                                  },
                                 ),
-                                onPressed: () => Navigator.of(context).pop(),
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 5),
+                              Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Container(
+                                  height: 45,
+                                  child: Row(
+                                    children: [
+                                      ElevatedButton(
+                                        child: Icon(Icons.check),
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.green[400],
+                                        ),
+                                        onPressed: () async {
+                                          if (_formKey.currentState.validate()) {
+                                            Navigator.of(context).pop();
+                                            if (nameEditController.text.length > 0) {
+                                              final EM = Provider.of<EnterMedia>(context, listen: false);
+                                              UpdateDataModulesModel data = await EM.updateModulesData(
+                                                  context, widget.instanceUrl, widget.modulesDetails.id, entity.id, nameEditController.text);
+                                              if (data.response.status == 'ok') {
+                                                Fluttertoast.showToast(
+                                                  msg: "Updated successfully!",
+                                                  toastLength: Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  timeInSecForIosWeb: 10,
+                                                  backgroundColor: Color(0xff61af56),
+                                                  fontSize: 16.0,
+                                                );
+                                                enableEdit.value = false;
+                                                nameEditController..text = '';
+                                                fetchEntityData();
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                  msg: "Failed to update data",
+                                                  toastLength: Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  timeInSecForIosWeb: 10,
+                                                  backgroundColor: Colors.red.withOpacity(0.7),
+                                                  fontSize: 16.0,
+                                                );
+                                              }
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
               },
             ),
+            entity.email != null
+                ? Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    child: Text(
+                      "Email: ${entity.email}",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 15, color: Colors.white70),
+                    ),
+                  )
+                : Container(),
             Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -383,30 +465,32 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   SizedBox(width: 5),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: enableEdit,
-                    builder: (BuildContext context, bool isActive, _) {
-                      return !isActive
-                          ? ElevatedButton(
-                              child: Text("Edit"),
-                              style: ElevatedButton.styleFrom(
-                                primary: Color(0xff237C9C),
-                              ),
-                              onPressed: () {
-                                enableEdit.value = !enableEdit.value;
-                              },
-                            )
-                          : ElevatedButton(
-                              child: Text("View"),
-                              style: ElevatedButton.styleFrom(
-                                primary: Color(0xff237C9C),
-                              ),
-                              onPressed: () {
-                                enableEdit.value = !enableEdit.value;
-                              },
-                            );
-                    },
-                  ),
+                  widget.isViewMode
+                      ? Container()
+                      : ValueListenableBuilder<bool>(
+                          valueListenable: enableEdit,
+                          builder: (BuildContext context, bool isActive, _) {
+                            return !isActive
+                                ? ElevatedButton(
+                                    child: Text("Edit"),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Color(0xff237C9C),
+                                    ),
+                                    onPressed: () {
+                                      enableEdit.value = widget.isViewMode ? false : !enableEdit.value;
+                                    },
+                                  )
+                                : ElevatedButton(
+                                    child: Text("View"),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Color(0xff237C9C),
+                                    ),
+                                    onPressed: () {
+                                      enableEdit.value = widget.isViewMode ? false : !enableEdit.value;
+                                    },
+                                  );
+                          },
+                        ),
                 ],
               ),
             ),
@@ -482,7 +566,14 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                         ),
                       ),
                     ),
-                    onTap: showBottomSheetTextField,
+                    onTap: widget.modulesDetails.id == 'user'
+                        ? () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddTeamMember(widget.instanceUrl),
+                              ),
+                            )
+                        : showBottomSheetTextField,
                   )
                 : Container(
                     child: InkWell(
@@ -559,8 +650,17 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(6)),
                 ),
-                hintText: "Name",
-                hintStyle: TextStyle(color: Colors.grey),
+                labelText: "Name",
+                labelStyle: TextStyle(
+                  color: Colors.grey,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black,
+                      offset: Offset(1, 1),
+                      blurRadius: 2,
+                    )
+                  ],
+                ),
                 prefixIcon: Icon(
                   Icons.drive_file_rename_outline,
                   color: Color(0xff237C9C),
@@ -659,7 +759,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
       );
       if (response) {
         Fluttertoast.showToast(
-          msg: "${widget.modulesDetails.name} created successfully!",
+          msg: "Created successfully!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 10,
@@ -689,58 +789,11 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
       );
     }
   }
-
-/*  Widget addButton(int index) {
-    return InkWell(
-      child: Card(
-        color: Colors.blue.withOpacity(0.5),
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 45,
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-      onTap: () {
-        setState(() {
-          isTextFieldActive[index].value = true;
-        });
-      },
-    );
-  }
-
-
-
-
-
-
-
-  Future fetchEntityData(String entityId, int index) async {
-    isContentLoading[index].value = true;
-    List<String> names = <String>[];
-    final ModuleAssetModel moduleAssetModel = await EM.getModulesData(context, widget.instanceUrl, entityId.trim());
-    if (moduleAssetModel.response.status == 'ok') {
-      moduleAssetModel.results.forEach((element) {
-        names.add(element.name);
-      });
-      modulesDetails[index].entityName = names;
-    }
-    setState(() {});
-    isContentLoading[index].value = false;
-  }*/
 }
 
 class EntitiesDetails {
   String name;
   String id;
-  EntitiesDetails(this.id, this.name);
+  String email;
+  EntitiesDetails(this.id, this.name, {this.email});
 }

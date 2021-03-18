@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:em_mobile_flutter/Helper/customException.dart';
 import 'package:em_mobile_flutter/models/createTeamModel.dart';
+import 'package:em_mobile_flutter/models/createUserResponseModel.dart';
 import 'package:em_mobile_flutter/models/eventAssetModel.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
@@ -11,6 +12,7 @@ import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:em_mobile_flutter/models/moduleAssetModel.dart';
 import 'package:em_mobile_flutter/models/moduleListModel.dart';
 import 'package:em_mobile_flutter/models/projectAssetModel.dart';
+import 'package:em_mobile_flutter/models/updateDataModulesModel.dart';
 import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -70,7 +72,7 @@ class EnterMedia {
   }
 
 //Generic post to client specific 'EMFinder' server.
-  Future<Map> postFinder(String url, dynamic jsonBody, BuildContext context, {String customError}) async {
+  Future<Map> postFinder(String url, dynamic jsonBody, BuildContext context, {String customError, bool isPutMethod}) async {
     //Set headers
     var headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
@@ -90,6 +92,7 @@ class EnterMedia {
       body: json.encode(jsonBody),
       headers: headers,
       customError: customError,
+      isPutMethod: true,
     );
     print("Post started response is below!");
     print("Response code: ");
@@ -475,6 +478,24 @@ class EnterMedia {
     }
   }
 
+  Future<UpdateDataModulesModel> updateModulesData(BuildContext context, String url, String entity, String moduleId, String newName) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/lists/data/$entity/$moduleId',
+      {"name": "$newName"},
+      context,
+      isPutMethod: true,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/lists/data/$entity/$moduleId");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return UpdateDataModulesModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
   Future<ModuleAssetModel> searchFromModulesData(BuildContext context, String url, String entity, String searchText, String currentPage) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/search/$entity',
@@ -494,6 +515,23 @@ class EnterMedia {
       print(resMap);
       String response = json.encode(resMap);
       return ModuleAssetModel.fromJson(json.decode(response));
+    } else {
+      print("Request failed!");
+      return null;
+    }
+  }
+
+  Future<CreateUserResponseModel> createNewUser(BuildContext context, String url, String username, String password, String email) async {
+    final resMap = await postFinder(
+      url + '/finder/mediadb/services/settings/users/create',
+      {"name": "$username", "password": "$password", "email": "$email"},
+      context,
+    );
+    print("Fetching workspace assets from " + url + "/finder/mediadb/services/settings/users/create");
+    if (resMap != null) {
+      print(resMap);
+      String response = json.encode(resMap);
+      return CreateUserResponseModel.fromJson(json.decode(response));
     } else {
       print("Request failed!");
       return null;
@@ -558,17 +596,27 @@ class EnterMedia {
     @required context,
     @required dynamic body,
     @required Map<String, String> headers,
+    bool isPutMethod,
     String customError,
   }) async {
     String url = requestUrl;
     print(url);
     http.Response response;
     try {
-      final responseJson = await client.post(
-        url,
-        body: body,
-        headers: headers,
-      );
+      var responseJson;
+      if (isPutMethod != null && isPutMethod) {
+        responseJson = await client.put(
+          url,
+          body: body,
+          headers: headers,
+        );
+      } else {
+        responseJson = await client.post(
+          url,
+          body: body,
+          headers: headers,
+        );
+      }
       print("Get code");
       print(responseJson.statusCode);
       response = await handleException(responseJson);
