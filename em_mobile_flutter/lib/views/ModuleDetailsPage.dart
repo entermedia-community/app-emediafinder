@@ -404,7 +404,13 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                                             if (nameEditController.text.length > 0) {
                                               final EM = Provider.of<EnterMedia>(context, listen: false);
                                               UpdateDataModulesModel data = await EM.updateModulesData(
-                                                  context, widget.instanceUrl, widget.modulesDetails.id, entity.id, nameEditController.text);
+                                                context,
+                                                widget.instanceUrl,
+                                                widget.modulesDetails.id,
+                                                entity.id,
+                                                nameEditController.text,
+                                                'name',
+                                              );
                                               if (data.response.status == 'ok') {
                                                 Fluttertoast.showToast(
                                                   msg: "Updated successfully!",
@@ -465,32 +471,33 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   SizedBox(width: 5),
-                  widget.isViewMode
+                  /*widget.isViewMode
                       ? Container()
-                      : ValueListenableBuilder<bool>(
-                          valueListenable: enableEdit,
-                          builder: (BuildContext context, bool isActive, _) {
-                            return !isActive
-                                ? ElevatedButton(
-                                    child: Text("Edit"),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Color(0xff237C9C),
-                                    ),
-                                    onPressed: () {
-                                      enableEdit.value = widget.isViewMode ? false : !enableEdit.value;
-                                    },
-                                  )
-                                : ElevatedButton(
-                                    child: Text("View"),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Color(0xff237C9C),
-                                    ),
-                                    onPressed: () {
-                                      enableEdit.value = widget.isViewMode ? false : !enableEdit.value;
-                                    },
-                                  );
-                          },
-                        ),
+                      :*/
+                  ValueListenableBuilder<bool>(
+                    valueListenable: enableEdit,
+                    builder: (BuildContext context, bool isActive, _) {
+                      return !isActive
+                          ? ElevatedButton(
+                              child: Text("Edit"),
+                              style: ElevatedButton.styleFrom(
+                                primary: Color(0xff237C9C),
+                              ),
+                              onPressed: () {
+                                enableEdit.value = /* widget.isViewMode ? false : */ !enableEdit.value;
+                              },
+                            )
+                          : ElevatedButton(
+                              child: Text("View"),
+                              style: ElevatedButton.styleFrom(
+                                primary: Color(0xff237C9C),
+                              ),
+                              onPressed: () {
+                                enableEdit.value = /* widget.isViewMode ? false :*/ !enableEdit.value;
+                              },
+                            );
+                    },
+                  ),
                 ],
               ),
             ),

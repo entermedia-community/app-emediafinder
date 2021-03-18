@@ -392,10 +392,11 @@ class EnterMedia {
     }
   }
 
-  Future<UpdateDataModulesModel> updateModulesData(BuildContext context, String url, String entity, String moduleId, String newName) async {
+  Future<UpdateDataModulesModel> updateModulesData(
+      BuildContext context, String url, String entity, String moduleId, String newName, String updateKey) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/data/$entity/$moduleId',
-      {"name": "$newName"},
+      {"$updateKey": "$newName"},
       context,
       isPutMethod: true,
     );
