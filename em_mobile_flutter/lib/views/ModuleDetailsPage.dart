@@ -29,8 +29,11 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   TextEditingController searchBarController = new TextEditingController();
   TextEditingController createEntityController = new TextEditingController();
   TextEditingController nameEditController = new TextEditingController();
+  TextEditingController emailEditController = new TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   int currentPage = 1;
   int totalPages = 1;
+  bool isValueUpdated = false;
 
   @override
   void initState() {
@@ -43,6 +46,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
     searchBarController.dispose();
     createEntityController.dispose();
     nameEditController.dispose();
+    emailEditController.dispose();
     super.dispose();
   }
 
@@ -197,6 +201,9 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
         filteredEntitiesDetails.add(EntitiesDetails(element.id, element.name, email: element.email != null ? element.email : null));
       });
     }
+    if (searchBarController.text != null && searchBarController.text.length > 0) {
+      filterResult(searchBarController.text);
+    }
     setState(() {});
     isLoading.value = false;
   }
@@ -262,7 +269,6 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                         Icons.add,
                         color: Colors.white,
                       ),
-
                       title: Text(
                         "Add new",
                         style: TextStyle(
@@ -299,9 +305,10 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      onTap: () => viewAndEditEntity(
-                        EntitiesDetails(filteredEntitiesDetails[index - 1].id, filteredEntitiesDetails[index - 1].name),
-                      ),
+                      onTap: () {
+                        setState(() {});
+                        viewAndEditEntity(filteredEntitiesDetails[index - 1]);
+                      },
                     ),
                     Color(0xff0c223a),
                   );
@@ -312,7 +319,6 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
   }
 
   void viewAndEditEntity(EntitiesDetails entity) {
-    final _formKey = GlobalKey<FormState>();
     modalSheet(
       Container(
         color: Color(0xff0c223a),
@@ -333,132 +339,57 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
               valueListenable: enableEdit,
               builder: (BuildContext context, bool isEnabled, _) {
                 return !isEnabled
-                    ? Container(
-                        margin: EdgeInsets.only(bottom: 20),
-                        child: Text(
-                          "${entity.name}",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(fontSize: 15, color: Colors.white70),
-                        ),
-                      )
-                    : Container(
-                        height: 65,
-                        // margin: EdgeInsets.only(bottom: 20),
-                        child: Form(
-                          key: _formKey,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  style: TextStyle(fontSize: 15),
-                                  controller: nameEditController,
-                                  decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Color(0xff384964),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(Radius.circular(6)),
-                                      ),
-                                      hintText: "${entity.name}",
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        shadows: [
-                                          Shadow(
-                                            color: Colors.black,
-                                            offset: Offset(1, 1),
-                                            blurRadius: 2,
-                                          )
-                                        ],
-                                      ),
-                                      alignLabelWithHint: true,
-                                      contentPadding: EdgeInsets.fromLTRB(12, 5, 5, 5)),
-                                  keyboardType: TextInputType.emailAddress,
-                                  onChanged: (v) {},
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return "Name field can't be empty.";
-                                    }
-                                    if (value.toLowerCase() == entity.name.toLowerCase()) {
-                                      return "Field value is same as before.";
-                                    }
-
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 5),
-                              Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: Container(
-                                  height: 45,
-                                  child: Row(
-                                    children: [
-                                      ElevatedButton(
-                                        child: Icon(Icons.check),
-                                        style: ElevatedButton.styleFrom(
-                                          primary: Colors.green[400],
-                                        ),
-                                        onPressed: () async {
-                                          if (_formKey.currentState.validate()) {
-                                            Navigator.of(context).pop();
-                                            if (nameEditController.text.length > 0) {
-                                              final EM = Provider.of<EnterMedia>(context, listen: false);
-                                              UpdateDataModulesModel data = await EM.updateModulesData(
-                                                context,
-                                                widget.instanceUrl,
-                                                widget.modulesDetails.id,
-                                                entity.id,
-                                                nameEditController.text,
-                                                'name',
-                                              );
-                                              if (data.response.status == 'ok') {
-                                                Fluttertoast.showToast(
-                                                  msg: "Updated successfully!",
-                                                  toastLength: Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.BOTTOM,
-                                                  timeInSecForIosWeb: 10,
-                                                  backgroundColor: Color(0xff61af56),
-                                                  fontSize: 16.0,
-                                                );
-                                                enableEdit.value = false;
-                                                nameEditController..text = '';
-                                                fetchEntityData();
-                                              } else {
-                                                Fluttertoast.showToast(
-                                                  msg: "Failed to update data",
-                                                  toastLength: Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.BOTTOM,
-                                                  timeInSecForIosWeb: 10,
-                                                  backgroundColor: Colors.red.withOpacity(0.7),
-                                                  fontSize: 16.0,
-                                                );
-                                              }
-                                            }
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  ),
-                                ),
-                              ),
-                            ],
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              "${entity.name}",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 15, color: Colors.white70),
+                            ),
                           ),
+                          entity.email != null
+                              ? Container(
+                                  margin: EdgeInsets.only(bottom: 20),
+                                  child: Text(
+                                    "Email: ${entity.email}",
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(fontSize: 15, color: Colors.white70),
+                                  ),
+                                )
+                              : Container(),
+                        ],
+                      )
+                    : Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            editingSection(
+                              controller: nameEditController,
+                              id: entity.id,
+                              fieldName: 'Name',
+                              hasMultipleFields: entity.email != null,
+                              name: entity.name,
+                            ),
+                            SizedBox(height: entity.email != null ? 7 : 0),
+                            entity.email != null
+                                ? editingSection(
+                                    name: entity.email,
+                                    hasMultipleFields: entity.email != null,
+                                    fieldName: 'Email',
+                                    id: entity.id,
+                                    controller: emailEditController,
+                                  )
+                                : Container(),
+                          ],
                         ),
                       );
               },
             ),
-            entity.email != null
-                ? Container(
-                    margin: EdgeInsets.only(bottom: 20),
-                    child: Text(
-                      "Email: ${entity.email}",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 15, color: Colors.white70),
-                    ),
-                  )
-                : Container(),
             Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -487,14 +418,39 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                                 enableEdit.value = /* widget.isViewMode ? false : */ !enableEdit.value;
                               },
                             )
-                          : ElevatedButton(
-                              child: Text("View"),
-                              style: ElevatedButton.styleFrom(
-                                primary: Color(0xff237C9C),
-                              ),
-                              onPressed: () {
-                                enableEdit.value = /* widget.isViewMode ? false :*/ !enableEdit.value;
-                              },
+                          : Row(
+                              children: [
+                                ElevatedButton(
+                                  child: Text("View"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Color(0xff237C9C),
+                                  ),
+                                  onPressed: () {
+                                    enableEdit.value = /* widget.isViewMode ? false :*/ !enableEdit.value;
+                                  },
+                                ),
+                                SizedBox(width: entity.email == null ? 0 : 5),
+                                entity.email == null
+                                    ? Container()
+                                    : ElevatedButton(
+                                        child: Text("Update"),
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.green[600],
+                                        ),
+                                        onPressed: () {
+                                          if (widget.modulesDetails.id == 'user') {
+                                            String newName = nameEditController.text;
+                                            List<String> names = newName.split(' ');
+                                            String firstName = names.first;
+                                            names.removeAt(0);
+                                            String lastName = names.join(' ');
+                                            onEdit(entity.id, {"firstName": firstName, "lastName": lastName, "email": emailEditController.text});
+                                          } else {
+                                            onEdit(entity.id, {"name": nameEditController.text, "email": emailEditController.text});
+                                          }
+                                        },
+                                      )
+                              ],
                             );
                     },
                   ),
@@ -505,6 +461,147 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
         ),
       ),
     );
+  }
+
+  Widget editingSection({bool hasMultipleFields, String name, String fieldName, String id, TextEditingController controller}) {
+    controller..text = '';
+    controller..text = name;
+    return Container(
+      height: hasMultipleFields ? null : 65,
+      // margin: EdgeInsets.only(bottom: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: TextFormField(
+              style: TextStyle(fontSize: 15, color: Colors.white),
+              controller: controller,
+              decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Color(0xff384964),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                  ),
+                  hintText: "$name",
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black,
+                        offset: Offset(1, 1),
+                        blurRadius: 2,
+                      )
+                    ],
+                  ),
+                  alignLabelWithHint: true,
+                  contentPadding: EdgeInsets.fromLTRB(12, 5, 5, 5)),
+              keyboardType: TextInputType.emailAddress,
+              onChanged: (v) {
+                if (name != v) {
+                  setState(() {
+                    isValueUpdated = true;
+                  });
+                }
+              },
+              validator: (value) {
+                if (value.isEmpty) {
+                  return "$fieldName field can't be empty.";
+                }
+                print(id);
+                if (widget.modulesDetails.id == 'user' &&
+                    fieldName.toLowerCase() == 'email' &&
+                    !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                  return "Invalid email address";
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(width: hasMultipleFields ? 0 : 5),
+          hasMultipleFields
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Container(
+                    height: 45,
+                    child: Row(
+                      children: [
+                        ElevatedButton(
+                          child: Icon(Icons.check),
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green[400],
+                          ),
+                          onPressed: () {
+                            if (controller.text.length > 0) {
+                              if (widget.modulesDetails.id == 'user') {
+                                String newName = nameEditController.text;
+                                List<String> names = newName.split(' ');
+                                String firstName = names.first;
+                                names.removeAt(0);
+                                String lastName = names.join(' ');
+                                onEdit(id, {"firstName": firstName, "lastName": lastName, "email": emailEditController.text});
+                              } else {
+                                onEdit(id, {"${fieldName.toLowerCase()}": "${controller.text}"});
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    ),
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+
+  void onEdit(String id, Map<String, String> body) async {
+    if (isValueUpdated) {
+      if (_formKey.currentState.validate()) {
+        FocusScope.of(context).unfocus();
+        Navigator.of(context).pop();
+        final EM = Provider.of<EnterMedia>(context, listen: false);
+        UpdateDataModulesModel data = await EM.updateModulesData(
+          context,
+          widget.instanceUrl,
+          widget.modulesDetails.id,
+          id,
+          body,
+        );
+        if (data.response.status == 'ok') {
+          Fluttertoast.showToast(
+            msg: "Updated successfully!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 10,
+            backgroundColor: Color(0xff61af56),
+            fontSize: 16.0,
+          );
+          enableEdit.value = false;
+          fetchEntityData();
+        } else {
+          Fluttertoast.showToast(
+            msg: "Failed to update data",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 10,
+            backgroundColor: Colors.red.withOpacity(0.7),
+            fontSize: 16.0,
+          );
+        }
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: "One of the fields must be updated.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 15,
+        backgroundColor: Colors.red.withOpacity(0.7),
+        fontSize: 16.0,
+      );
+    }
   }
 
   Widget customListTile(Widget listTile, Color boxColor) {

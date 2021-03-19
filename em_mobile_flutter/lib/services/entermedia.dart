@@ -37,6 +37,7 @@ class EnterMedia {
     //Set headers
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
+    headers.addAll({"Content-type": "application/json"});
     if (emUser != null) {
       String tokenKey = handleTokenKey(emUser.results.entermediakey);
       headers.addAll({"X-token": tokenKey});
@@ -392,11 +393,10 @@ class EnterMedia {
     }
   }
 
-  Future<UpdateDataModulesModel> updateModulesData(
-      BuildContext context, String url, String entity, String moduleId, String newName, String updateKey) async {
+  Future<UpdateDataModulesModel> updateModulesData(BuildContext context, String url, String entity, String moduleId, Map<String, String> body) async {
     final resMap = await postFinder(
       url + '/finder/mediadb/services/lists/data/$entity/$moduleId',
-      {"$updateKey": "$newName"},
+      body,
       context,
       isPutMethod: true,
     );
