@@ -79,7 +79,7 @@ class EnterMedia {
       isPutMethod: true,
     );
     if (response != null && response.statusCode == 200) {
-      print("Success workspace data is:" + response.body);
+      log("Success workspace data is:" + response.body);
       final String responseString = response.body;
       return json.decode(responseString);
     } else {
@@ -386,7 +386,6 @@ class EnterMedia {
       context,
     );
     if (resMap != null) {
-      print(resMap);
       return true;
     } else {
       return false;

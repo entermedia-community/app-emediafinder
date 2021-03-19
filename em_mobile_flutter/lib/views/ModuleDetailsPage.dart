@@ -746,30 +746,31 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
             style: TextStyle(fontSize: 17, color: Colors.white),
             controller: createEntityController,
             decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff384964),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                labelText: "Name",
-                labelStyle: TextStyle(
-                  color: Colors.grey,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black,
-                      offset: Offset(1, 1),
-                      blurRadius: 2,
-                    )
-                  ],
-                ),
-                prefixIcon: Icon(
-                  Icons.drive_file_rename_outline,
-                  color: Color(0xff237C9C),
-                ),
-                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
+              filled: true,
+              fillColor: Color(0xff384964),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(6)),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(6)),
+              ),
+              labelText: "Name",
+              labelStyle: TextStyle(
+                color: Colors.grey,
+                shadows: [
+                  Shadow(
+                    color: Colors.black,
+                    offset: Offset(1, 1),
+                    blurRadius: 2,
+                  )
+                ],
+              ),
+              prefixIcon: Icon(
+                Icons.drive_file_rename_outline,
+                color: Color(0xff237C9C),
+              ),
+              contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5),
+            ),
             keyboardType: TextInputType.emailAddress,
             onChanged: (text) => print(text),
           ),

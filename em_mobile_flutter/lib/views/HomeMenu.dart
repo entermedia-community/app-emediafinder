@@ -22,8 +22,8 @@ class _HomeMenuState extends State<HomeMenu> {
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    final EM = Provider.of<EnterMedia>(context);
-    final myWorkspaces = Provider.of<userWorkspaces>(context);
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    final myWorkspaces = Provider.of<userWorkspaces>(context, listen: false);
 
     return WillPopScope(
       onWillPop: () async {

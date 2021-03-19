@@ -23,7 +23,7 @@ class WorkspaceSelect extends StatelessWidget {
   TextEditingController workspaceController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final myWorkspaces2 = Provider.of<userWorkspaces>(context);
+    final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
     return Scaffold(
       backgroundColor: Color(0xff0c223a),
       extendBodyBehindAppBar: true,
@@ -139,9 +139,9 @@ class WorkspaceSelect extends StatelessWidget {
   Future<bool> loadWorkspaces(BuildContext context) async {
     var wkspcs = false;
     final EM = Provider.of<EnterMedia>(context, listen: false);
-    final myWorkspaces2 = Provider.of<userWorkspaces>(context);
+    final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
     final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
-    final myUser = Provider.of<userData>(context);
+    final myUser = Provider.of<userData>(context, listen: false);
     //Perform API call
     final GetWorkspaceModel userWorkspaces2 = await EM.getEMWorkspaces(context);
     wkspcs = true;
