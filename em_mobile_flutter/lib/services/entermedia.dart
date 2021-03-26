@@ -38,8 +38,8 @@ class EnterMedia {
     Map<String, String> headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
     headers.addAll({"Content-type": "application/json"});
-    if (emUser != null) {
-      String tokenKey = handleTokenKey(emUser.results.entermediakey);
+    if (this.emUser != null) {
+      String tokenKey = handleTokenKey(this.emUser.results.entermediakey);
       headers.addAll({"X-token": tokenKey});
     }
     //make API post
@@ -63,7 +63,8 @@ class EnterMedia {
   Future<Map> postFinder(String url, dynamic jsonBody, BuildContext context, {String customError, bool isPutMethod}) async {
     var headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
-    if (emUser != null) {
+
+    if (this.emUser != null) {
       String tokenKey = handleTokenKey(tempKey);
       print("Setting Headers.");
       //Important must specify types! Dart defaults to dynamic and http.post requires definitive types.
@@ -100,8 +101,8 @@ class EnterMedia {
     print("Logging in");
     if (resMap != null) {
       //save local emUser from response object
-      emUser = emUserFromJson(json.encode(resMap));
-      return emUser;
+      this.emUser = emUserFromJson(json.encode(resMap));
+      return this.emUser;
     } else {
       return null;
     }
@@ -110,15 +111,15 @@ class EnterMedia {
 //Entermedia Login with key pasted in
   Future<EmUser> emLoginWithKey(BuildContext context, String entermediakey) async {
     tempKey = entermediakey;
-    emUser = null;
+    this.emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": entermediakey}, context,
         customError: "Invalid credentials. Please try again!");
     print("Logging in with key...");
     print(entermediakey);
     if (resMap != null) {
       //save local emUser from response object
-      emUser = emUserFromJson(json.encode(resMap));
-      return emUser;
+      this.emUser = emUserFromJson(json.encode(resMap));
+      return this.emUser;
     } else {
       return null;
     }
@@ -127,14 +128,13 @@ class EnterMedia {
   //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(BuildContext context, emkey) async {
     tempKey = emkey;
-    emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": emkey}, context,
         customError: "Invalid credentials. Please try again!");
     print("Logging in with key...");
     if (resMap != null) {
       //save local emUser from response object
-      emUser = emUserFromJson(json.encode(resMap));
-      return emUser;
+      this.emUser = emUserFromJson(json.encode(resMap));
+      return this.emUser;
     } else {
       return null;
     }
@@ -142,7 +142,7 @@ class EnterMedia {
 
   //Entermedia Login with key pasted in
   Future<bool> emEmailKey(BuildContext context, String email) async {
-    emUser = null;
+    this.emUser = null;
     tempKey = null;
     // final resMap = await postEntermedia(EMFinder + '/services/authentication/sendmagiclink.json', {"to": email}, context);
     final resMap = await postEntermedia(EMFinder + '/services/authentication/emailonlysendmagiclinkfinish.json', {"to": email}, context);
@@ -451,8 +451,8 @@ class EnterMedia {
       "Accept": "text/plain",
       "Content-Type": "image/jpeg",
     };
-    if (emUser != null) {
-      headers.addAll({"X-token": "em" + emUser.results.entermediakey.toString()});
+    if (this.emUser != null) {
+      headers.addAll({"X-token": "em" + this.emUser.results.entermediakey.toString()});
     }
     request.headers.addAll(headers);
     request.files.add(
@@ -480,7 +480,7 @@ class EnterMedia {
 
   Future<void> logOutUser() async {
     tempKey = null;
-    emUser = null;
+    this.emUser = null;
   }
 
   Future<http.Response> httpRequest({

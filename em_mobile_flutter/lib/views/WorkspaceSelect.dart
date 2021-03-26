@@ -169,10 +169,8 @@ class WorkspaceSelect extends StatelessWidget {
     }
 
     if (savedColId == null && userWorkspaces2.results.length > 0) {
-      /*CreateTeamModel data =*/ await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
-      /* if (data.response.status != 'ok') {
-        print("Error creating team account");
-      }*/
+      await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
+
       final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
       hitTracker.searchedhits = searchedData;
       hitTracker.organizeData();

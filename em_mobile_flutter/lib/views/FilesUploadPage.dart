@@ -77,6 +77,17 @@ class FilesUploadPageState extends State<FilesUploadPage> {
   }
 
   Future httpSend(Map params, BuildContext context, File file) async {
+    if (file == null) {
+      Fluttertoast.showToast(
+        msg: "  Select a file first  ",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 10,
+        backgroundColor: Colors.red[400],
+        fontSize: 16.0,
+      );
+      return;
+    }
     final EM = Provider.of<EnterMedia>(context, listen: false);
     print(file.path);
     final UploadMediaModel response = await EM.uploadAsset(
@@ -114,7 +125,15 @@ class FilesUploadPageState extends State<FilesUploadPage> {
     if (fileListThumb == null)
       fileListThumb = InkWell(
         onTap: pickFiles,
-        child: Container(child: Icon(Icons.add)),
+        child: GridView.count(
+          crossAxisCount: 3,
+          children: [
+            Container(
+              child: Icon(Icons.add),
+              color: Theme.of(context).primaryColor.withOpacity(0.1),
+            ),
+          ],
+        ),
       );
     final Map params = new Map();
     return Scaffold(

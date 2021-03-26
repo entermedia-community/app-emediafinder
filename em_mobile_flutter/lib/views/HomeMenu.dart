@@ -35,7 +35,6 @@ class _HomeMenuState extends State<HomeMenu> {
           child: Icon(Icons.refresh),
           onPressed: () async {
             Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-
             final testWorkspaces = await EM.getEMWorkspaces(context);
             print(testWorkspaces);
           },

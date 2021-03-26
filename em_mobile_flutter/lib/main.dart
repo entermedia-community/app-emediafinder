@@ -115,9 +115,12 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       return LoginPage();
     } else {
       //Attempt relogin with current stored shared preferences key.
-      reLoginUser();
-
-      return WorkspaceSelect();
+      return FutureBuilder(
+        future: reLoginUser(),
+        builder: (BuildContext context, _) {
+          return WorkspaceSelect();
+        },
+      );
     }
   }
 
@@ -181,10 +184,9 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
     print('Trying to relogin');
 
-    if (emkey != null && myUser.entermediakey == null) {
+    if (emkey != null && myUser?.entermediakey == null) {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
       if (userInfo.response.status != 'ok') {
-        final EM = Provider.of<EnterMedia>(context, listen: false);
         await EM.logOutUser();
         sharedPref().resetValues();
         sharedPref().setDeepLinkHandler(false);
@@ -206,6 +208,5 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
           userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
     }
-    print("called again");
   }
 }
