@@ -18,9 +18,22 @@ import 'WorkspaceRow.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class WorkspaceSelect extends StatelessWidget {
+class WorkspaceSelect extends StatefulWidget {
+  @override
+  _WorkspaceSelectState createState() => _WorkspaceSelectState();
+}
+
+class _WorkspaceSelectState extends State<WorkspaceSelect> {
   ValueNotifier<bool> isLoading = ValueNotifier(true);
+
   TextEditingController workspaceController = new TextEditingController();
+
+  @override
+  void dispose() {
+    workspaceController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
