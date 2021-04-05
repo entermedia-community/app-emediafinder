@@ -205,7 +205,14 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
           await hitTracker.initializeFilters();
           await sharedPref().saveRecentWorkspace(currentIndex);
           try {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => HomeMenu(),
+                transitionDuration: Duration(seconds: 0),
+              ),
+            );
+            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
           } catch (e) {
             print("Null Safety : $e");
           }
@@ -235,7 +242,13 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
           await hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[currentIndex]);
           await hitTracker.initializeFilters();
           try {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => HomeMenu(),
+                transitionDuration: Duration(seconds: 0),
+              ),
+            );
           } catch (e) {
             print("Null Safety : $e");
           }
