@@ -32,14 +32,14 @@ class FilesUploadPageState extends State<FilesUploadPage> {
     await FilePicker.platform
         .pickFiles(
       type: FileType.custom,
-      // allowedExtensions: ['jpg', 'jpeg', 'bmp', 'pdf', 'doc', 'docx'],
+      allowedExtensions: ['jpg', 'jpeg', 'bmp', 'heic', 'pdf', 'doc', 'docx'],
     )
         .then((file) {
       File myFile = File(file.files.single.path);
       print(myFile.absolute.path);
       if (myFile != null) {
         List<String> picExt = ['.jpg', '.jpeg', '.bmp', '.heic'];
-        if (picExt.contains(extension(myFile.path))) {
+        if (picExt.contains(extension(myFile.path).toLowerCase())) {
           thumbs = Stack(
             children: [
               Padding(
