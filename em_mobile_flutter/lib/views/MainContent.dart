@@ -652,6 +652,58 @@ class MainContent extends StatelessWidget {
     return _widget;
   }
 
+  /*Container(
+                                                      padding: EdgeInsets.only(left: 12),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.edit,
+                                                            color: Color(0xff237C9C),
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          Expanded(
+                                                            child: customPopupMenuItem(
+                                                              context,
+                                                              popupContext,
+                                                              "Rename",
+                                                              () => renameWorkspace(context, renameController),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),*/
+
+  /*Widget customPopupWithIconMenuItem(BuildContext context, IconData icon, BuildContext popupContext, String title, Function onTap) {
+    return InkWell(
+      child: Container(
+        padding: EdgeInsets.only(left: 12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.edit,
+              color: Color(0xff237C9C),
+              size: 18,
+            ),
+            SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                "$title",
+                style: TextStyle(
+                  color: Color(0xff237C9C),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        Navigator.of(popupContext).pop();
+        onTap();
+      },
+    );
+  }*/
+
   Widget customPopupMenuItem(BuildContext context, BuildContext popupContext, String title, Function onTap) {
     return InkWell(
       child: Container(

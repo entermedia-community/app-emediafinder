@@ -31,6 +31,7 @@ class _HomeMenuState extends State<HomeMenu> {
       },
       child: Scaffold(
         backgroundColor: Color(0xff0c223a),
+        resizeToAvoidBottomInset: false,
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.refresh),
           onPressed: () async {
