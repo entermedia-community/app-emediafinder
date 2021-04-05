@@ -125,19 +125,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
                   }
                   return Scaffold(
                     backgroundColor: Theme.of(context).primaryColor,
-                    body: InkWell(
-                      enableFeedback: false,
-                      onTap: () => print(""),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
+                    body: Container(),
                   );
                 },
               );
@@ -255,6 +243,9 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   }
 
   Future<bool> reLoginUser() async {
+    if (isLoading.value) {
+      return false;
+    }
     isLoading.value = true;
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);

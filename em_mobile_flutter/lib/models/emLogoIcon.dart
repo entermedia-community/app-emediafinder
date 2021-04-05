@@ -14,11 +14,9 @@ class emLogoIcon extends StatefulWidget {
 class _emLogoIconState extends State<emLogoIcon> {
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
+    return IconButton(
       icon: EmLogo(),
-      elevation: 10,
-      itemBuilder: (BuildContext context) => null,
-      onSelected: null,
+      onPressed: null,
     );
   }
 }

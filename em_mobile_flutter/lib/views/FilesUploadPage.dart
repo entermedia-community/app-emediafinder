@@ -29,17 +29,15 @@ class FilesUploadPageState extends State<FilesUploadPage> {
     Widget thumbs;
     thumbs = fileListThumb;
 
-    await FilePicker.platform
-        .pickFiles(
+    await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      // allowedExtensions: ['jpg', 'jpeg', 'bmp', 'pdf', 'doc', 'docx'],
-    )
-        .then((file) {
+      allowedExtensions: ['jpg', 'jpeg', 'bmp', 'heic', 'pdf', 'doc', 'docx'],
+    ).then((file) {
       File myFile = File(file.files.single.path);
       print(myFile.absolute.path);
       if (myFile != null) {
         List<String> picExt = ['.jpg', '.jpeg', '.bmp', '.heic'];
-        if (picExt.contains(extension(myFile.path))) {
+        if (picExt.contains(extension(myFile.path).toLowerCase())) {
           thumbs = Stack(
             children: [
               Padding(
@@ -101,6 +99,90 @@ class FilesUploadPageState extends State<FilesUploadPage> {
         });
       }
     });
+    try {
+      await FilePicker.platform
+          .pickFiles(
+        type: FileType.custom,
+        // allowedExtensions: ['jpg', 'jpeg', 'bmp', 'pdf', 'doc', 'docx'],
+      )
+          .then((file) {
+        File myFile = File(file.files.single.path);
+        print(myFile.absolute.path);
+        if (myFile != null) {
+          List<String> picExt = ['.jpg', '.jpeg', '.bmp', '.heic'];
+          if (picExt.contains(extension(myFile.path))) {
+            thumbs = Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(1),
+                  child: Card(
+                    color: Colors.transparent,
+                    child: ClipRRect(
+                      child: new Image.file(myFile),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                if (myFile != null)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Card(
+                      shape: CircleBorder(),
+                      color: Colors.transparent,
+                      child: InkWell(
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Icon(
+                            Icons.clear,
+                            color: Colors.red,
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            fileList = null;
+                            fileListThumb = null;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          } else
+            thumbs = Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    Icons.insert_drive_file,
+                    color: Colors.white,
+                  ),
+                  Text(
+                    extension(myFile.path),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          fileList = myFile;
+          setState(() {
+            fileListThumb = thumbs;
+          });
+        }
+      });
+    } catch (e) {
+      isLoading.value = false;
+      Fluttertoast.showToast(
+        msg: "  $e  ",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 10,
+        backgroundColor: Colors.red[400],
+        fontSize: 16.0,
+      );
+    }
   }
 
   Future httpSend(Map params, BuildContext context, File file, userWorkspaces workspaces) async {
@@ -214,7 +296,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
               builder: (BuildContext context, bool value, _) {
                 return value
                     ? Center(
-                        child: CircularProgressIndicator(),
+                        child: Loader.showLoader(context),
                       )
                     : Container();
               },
