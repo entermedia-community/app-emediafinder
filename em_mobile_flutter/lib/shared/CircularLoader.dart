@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart';
 
 class Loader {
-  static Future<void> showLoader(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return new WillPopScope(
-          onWillPop: () async => false,
-          child: SimpleDialog(
-            backgroundColor: Colors.transparent,
-            children: <Widget>[
-              Center(
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+  static Widget showLoader(BuildContext context) {
+    return InkWell(
+      enableFeedback: false,
+      onTap: () => print(""),
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      child: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
     );
   }
 }

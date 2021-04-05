@@ -110,47 +110,19 @@ class MainContent extends StatelessWidget {
                                                         SizedBox(width: 7)
                                                       ],
                                                     ),
-                                                    Container(
-                                                      padding: EdgeInsets.only(left: 12),
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(
-                                                            Icons.edit,
-                                                            color: Color(0xff237C9C),
-                                                            size: 18,
-                                                          ),
-                                                          SizedBox(width: 5),
-                                                          Expanded(
-                                                            child: customPopupMenuItem(
-                                                              context,
-                                                              popupContext,
-                                                              "Rename",
-                                                              () => renameWorkspace(context, renameController),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
+                                                    customPopupWithIconMenuItem(
+                                                      context,
+                                                      Icons.edit,
+                                                      popupContext,
+                                                      "Rename",
+                                                      () => renameWorkspace(context, renameController),
                                                     ),
-                                                    Container(
-                                                      padding: EdgeInsets.only(left: 12),
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(
-                                                            Icons.delete,
-                                                            color: Color(0xff237C9C),
-                                                            size: 18,
-                                                          ),
-                                                          SizedBox(width: 5),
-                                                          Expanded(
-                                                            child: customPopupMenuItem(
-                                                              context,
-                                                              popupContext,
-                                                              "Delete",
-                                                              () => deleteWorkspace(context),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
+                                                    customPopupWithIconMenuItem(
+                                                      context,
+                                                      Icons.delete,
+                                                      popupContext,
+                                                      "Delete",
+                                                      () => renameWorkspace(context, renameController),
                                                     ),
                                                     customPopupMenuItem(context, popupContext, "Create New Workspace",
                                                         () => createWorkspace(context, newWorkspaceController)),
@@ -674,18 +646,18 @@ class MainContent extends StatelessWidget {
                                                       ),
                                                     ),*/
 
-  /*Widget customPopupWithIconMenuItem(BuildContext context, IconData icon, BuildContext popupContext, String title, Function onTap) {
+  Widget customPopupWithIconMenuItem(BuildContext context, IconData icon, BuildContext popupContext, String title, Function onTap) {
     return InkWell(
       child: Container(
-        padding: EdgeInsets.only(left: 12),
+        padding: EdgeInsets.only(left: 12, top: 4, bottom: 4),
         child: Row(
           children: [
             Icon(
-              Icons.edit,
+              icon,
               color: Color(0xff237C9C),
               size: 18,
             ),
-            SizedBox(width: 5),
+            SizedBox(width: 8),
             Expanded(
               child: Text(
                 "$title",
@@ -702,7 +674,7 @@ class MainContent extends StatelessWidget {
         onTap();
       },
     );
-  }*/
+  }
 
   Widget customPopupMenuItem(BuildContext context, BuildContext popupContext, String title, Function onTap) {
     return InkWell(
