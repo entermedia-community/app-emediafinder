@@ -29,12 +29,10 @@ class FilesUploadPageState extends State<FilesUploadPage> {
     Widget thumbs;
     thumbs = fileListThumb;
 
-    await FilePicker.platform
-        .pickFiles(
+    await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'bmp', 'heic', 'pdf', 'doc', 'docx'],
-    )
-        .then((file) {
+    ).then((file) {
       File myFile = File(file.files.single.path);
       print(myFile.absolute.path);
       if (myFile != null) {
