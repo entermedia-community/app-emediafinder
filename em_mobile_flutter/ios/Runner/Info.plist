@@ -51,9 +51,9 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>camera description.</string>
+	<string>EM_Mobile camera use.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string> photos description.</string>
+	<string>EM_Mobile photo libraru use.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

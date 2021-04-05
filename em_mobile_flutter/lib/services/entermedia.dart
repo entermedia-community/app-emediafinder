@@ -63,7 +63,6 @@ class EnterMedia {
   Future<Map> postFinder(String url, dynamic jsonBody, BuildContext context, {String customError, bool isPutMethod}) async {
     var headers = <String, String>{};
     headers.addAll({"X-tokentype": "entermedia"});
-
     if (this.emUser != null) {
       String tokenKey = handleTokenKey(tempKey);
       print("Setting Headers.");
@@ -128,6 +127,7 @@ class EnterMedia {
   //Entermedia Login with sharedPreferences key used in reLoginWithKey
   Future<EmUser> emAutoLoginWithKey(BuildContext context, emkey) async {
     tempKey = emkey;
+    this.emUser = null;
     final resMap = await postEntermedia(EMFinder + '/services/authentication/firebaselogin.json', {"entermedia.key": emkey}, context,
         customError: "Invalid credentials. Please try again!");
     print("Logging in with key...");
@@ -174,15 +174,15 @@ class EnterMedia {
     }
   }
 
-  Future<CreateTeamModel> createTeamAccount(BuildContext context, String url, String entermediakey, String colId) async {
+  Future<CreateTeamModel> startMediaFinder(BuildContext context, String url, String entermediakey, String colId) async {
     final resMap = await postFinder(
-      url + '/finder/mediadb/services/authentication/createteamaccount.json',
+      url + '/finder/mediadb/services/authentication/startmediafinder.json',
       {"entermediacloudkey": entermediakey, "collectionid": colId},
       context,
     );
     if (resMap != null) {
       print('Your temporary server key is: ' + resMap["results"]["entermediakey"]);
-      tempKey = resMap["results"]["entermediakey"];
+      this.tempKey = resMap["results"]["entermediakey"];
       String response = json.encode(resMap);
       return CreateTeamModel.fromJson(json.decode(response));
     } else {
@@ -498,13 +498,13 @@ class EnterMedia {
       var responseJson;
       if (isPutMethod != null && isPutMethod) {
         responseJson = await client.put(
-          url,
+          Uri.parse(url),
           body: body,
           headers: headers,
         );
       } else {
         responseJson = await client.post(
-          url,
+          Uri.parse(url),
           body: body,
           headers: headers,
         );

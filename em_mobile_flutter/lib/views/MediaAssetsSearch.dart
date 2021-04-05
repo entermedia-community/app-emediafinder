@@ -234,10 +234,16 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       child: InkWell(
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: Image.network(
+          child: CachedNetworkImage(
+            imageUrl: "$imageUrl",
+            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+            fit: BoxFit.contain,
+          ) /*Image.network(
             imageUrl,
             fit: BoxFit.contain,
-          ),
+          )*/
+          ,
         ),
         onTap: () {
           Navigator.push(

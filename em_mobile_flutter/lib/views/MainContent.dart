@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/createTeamModel.dart';
 import 'package:em_mobile_flutter/models/createWorkspaceModel.dart';
 import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
@@ -55,470 +56,551 @@ class MainContent extends StatelessWidget {
       children: [
         Consumer<workspaceAssets>(
           builder: (context, assets, child) {
-            return CustomScrollView(
-              slivers: <Widget>[
-                SliverAppBar(
-                  //appbar title & menu goes here
-                  leading: Container(),
-                  titleSpacing: 0,
-                  leadingWidth: 6,
-                  actions: [
-                    SizedBox(width: 10),
-                    PopupMenuButton(
-                      child: Icon(Icons.menu),
-                      color: Colors.white,
-                      itemBuilder: (BuildContext popupContext) {
-                        return [
-                          PopupMenuItem(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Theme(
-                                  data: ThemeData(
-                                    dividerColor: Colors.transparent,
-                                    accentColor: Color(0xff237C9C),
-                                    unselectedWidgetColor: Color(0xff237C9C),
-                                  ),
-                                  child: ListTileTheme(
-                                    contentPadding: EdgeInsets.all(0),
-                                    child: ExpansionTile(
-                                      title: Text(
-                                        "Workspaces",
-                                        style: TextStyle(color: Color(0xff237C9C)),
-                                      ),
-                                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        if (currentWorkspace != null)
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+            return myWorkspaces.instUrl.length > 0
+                ? CustomScrollView(
+                    slivers: <Widget>[
+                      SliverAppBar(
+                        //appbar title & menu goes here
+                        leading: Container(),
+                        titleSpacing: 0,
+                        leadingWidth: 6,
+                        actions: [
+                          SizedBox(width: 10),
+                          PopupMenuButton(
+                            child: Icon(Icons.menu),
+                            color: Colors.white,
+                            itemBuilder: (BuildContext popupContext) {
+                              return [
+                                PopupMenuItem(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Theme(
+                                        data: ThemeData(
+                                          dividerColor: Colors.transparent,
+                                          accentColor: Color(0xff237C9C),
+                                          unselectedWidgetColor: Color(0xff237C9C),
+                                        ),
+                                        child: ListTileTheme(
+                                          contentPadding: EdgeInsets.all(0),
+                                          child: ExpansionTile(
+                                            title: Text(
+                                              "Workspaces",
+                                              style: TextStyle(color: Color(0xff237C9C)),
+                                            ),
+                                            expandedCrossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child:
-                                                        customPopupMenuItem(context, popupContext, "${myWorkspaces.names[currentWorkspace]}", null),
-                                                  ),
-                                                  Icon(
-                                                    Icons.album_outlined,
-                                                    color: Color(0xff237C9C),
-                                                    size: 15,
-                                                  ),
-                                                  SizedBox(width: 7)
-                                                ],
-                                              ),
-                                              Container(
-                                                padding: EdgeInsets.only(left: 12),
-                                                child: Row(
+                                              if (currentWorkspace != null)
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Icon(
-                                                      Icons.edit,
-                                                      color: Color(0xff237C9C),
-                                                      size: 18,
+                                                    Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Expanded(
+                                                          child: customPopupMenuItem(
+                                                              context, popupContext, "${myWorkspaces.names[currentWorkspace]}", null),
+                                                        ),
+                                                        Icon(
+                                                          Icons.album_outlined,
+                                                          color: Color(0xff237C9C),
+                                                          size: 15,
+                                                        ),
+                                                        SizedBox(width: 7)
+                                                      ],
                                                     ),
-                                                    SizedBox(width: 5),
-                                                    Expanded(
-                                                      child: customPopupMenuItem(
-                                                        context,
-                                                        popupContext,
-                                                        "Rename",
-                                                        () => renameWorkspace(context, renameController),
+                                                    Container(
+                                                      padding: EdgeInsets.only(left: 12),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.edit,
+                                                            color: Color(0xff237C9C),
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          Expanded(
+                                                            child: customPopupMenuItem(
+                                                              context,
+                                                              popupContext,
+                                                              "Rename",
+                                                              () => renameWorkspace(context, renameController),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
+                                                    Container(
+                                                      padding: EdgeInsets.only(left: 12),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.delete,
+                                                            color: Color(0xff237C9C),
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          Expanded(
+                                                            child: customPopupMenuItem(
+                                                              context,
+                                                              popupContext,
+                                                              "Delete",
+                                                              () => deleteWorkspace(context),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    customPopupMenuItem(context, popupContext, "Create New Workspace",
+                                                        () => createWorkspace(context, newWorkspaceController)),
+                                                    myWorkspaces.names.length > 1
+                                                        ? ExpansionTile(
+                                                            ///TODO REMOVE TILE WHEN THERE IN ONLY ONE WORKSPACE
+                                                            title: Text(
+                                                              "Change Workspace",
+                                                              style: TextStyle(color: Color(0xff237C9C)),
+                                                            ),
+                                                            children: getWorkspaces(context, popupContext, myWorkspaces.names),
+                                                            tilePadding: EdgeInsets.all(0),
+                                                            childrenPadding: EdgeInsets.all(0),
+                                                            initiallyExpanded: false,
+                                                            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                                                          )
+                                                        : Container(),
                                                   ],
                                                 ),
-                                              ),
-                                              Container(
-                                                padding: EdgeInsets.only(left: 12),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.delete,
-                                                      color: Color(0xff237C9C),
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 5),
-                                                    Expanded(
-                                                      child: customPopupMenuItem(
-                                                        context,
-                                                        popupContext,
-                                                        "Delete",
-                                                        () => deleteWorkspace(context),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              customPopupMenuItem(context, popupContext, "Create New Workspace",
-                                                  () => createWorkspace(context, newWorkspaceController)),
-                                              myWorkspaces.names.length > 1
-                                                  ? ExpansionTile(
-                                                      ///TODO REMOVE TILE WHEN THERE IN ONLY ONE WORKSPACE
-                                                      title: Text(
-                                                        "Change Workspace",
-                                                        style: TextStyle(color: Color(0xff237C9C)),
-                                                      ),
-                                                      children: getWorkspaces(context, popupContext, myWorkspaces.names),
-                                                      tilePadding: EdgeInsets.all(0),
-                                                      childrenPadding: EdgeInsets.all(0),
-                                                      initiallyExpanded: false,
-                                                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                                                    )
-                                                  : Container(),
                                             ],
+                                            tilePadding: EdgeInsets.all(0),
+                                            // childrenPadding: EdgeInsets.only(left: 8),
+                                            initiallyExpanded: true,
                                           ),
-                                      ],
-                                      tilePadding: EdgeInsets.all(0),
-                                      // childrenPadding: EdgeInsets.only(left: 8),
-                                      initiallyExpanded: true,
-                                    ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                  value: null,
                                 ),
-                              ],
-                            ),
-                            value: null,
-                          ),
-                          PopupMenuItem(
-                            child: customPopupMenuItem(
-                              context,
-                              popupContext,
-                              "Log out",
-                              () => ConfirmationDialog(
-                                context: context,
-                                title: "Log out?",
-                                alertMessage: "Are you sure you want to log out?",
-                                hasSecondActionButton: true,
-                                actionButtonLabel: "Yes",
-                                actionButtonCallback: () => logOutUser(context),
-                                secondActionButtonLabel: "No",
-                              ).showPopUpDialog(),
-                            ),
-                            value: 1,
-                          ),
-                        ];
-                      },
-                      offset: Offset(0, 20),
-                      onSelected: (value) {
-                        if (value == 1) {
-                          ConfirmationDialog(
-                            context: context,
-                            title: "Log out?",
-                            alertMessage: "Are you sure you want to log out?",
-                            hasSecondActionButton: true,
-                            actionButtonLabel: "Yes",
-                            actionButtonCallback: () => logOutUser(context),
-                            secondActionButtonLabel: "No",
-                          ).showPopUpDialog();
-                        }
-                      },
-                    ),
-                    SizedBox(width: 8),
-                  ],
-
-                  title: Container(
-                    height: 80,
-                    child: SearchBar(
-                      icon: Icon(Icons.search_rounded, color: Color(0xff237C9C)),
-                      hintText: "Search your media...",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      minimumChars: 0,
-                      cancellationWidget: Icon(Icons.clear),
-                      onCancelled: () {
-                        searchText = '';
-                        Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-                        isSearching.value = false;
-                      },
-                      searchBarStyle: SearchBarStyle(
-                        backgroundColor: Colors.white70,
-                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                      ),
-                      onSearch: (val) async {
-                        searchText = val;
-                        Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-                        isSearching.value = false;
-                        Provider.of<workspaceAssets>(context, listen: false).filterResult(val, context, myWorkspaces, false).then((value) {
-                          isSearching.value = true;
-                        });
-                        return null;
-                      },
-                      loader: CircularProgressIndicator(),
-                      onItemFound: null,
-                    ),
-//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
-                  ),
-                  pinned: true,
-                  expandedHeight: 55.0,
-                ),
-                SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _SliverAppBarDelegate(
-                      minHeight: 33,
-                      maxHeight: 33,
-                      child: Container(
-                          //changes color of sliver bar header
-                          color: Colors.white70,
-                          child: Center(
-                              child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ValueListenableBuilder<bool>(
-                                valueListenable: isSearching,
-                                builder: (BuildContext context, bool value, _) {
-                                  return value
-                                      ? Text('Media (' +
-                                          (searchText.length <= 2
-                                              ? "${hitTracker?.totalMediaCount.toString()}"
-                                              : "${assets.filterUrls.length.toString()}") +
-                                          ')')
-                                      : Text('Media (' + "${hitTracker?.totalMediaCount.toString()}" + ')');
-                                },
-                              ),
-                              // Text('Media (' + hitTracker?.sampleMediaCount.toString() + ')'),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 19,
-                                  color: Colors.deepOrangeAccent,
-                                ),
-                                onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MediaAssetsSearch(
-                                      myWorkspaces: myWorkspaces,
-                                      currentWorkspace: currentWorkspace,
-                                      searchText: searchText,
-                                      organizedHits: assets.searchedhits == null ? null : assets.searchedhits.organizedhits[0],
-                                    ),
+                                PopupMenuItem(
+                                  child: customPopupMenuItem(
+                                    context,
+                                    popupContext,
+                                    "Log out",
+                                    () => ConfirmationDialog(
+                                      context: context,
+                                      title: "Log out?",
+                                      alertMessage: "Are you sure you want to log out?",
+                                      hasSecondActionButton: true,
+                                      actionButtonLabel: "Yes",
+                                      actionButtonCallback: () => logOutUser(context),
+                                      secondActionButtonLabel: "No",
+                                    ).showPopUpDialog(),
                                   ),
+                                  value: 1,
                                 ),
-                              )
-                            ],
-                          ))),
-                    )),
-                SliverToBoxAdapter(
-                  child: MasonryGrid(
-                    column: 3,
-                    children: List.generate(
-                      assets.filterUrls?.length,
-                      (i) => Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        shadowColor: Colors.black,
-                        color: Colors.transparent,
-                        child: InkWell(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              assets.filterUrls[i],
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ImageView(
-                                  collectionId: assets.filterIds[i],
-                                  instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                  hasDirectLink: false,
-                                  directLink: '',
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    staggered: true,
-                  ),
-                )
-                /*SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisSpacing: 1,
-                    mainAxisSpacing: 1,
-                    crossAxisCount: 3,
-                  ),
-                  //todo; This is where images are loaded
-                  delegate: SliverChildListDelegate.fixed(children) */ /*SliverChildBuilderDelegate(
-                      (ctx, i) => InkWell(
-                          child: Card(
-                            color: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8),
-                              ),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                              child: Image.network(
-                                assets.filterUrls[i],
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ImageView(
-                                  collectionId: assets.filterIds[i],
-                                  instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                  hasDirectLink: false,
-                                  directLink: '',
-                                ),
-                              ),
-                            );
-                          }),
-                      childCount: assets.filterUrls?.length)*/ /*,
-                ),*/
-                ,
-                SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _SliverAppBarDelegate(
-                      minHeight: 33,
-                      maxHeight: 33,
-                      child: Container(
-                          //changes color of sliver bar header
-                          margin: EdgeInsets.only(top: 3),
-                          color: Colors.white70,
-                          child: Center(
-                              child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ValueListenableBuilder<bool>(
-                                valueListenable: isSearching,
-                                builder: (BuildContext context, bool value, _) {
-                                  return value
-                                      ? Text('Projects (' +
-                                          (searchText.length <= 2
-                                              ? "${hitTracker?.totalProjectCount.toString()}"
-                                              : "${assets.filterProjects.length.toString()}") +
-                                          ')')
-                                      : Text('Projects (' + "${hitTracker?.totalProjectCount.toString()}" + ')');
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 19,
-                                  color: Colors.deepOrangeAccent,
-                                ),
-                                onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProjectSearch(
-                                      myWorkspaces: myWorkspaces,
-                                      currentWorkspace: currentWorkspace,
-                                      searchText: searchText,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ))),
-                    )),
-                SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                  //just an example will build from api call
-                  (ctx, i) => emWorkspaceRow(
-                    'assets/EM Logo Basic.jpg',
-                    assets.filterProjects[i],
-                    i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
-                    i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
-                    context,
-                    null,
-                  ),
-                  //amount of rows
-                  childCount: assets.filterProjects.length,
-                )),
-                SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _SliverAppBarDelegate(
-                      minHeight: 33,
-                      maxHeight: 33,
-                      child: Container(
-                          margin: EdgeInsets.only(top: 3),
-                          //changes color of sliver bar header
-                          color: Colors.white70,
-                          child: Center(
-                              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            ValueListenableBuilder<bool>(
-                              valueListenable: isSearching,
-                              builder: (BuildContext context, bool value, _) {
-                                return value
-                                    ? Text('Events (' +
-                                        (searchText.length <= 2
-                                            ? "${hitTracker?.totalEventCount.toString()}"
-                                            : "${assets.filterEvents.length.toString()}") +
-                                        ')')
-                                    : Text('Events (' + "${hitTracker?.totalEventCount.toString()}" + ')');
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                size: 19,
-                                color: Colors.deepOrangeAccent,
-                              ),
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EventSearch(
-                                    myWorkspaces: myWorkspaces,
-                                    currentWorkspace: currentWorkspace,
-                                    searchText: searchText,
-                                  ),
-                                ),
-                              ),
-                            )
-                          ]))),
-                    )),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    //just an example will build from api call
-                    (ctx, i) => emWorkspaceRow(
-                      'assets/EM Logo Basic.jpg',
-                      assets.filterEvents[i],
-                      i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
-                      i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
-                      context,
-                      null,
-                    ),
-                    //amount of rows
-                    childCount: assets.filterEvents?.length,
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: hitTracker.filterPageCount > 1 && hitTracker.currentPageNumber < hitTracker.filterPageCount
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 10.0, top: 15, bottom: 10),
-                          child: InkWell(
-                            child: Text(
-                              'Show more...',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onTap: () {
-                              print(searchText);
-                              Provider.of<workspaceAssets>(context, listen: false).increaseCurrentPageCount();
-                              Provider.of<workspaceAssets>(context, listen: false).filterResult(
-                                searchText,
-                                context,
-                                myWorkspaces,
-                                true,
-                              );
+                              ];
+                            },
+                            offset: Offset(0, 20),
+                            onSelected: (value) {
+                              if (value == 1) {
+                                ConfirmationDialog(
+                                  context: context,
+                                  title: "Log out?",
+                                  alertMessage: "Are you sure you want to log out?",
+                                  hasSecondActionButton: true,
+                                  actionButtonLabel: "Yes",
+                                  actionButtonCallback: () => logOutUser(context),
+                                  secondActionButtonLabel: "No",
+                                ).showPopUpDialog();
+                              }
                             },
                           ),
-                        )
-                      : Container(),
-                ),
-              ],
-            );
+                          SizedBox(width: 8),
+                        ],
+                        title: Container(
+                          height: 80,
+                          child: SearchBar(
+                            icon: Icon(Icons.search_rounded, color: Color(0xff237C9C)),
+                            hintText: "Search your media...",
+                            hintStyle: TextStyle(color: Colors.grey),
+                            minimumChars: 0,
+                            cancellationWidget: Icon(Icons.clear),
+                            onCancelled: () {
+                              searchText = '';
+                              Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
+                              isSearching.value = false;
+                              FocusScope.of(context).unfocus();
+                            },
+                            searchBarStyle: SearchBarStyle(
+                              backgroundColor: Color(0xff384964),
+                              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            ),
+                            onSearch: (val) async {
+                              searchText = val;
+                              Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
+                              isSearching.value = false;
+                              Provider.of<workspaceAssets>(context, listen: false).filterResult(val, context, myWorkspaces, false).then((value) {
+                                isSearching.value = true;
+                              });
+                              return null;
+                            },
+                            loader: CircularProgressIndicator(),
+                            onItemFound: null,
+                          ),
+//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
+                        ),
+                        pinned: true,
+                        expandedHeight: 55.0,
+                      ),
+                      SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _SliverAppBarDelegate(
+                            minHeight: 33,
+                            maxHeight: 33,
+                            child: Container(
+                                // color: Colors.white70,
+                                //changes color of sliver bar header
+                                decoration: BoxDecoration(
+                                    // color: Color(0xff384964),
+                                    borderRadius: BorderRadius.circular(5),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xff384964),
+                                        Theme.of(context).primaryColor,
+                                        Color(0xff384964),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ValueListenableBuilder<bool>(
+                                      valueListenable: isSearching,
+                                      builder: (BuildContext context, bool value, _) {
+                                        return value
+                                            ? Text(
+                                                'Media (' +
+                                                    (searchText.length <= 2
+                                                        ? "${hitTracker?.totalMediaCount.toString()}"
+                                                        : "${assets.filterUrls.length.toString()}") +
+                                                    ')',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Colors.black,
+                                                      blurRadius: 1,
+                                                      offset: Offset(0.5, 0.5),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                            : Text(
+                                                'Media (' + "${hitTracker?.totalMediaCount.toString()}" + ')',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Colors.black,
+                                                      blurRadius: 1,
+                                                      offset: Offset(0.5, 0.5),
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                      },
+                                    ),
+                                    // Text('Media (' + hitTracker?.sampleMediaCount.toString() + ')'),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 19,
+                                        color: Colors.deepOrangeAccent,
+                                      ),
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MediaAssetsSearch(
+                                            myWorkspaces: myWorkspaces,
+                                            currentWorkspace: currentWorkspace,
+                                            searchText: searchText,
+                                            organizedHits: assets.searchedhits == null || assets.searchedhits.organizedhits.isEmpty
+                                                ? null
+                                                : assets.searchedhits.organizedhits[0],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ))),
+                          )),
+                      SliverToBoxAdapter(
+                        child: MasonryGrid(
+                          column: 3,
+                          children: List.generate(
+                            assets.filterUrls?.length,
+                            (i) => Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              shadowColor: Colors.black,
+                              color: Colors.transparent,
+                              child: InkWell(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: "${assets.filterUrls[i]}",
+                                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                    fit: BoxFit.contain,
+                                  ), /*Image.network(
+                                    assets.filterUrls[i],
+                                    fit: BoxFit.contain,
+                                  ),*/
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ImageView(
+                                        collectionId: assets.filterIds[i],
+                                        instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                        hasDirectLink: false,
+                                        directLink: '',
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          staggered: true,
+                        ),
+                      ),
+                      SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _SliverAppBarDelegate(
+                            minHeight: 33,
+                            maxHeight: 33,
+                            child: Container(
+                                //changes color of sliver bar header
+                                margin: EdgeInsets.only(top: 3),
+                                // color: Colors.white70,
+                                decoration: BoxDecoration(
+                                    // color: Color(0xff384964),
+                                    borderRadius: BorderRadius.circular(5),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xff384964),
+                                        Theme.of(context).primaryColor,
+                                        Color(0xff384964),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ValueListenableBuilder<bool>(
+                                      valueListenable: isSearching,
+                                      builder: (BuildContext context, bool value, _) {
+                                        return value
+                                            ? Text(
+                                                'Projects (' +
+                                                    (searchText.length <= 2
+                                                        ? "${hitTracker?.totalProjectCount.toString()}"
+                                                        : "${assets.filterProjects.length.toString()}") +
+                                                    ')',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Colors.black,
+                                                      blurRadius: 1,
+                                                      offset: Offset(0.5, 0.5),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                            : Text(
+                                                'Projects (' + "${hitTracker?.totalProjectCount.toString()}" + ')',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: Colors.black,
+                                                      blurRadius: 1,
+                                                      offset: Offset(0.5, 0.5),
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 19,
+                                        color: Colors.deepOrangeAccent,
+                                      ),
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ProjectSearch(
+                                            myWorkspaces: myWorkspaces,
+                                            currentWorkspace: currentWorkspace,
+                                            searchText: searchText,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ))),
+                          )),
+                      SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                        //just an example will build from api call
+                        (ctx, i) => entitiesTiles(
+                            "${assets.filterProjects[i]}") /*emWorkspaceRow(
+                          'assets/EM Logo Basic.jpg',
+                          assets.filterProjects[i],
+                          i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
+                          i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
+                          context,
+                          null,
+                        )*/
+                        ,
+                        //amount of rows
+                        childCount: assets.filterProjects.length,
+                      )),
+                      SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _SliverAppBarDelegate(
+                            minHeight: 33,
+                            maxHeight: 33,
+                            child: Container(
+                                margin: EdgeInsets.only(top: 3),
+                                //changes color of sliver bar header
+                                // color: Colors.white70,
+                                decoration: BoxDecoration(
+                                    // color: Color(0xff384964),
+                                    borderRadius: BorderRadius.circular(5),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xff384964),
+                                        Theme.of(context).primaryColor,
+                                        Color(0xff384964),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )),
+                                child: Center(
+                                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable: isSearching,
+                                    builder: (BuildContext context, bool value, _) {
+                                      return value
+                                          ? Text(
+                                              'Events (' +
+                                                  (searchText.length <= 2
+                                                      ? "${hitTracker?.totalEventCount.toString()}"
+                                                      : "${assets.filterEvents.length.toString()}") +
+                                                  ')',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black,
+                                                    blurRadius: 1,
+                                                    offset: Offset(0.5, 0.5),
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                          : Text(
+                                              'Events (' + "${hitTracker?.totalEventCount.toString()}" + ')',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black,
+                                                    blurRadius: 1,
+                                                    offset: Offset(0.5, 0.5),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 19,
+                                      color: Colors.deepOrangeAccent,
+                                    ),
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EventSearch(
+                                          myWorkspaces: myWorkspaces,
+                                          currentWorkspace: currentWorkspace,
+                                          searchText: searchText,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ]))),
+                          )),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          //just an example will build from api call
+                          (ctx, i) => entitiesTiles(
+                              "${assets.filterEvents[i]}") /*emWorkspaceRow(
+                            'assets/EM Logo Basic.jpg',
+                            assets.filterEvents[i],
+                            i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
+                            i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
+                            context,
+                            null,
+                          )*/
+                          ,
+                          //amount of rows
+                          childCount: assets.filterEvents?.length,
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: hitTracker.filterPageCount > 1 && hitTracker.currentPageNumber < hitTracker.filterPageCount
+                            ? Padding(
+                                padding: const EdgeInsets.only(right: 10.0, top: 15, bottom: 10),
+                                child: InkWell(
+                                  child: Text(
+                                    'Show more...',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    print(searchText);
+                                    Provider.of<workspaceAssets>(context, listen: false).increaseCurrentPageCount();
+                                    Provider.of<workspaceAssets>(context, listen: false).filterResult(
+                                      searchText,
+                                      context,
+                                      myWorkspaces,
+                                      true,
+                                    );
+                                  },
+                                ),
+                              )
+                            : Container(),
+                      ),
+                    ],
+                  )
+                : Text("Create new Workspace");
           },
         ),
         ValueListenableBuilder<bool>(
@@ -561,7 +643,7 @@ class MainContent extends StatelessWidget {
               context,
               popupContext,
               workspaces[i].toString(),
-              () => loadNewWorkspace(context, i),
+              () => loadNewWorkspace(context, i, true),
             ),
           ),
         );
@@ -592,8 +674,7 @@ class MainContent extends StatelessWidget {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     await EM.logOutUser();
     sharedPref().resetValues();
-    sharedPref().setDeepLinkHandler(false);
-    context.read<AuthenticationService>().signOut();
+    AuthenticationService.instance.signOut();
     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
@@ -625,7 +706,7 @@ class MainContent extends StatelessWidget {
                         ),
                         onTap: () async {
                           Navigator.of(context, rootNavigator: true).pop();
-                          loadNewWorkspace(context, index);
+                          loadNewWorkspace(context, index, true);
                         },
                       ),
                     );
@@ -641,37 +722,58 @@ class MainContent extends StatelessWidget {
 
   deleteWorkspace(BuildContext context) {
     print(myWorkspaces.colId[currentWorkspace]);
-    ConfirmationDialog(
-      context: context,
-      title: "Delete Workspace",
-      alertMessage: "Are you sure you want to delete ${myWorkspaces.names[currentWorkspace]}?",
-      hasSecondActionButton: true,
-      actionButtonLabel: "Yes",
-      actionButtonCallback: () async {
-        isLoading.value = true;
-        final EM = Provider.of<EnterMedia>(context, listen: false);
-        final myUser = Provider.of<userData>(context, listen: false);
-        print(myUser.entermediakey);
-        final Map createWorkspaceResponse = await EM.deleteWorkspaces("${myWorkspaces.colId[currentWorkspace]}", context);
-        print(createWorkspaceResponse);
-        if (json.encode(createWorkspaceResponse).contains("complete")) {
-          Fluttertoast.showToast(
-            msg: "Deletion initiated. Workspace will be deleted within 30 days.",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 10,
-            backgroundColor: Color(0xff61af56),
-            fontSize: 16.0,
-          );
-        }
-        //TODO:Reload workspace after getting instUrl
-        // if (createWorkspaceResponse != null) {
-        //   reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
-        // }
-        isLoading.value = false;
-      },
-      secondActionButtonLabel: "No",
-    ).showPopUpDialog();
+    if (myWorkspaces.instUrl.length > 0) {
+      ConfirmationDialog(
+        context: context,
+        title: "Delete Workspace",
+        alertMessage: "Are you sure you want to delete ${myWorkspaces.names[currentWorkspace]}?",
+        hasSecondActionButton: true,
+        actionButtonLabel: "Yes",
+        actionButtonCallback: () async {
+          isLoading.value = true;
+          final EM = Provider.of<EnterMedia>(context, listen: false);
+          final myUser = Provider.of<userData>(context, listen: false);
+          print(myUser.entermediakey);
+          final Map createWorkspaceResponse = await EM.deleteWorkspaces("${myWorkspaces.colId[currentWorkspace]}", context);
+          int newIndex;
+          for (int i = 0; i < myWorkspaces.names.length; i++) {
+            if (i != currentWorkspace) {
+              newIndex = i;
+              break;
+            }
+          }
+          sharedPref().saveRecentWorkspace(newIndex);
+          reloadWorkspaces(context, myWorkspaces.instUrl[newIndex], true);
+          print(createWorkspaceResponse);
+          if (json.encode(createWorkspaceResponse).contains("complete")) {
+            Fluttertoast.showToast(
+              msg: "Deletion initiated. Workspace will be deleted within 30 days.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 10,
+              backgroundColor: Color(0xff61af56),
+              fontSize: 16.0,
+            );
+          }
+          //TODO:Reload workspace after getting instUrl
+          // if (createWorkspaceResponse != null) {
+          //   reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
+          // }
+          isLoading.value = false;
+        },
+        secondActionButtonLabel: "No",
+      ).showPopUpDialog();
+    } else {
+      ConfirmationDialog(
+        context: context,
+        title: "Operation not allowed!",
+        alertMessage: "You have only one workspace. Create new one before you delete \"${myWorkspaces.names[currentWorkspace]}\".",
+        hasSecondActionButton: false,
+        actionButtonLabel: "Cancel",
+        actionButtonCallback: null,
+        secondActionButtonLabel: "",
+      ).showPopUpDialog();
+    }
   }
 
   renameWorkspace(BuildContext context, TextEditingController renameController) async {
@@ -690,19 +792,20 @@ class MainContent extends StatelessWidget {
           print(myUser.entermediakey);
           final Map createWorkspaceResponse =
               await EM.renameWorkspaces("${renameController.text}", "${myWorkspaces.colId[currentWorkspace]}", context);
-          print(createWorkspaceResponse);
-          if (json.encode(createWorkspaceResponse).contains("complete")) {
-            Fluttertoast.showToast(
-              msg: "Workspace renamed successfully!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 10,
-              backgroundColor: Color(0xff61af56),
-              fontSize: 16.0,
-            );
-          }
           if (createWorkspaceResponse != null) {
-            reloadWorkspaces(context, myWorkspaces.instUrl[currentWorkspace]);
+            await reloadWorkspaces(context, myWorkspaces.instUrl[currentWorkspace], false).whenComplete(() {
+              print(createWorkspaceResponse);
+              if (json.encode(createWorkspaceResponse).contains("complete")) {
+                Fluttertoast.showToast(
+                  msg: "Workspace renamed successfully!",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 10,
+                  backgroundColor: Color(0xff61af56),
+                  fontSize: 16.0,
+                );
+              }
+            });
           }
           isLoading.value = false;
         });
@@ -724,7 +827,7 @@ class MainContent extends StatelessWidget {
         final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
         print(createWorkspaceResponse);
         if (createWorkspaceResponse != null) {
-          reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl);
+          reloadWorkspaces(context, createWorkspaceResponse.data.instanceurl, true);
         }
         isLoading.value = false;
       },
@@ -779,7 +882,7 @@ class MainContent extends StatelessWidget {
     );
   }
 
-  void reloadWorkspaces(BuildContext context, String instanceUrl) async {
+  Future<void> reloadWorkspaces(BuildContext context, String instanceUrl, bool switchWorkspace) async {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
     final GetWorkspaceModel userWorkspaces2 = await EM.getEMWorkspaces(context);
@@ -805,13 +908,13 @@ class MainContent extends StatelessWidget {
     Provider.of<userWorkspaces>(context, listen: false).notify();
     for (int i = 0; i < myWorkspaces2.instUrl.length; i++) {
       if (myWorkspaces2.instUrl[i] == instanceUrl) {
-        loadNewWorkspace(context, i);
+        loadNewWorkspace(context, i, switchWorkspace);
         break;
       }
     }
   }
 
-  Future<void> loadNewWorkspace(BuildContext parentContext, int index) async {
+  Future<void> loadNewWorkspace(BuildContext parentContext, int index, bool switchWorkspace) async {
     isLoading.value = true;
     final EM = Provider.of<EnterMedia>(parentContext, listen: false);
     final myWorkspaces2 = Provider.of<userWorkspaces>(parentContext, listen: false);
@@ -836,34 +939,86 @@ class MainContent extends StatelessWidget {
         }
       }
     }
-
     print("CHeck here");
     print(myWorkspaces2.instUrl[index]);
     print(myUser.entermediakey);
     print(myWorkspaces2.colId[index]);
-    /* CreateTeamModel data =*/ await EM.createTeamAccount(
-        parentContext, myWorkspaces2.instUrl[index], myUser.entermediakey, myWorkspaces2.colId[index]);
-    /* if (data.response.status != 'ok') {
-      print("Error creating team account");
-    }*/
-    final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(parentContext, myWorkspaces2.instUrl[index]);
-    hitTracker.searchedhits = searchedData;
-    hitTracker.organizeData();
-    hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[index]);
-    hitTracker.initializeFilters();
-    if (index != null) {
-      sharedPref().saveRecentWorkspace(index);
-    }
-    Fluttertoast.showToast(
-      msg: "Workspace changed",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 10,
-      backgroundColor: Color(0xff61af56),
-      fontSize: 16.0,
+    await EM.startMediaFinder(parentContext, myWorkspaces2.instUrl[index], myUser.entermediakey, myWorkspaces2.colId[index]).whenComplete(() async {
+      final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(parentContext, myWorkspaces2.instUrl[index]);
+      hitTracker.searchedhits = searchedData;
+      hitTracker.organizeData();
+      hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[index]);
+      hitTracker.initializeFilters();
+      if (index != null) {
+        sharedPref().saveRecentWorkspace(index);
+      }
+      if (switchWorkspace) {
+        Fluttertoast.showToast(
+          msg: "Workspace changed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 10,
+          backgroundColor: Color(0xff61af56),
+          fontSize: 16.0,
+        );
+      }
+      isLoading.value = false;
+      if (switchWorkspace) {
+        Navigator.pushReplacement(parentContext, MaterialPageRoute(builder: (BuildContext ctx) => HomeMenu()));
+      }
+    });
+  }
+
+  Widget entitiesTiles(String title) {
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            elevation: 8.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xff0c223a),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+              ),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                child: Text(
+                  "$title",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ), /*ListTile(
+                dense: true,
+                title: Text(
+                  "$title",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  ),
+                ),
+                */ /*trailing: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white,
+                ),*/ /*
+                // tileColor: Color(0xFF2680A0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                onTap: () => print(""),
+              )*/
+            ),
+          ),
+        ),
+      ],
     );
-    isLoading.value = false;
-    Navigator.pushReplacement(parentContext, MaterialPageRoute(builder: (BuildContext ctx) => HomeMenu()));
   }
 }
 

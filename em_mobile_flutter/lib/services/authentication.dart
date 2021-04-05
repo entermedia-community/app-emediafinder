@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 //firebase log in code - Mando
 class AuthenticationService {
-  final FirebaseAuth _firebaseAuth;
-
-  AuthenticationService(this._firebaseAuth);
+  AuthenticationService._();
+  static final AuthenticationService instance = AuthenticationService._();
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   Stream<User> get authStateChanges => _firebaseAuth.authStateChanges();
 
@@ -16,8 +16,9 @@ class AuthenticationService {
 
   Future<String> signIn({String email, String password, BuildContext context}) async {
     try {
+      await signOut();
       await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
       return "Signed In";
     } on FirebaseAuthException catch (e) {
       return e.message;

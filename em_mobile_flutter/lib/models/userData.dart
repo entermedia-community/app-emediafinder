@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 //use this format to create custom classes that need to change.
 
-class userData with ChangeNotifier{
+class userData with ChangeNotifier {
   String userid;
   String screenname;
   String entermediakey;
@@ -11,7 +11,7 @@ class userData with ChangeNotifier{
   String firebasepassword;
   String workspacekey;
 //This function is what we use to create and update the 'myUser' userData() class in the login page.
-  void addUser(String id, String sname, String key, String fname,String lname,String mail,String fbpw){
+  void addUser(String id, String sname, String key, String fname, String lname, String mail, String fbpw) {
     userid = id;
     screenname = sname;
     entermediakey = key;
@@ -20,7 +20,16 @@ class userData with ChangeNotifier{
     email = mail;
     firebasepassword = fbpw;
     notifyListeners();
-
   }
 
+  void removeUser() {
+    userid = null;
+    screenname = null;
+    entermediakey = null;
+    firstname = null;
+    lastname = null;
+    email = null;
+    firebasepassword = null;
+    notifyListeners();
+  }
 }

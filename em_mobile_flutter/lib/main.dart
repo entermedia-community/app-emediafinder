@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,9 +12,9 @@ import 'package:uni_links/uni_links.dart';
 import 'models/userData.dart';
 import 'models/userWorkspaces.dart';
 import 'models/workspaceAssets.dart';
+import 'services/authentication.dart';
 import 'views/LoginPage.dart';
 import 'services/sharedpreferences.dart';
-import 'services/authentication.dart';
 import 'services/entermedia.dart';
 import 'views/WorkspaceSelect.dart';
 
@@ -55,12 +54,12 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<workspaceAssets>(create: (context) => workspaceAssets()),
         Provider<EnterMedia>(create: (context) => EnterMedia()),
         Provider<sharedPref>(create: (context) => sharedPref()),
-        Provider<AuthenticationService>(
+        /*Provider<AuthenticationService>(
           create: (_) => AuthenticationService(FirebaseAuth.instance),
         ),
         StreamProvider(
           create: (context) => context.read<AuthenticationService>().authStateChanges,
-        ),
+        ),*/
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -91,13 +90,12 @@ class AuthenticationWrapper extends StatefulWidget {
 
 class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   Uri _initialUri;
-  Uri _newUri;
-
+  Uri _latestUri;
+  ValueNotifier<bool> isLoading = ValueNotifier(false);
   StreamSubscription _stream;
   @override
   void initState() {
-    sharedPref().setDeepLinkHandler(false);
-
+    initPlatformState();
     super.initState();
   }
 
@@ -109,19 +107,72 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final firebaseUser = context.watch<User>();
-    initPlatformState();
-    if (firebaseUser == null) {
-      return LoginPage();
-    } else {
-      //Attempt relogin with current stored shared preferences key.
-      return FutureBuilder(
-        future: reLoginUser(),
-        builder: (BuildContext context, _) {
-          return WorkspaceSelect();
-        },
-      );
-    }
+    return Stack(
+      children: [
+        StreamBuilder(
+          stream: AuthenticationService.instance.authStateChanges,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              User user = snapshot.data;
+              if (user == null) {
+                return LoginPage();
+              }
+              return FutureBuilder(
+                future: reLoginUser(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData && snapshot.data == true) {
+                    return WorkspaceSelect();
+                  }
+                  return Scaffold(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    body: InkWell(
+                      enableFeedback: false,
+                      onTap: () => print(""),
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return Scaffold(
+                backgroundColor: Theme.of(context).primaryColor,
+                body: InkWell(
+                  enableFeedback: false,
+                  onTap: () => print(""),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: isLoading,
+          builder: (BuildContext context, bool value, _) {
+            return value
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Container();
+          },
+        ),
+      ],
+    );
   }
 
   Future<void> initPlatformState() async {
@@ -129,69 +180,95 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   }
 
   Future<void> initPlatformStateForUriUniLinks() async {
-    try {
-      _stream = getUriLinksStream().listen((Uri uri) {
-        if (_initialUri != null) {
-          sharedPref().setDeepLinkHandler(true);
-          sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
-          reLoginUser().then((value) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
-          });
-        }
-        _newUri = uri;
-      }, onError: (Object err) {
-        _newUri = null;
+    _stream = getUriLinksStream().listen((Uri uri) {
+      if (!mounted) return;
+      setState(() {
+        _latestUri = uri;
+        _initialUri = uri;
       });
-
-      getUriLinksStream().listen((Uri uri) {
-        if (uri != null) {
-          sharedPref().setDeepLinkHandler(true);
-
-          sharedPref().saveEMKey(uri?.queryParameters['entermedia.key'].toString());
-          reLoginUser().then((value) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
-          });
-        }
-        print('got uri: ${uri?.path} ${uri?.queryParametersAll}');
-      }, onError: (Object err) {
-        print('got err: $err');
-      });
-
-      try {
-        _initialUri = await getInitialUri();
-        if (_initialUri != null) {
-          sharedPref().setDeepLinkHandler(true);
-
-          sharedPref().saveEMKey(_initialUri?.queryParameters['entermedia.key'].toString());
-          reLoginUser().then((value) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
-          });
-        }
-      } on PlatformException {
+    }, onError: (Object err) {
+      if (!mounted) return;
+      setState(() {
+        _latestUri = null;
         _initialUri = null;
+      });
+    });
+    getUriLinksStream().listen((Uri uri) async {
+      if (uri != null && uri?.queryParameters['entermedia.key'].toString().length > 0) {
+        print('got uri: ${uri?.path} ${uri?.queryParametersAll}');
+        await logOutUserForDeepLink().whenComplete(() {
+          sharedPref().saveEMKey(uri.queryParameters['entermedia.key'].toString());
+          reLoginUser().then((value) {
+            if (value == true) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+            }
+          });
+        });
+      } else {
+        setState(() {
+          _initialUri = null;
+        });
       }
-
-      _newUri = _initialUri;
-    } catch (e) {
-      print("Error");
+    }, onError: (Object err) {
+      print('got err: $err');
+    });
+    try {
+      _initialUri = await getInitialUri();
+      if (_initialUri != null && _initialUri.queryParameters['entermedia.key'].toString().length > 0) {
+        print('initial uri: ${_initialUri?.path}' ' ${_initialUri?.queryParametersAll}');
+        await logOutUserForDeepLink().whenComplete(() async {
+          await sharedPref().saveEMKey(_initialUri.queryParameters['entermedia.key'].toString());
+          reLoginUser().then((value) {
+            if (value == true) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+            }
+          });
+        });
+      } else {
+        setState(() {
+          _initialUri = null;
+        });
+      }
+    } on PlatformException {
+      _initialUri = null;
+      setState(() {});
+    } on FormatException {
+      _initialUri = null;
+      setState(() {});
     }
+    if (!mounted) return;
+    setState(() {
+      _latestUri = _initialUri;
+    });
   }
 
-  Future<void> reLoginUser() async {
+  Future<bool> logOutUserForDeepLink() async {
+    isLoading.value = true;
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    final myUser = Provider.of<userData>(context, listen: false);
+    myUser.removeUser();
+    await EM.logOutUser();
+    await sharedPref().resetValues();
+    await AuthenticationService.instance.signOut();
+    isLoading.value = false;
+    return true;
+  }
+
+  Future<bool> reLoginUser() async {
+    isLoading.value = true;
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     String emkey = await sharedPref().getEMKey();
-
-    print('Trying to relogin');
-
-    if (emkey != null && myUser?.entermediakey == null) {
+    print('Trying to relogin $emkey');
+    print('Trying to relogin22 ${myUser.entermediakey}');
+    if (emkey != null && myUser.entermediakey == null) {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
+      print(userInfo);
       if (userInfo.response.status != 'ok') {
         await EM.logOutUser();
         sharedPref().resetValues();
-        sharedPref().setDeepLinkHandler(false);
-        context.read<AuthenticationService>().signOut();
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+        AuthenticationService.instance.signOut();
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
         Fluttertoast.showToast(
           msg: "Invalid login. Please try again.",
           toastLength: Toast.LENGTH_SHORT,
@@ -200,13 +277,15 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           backgroundColor: Colors.red.withOpacity(0.8),
           fontSize: 16.0,
         );
-        return;
+        return false;
       }
       print('RELOGGING IN WITH STORED KEY');
       print(emkey);
-
       myUser.addUser(userInfo.results.userid, userInfo.results.screenname, userInfo.results.entermediakey, userInfo.results.firstname,
           userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
+      AuthenticationService.instance.signIn(email: userInfo.results.email, password: userInfo.results.firebasepassword, context: context);
+      return true;
     }
+    isLoading.value = false;
   }
 }

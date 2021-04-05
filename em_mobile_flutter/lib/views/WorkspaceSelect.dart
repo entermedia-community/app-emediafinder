@@ -14,6 +14,8 @@ import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/HomeMenu.dart';
 import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'LoginPage.dart';
 import 'WorkspaceRow.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,17 +28,35 @@ class WorkspaceSelect extends StatefulWidget {
 class _WorkspaceSelectState extends State<WorkspaceSelect> {
   ValueNotifier<bool> isLoading = ValueNotifier(true);
 
-  TextEditingController workspaceController = new TextEditingController();
-
   @override
-  void dispose() {
-    workspaceController.dispose();
-    super.dispose();
+  void initState() {
+    loadUserWorkspaces();
+    super.initState();
+  }
+
+  void loadUserWorkspaces() {
+    getWorkspaceCount().then((value) {
+      if (value != null) {
+        if (value > 0) {
+          loadWorkspaces(context);
+        } else {
+          createNewWorkspace().then((value) {
+            if (value) {
+              loadWorkspaces(context);
+            } else {
+              isLoading.value = false;
+            }
+          });
+        }
+      } else {
+        isLoading.value = false;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
+    final userWorkspace = Provider.of<userWorkspaces>(context, listen: false);
     return Scaffold(
       backgroundColor: Color(0xff0c223a),
       extendBodyBehindAppBar: true,
@@ -51,102 +71,87 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
                 final EM = Provider.of<EnterMedia>(context, listen: false);
                 await EM.logOutUser();
                 sharedPref().resetValues();
-                sharedPref().setDeepLinkHandler(false);
-                context.read<AuthenticationService>().signOut();
+                AuthenticationService.instance.signOut();
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
               })
         ],
       ),
-      body: FutureBuilder(
-        future: loadWorkspaces(context),
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          return ValueListenableBuilder<bool>(
-            valueListenable: isLoading,
-            builder: (BuildContext context, bool value, _) {
-              return value
-                  ? InkWell(
-                      enableFeedback: false,
-                      onTap: () => print(""),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(),
+      body: ValueListenableBuilder<bool>(
+        valueListenable: isLoading,
+        builder: (BuildContext context, bool value, _) {
+          return value
+              ? InkWell(
+                  enableFeedback: false,
+                  onTap: () => print(""),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 15),
+                        Text(
+                          "Loading workspaces",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    )
-                  : Center(
-                      child: Container(
-                        margin: EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(top: 15),
-                              child: Text(
-                                "You don't seem to have a workspace. Get started by creating a new workspace.",
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            TextFormField(
-                              style: TextStyle(fontSize: 17, color: Colors.white),
-                              controller: workspaceController,
-                              autofocus: true,
-                              decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Color(0xff384964),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                                  ),
-                                  hintText: "Workspace name",
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                  prefixIcon: Icon(
-                                    Icons.drive_file_rename_outline,
-                                    color: Color(0xff237C9C),
-                                  ),
-                                  contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5)),
-                              keyboardType: TextInputType.emailAddress,
-                              onChanged: (text) => print(text),
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ElevatedButton(
-                                  child: Text("Create"),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Color(0xff237C9C),
-                                  ),
-                                  onPressed: () async {
-                                    isLoading.value = true;
-                                    final EM = Provider.of<EnterMedia>(context, listen: false);
-                                    final myUser = Provider.of<userData>(context, listen: false);
-                                    print(myUser.entermediakey);
-                                    final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
-                                    print(createWorkspaceResponse);
-                                    if (createWorkspaceResponse != null && createWorkspaceResponse.response.status == 'ok') {
-                                      loadWorkspaces(context);
-                                    }
-                                    isLoading.value = false;
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                      ],
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Failed to load workspaces.",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    );
-            },
-          );
+                        SizedBox(height: 15),
+                        ElevatedButton(
+                          child: Text("Try again"),
+                          onPressed: () => loadUserWorkspaces(),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
         },
       ),
     );
+  }
+
+  Future<bool> createNewWorkspace() async {
+    bool success = false;
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    final myUser = Provider.of<userData>(context, listen: false);
+    print(myUser.entermediakey);
+    final CreateWorkspaceModel createWorkspaceResponse = await EM.createNewWorkspaces(myUser.entermediakey, context);
+    print(createWorkspaceResponse.toJson());
+    if (createWorkspaceResponse != null && createWorkspaceResponse.response.status == 'ok') {
+      success = true;
+    } else {
+      success = false;
+    }
+    return success;
+  }
+
+  Future<int> getWorkspaceCount() async {
+    int workspaceCount;
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    await EM.getEMWorkspaces(context).then((value) {
+      if (value != null) {
+        workspaceCount = value.results.length;
+      }
+    });
+    return await workspaceCount;
   }
 
   Future<bool> loadWorkspaces(BuildContext context) async {
@@ -168,8 +173,8 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
       myWorkspaces2.names.add(project.name);
       myWorkspaces2.colId.add(project.id);
       //Loop through response, add urls and check if blank.
-      if (project.servers.isEmpty == true) {
-        myWorkspaces2.instUrl.add("no instance url");
+      if (project.servers.isEmpty == true || project.servers[0].instanceurl == null) {
+        myWorkspaces2.instUrl.add("pending");
       } else {
         myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
         print(project.servers[0].instanceurl);
@@ -177,36 +182,82 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
     }
     print("workspace count ${userWorkspaces2.results.length}");
 
-    if (userWorkspaces2.results.length == 0) {
-      isLoading.value = false;
-    }
-
     if (savedColId == null && userWorkspaces2.results.length > 0) {
-      await EM.createTeamAccount(context, myWorkspaces2.instUrl[0], myUser.entermediakey, myWorkspaces2.colId[0]);
-
-      final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[0]);
-      hitTracker.searchedhits = searchedData;
-      hitTracker.organizeData();
-      hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[0]);
-      hitTracker.initializeFilters();
-      sharedPref().saveRecentWorkspace(0);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
-
-      return wkspcs;
+      int currentIndex = 0;
+      if (myWorkspaces2.instUrl[0] == "pending") {
+        for (int i = 0; i < myWorkspaces2.instUrl.length; i++) {
+          if (myWorkspaces2.instUrl[i] != "pending") {
+            currentIndex = i;
+            break;
+          }
+        }
+      }
+      if (myWorkspaces2.instUrl[currentIndex] == "pending") {
+        logOutUser(context);
+      } else {
+        await EM
+            .startMediaFinder(context, myWorkspaces2.instUrl[currentIndex], myUser.entermediakey, myWorkspaces2.colId[currentIndex])
+            .whenComplete(() async {
+          final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[currentIndex]);
+          hitTracker.searchedhits = await searchedData;
+          await hitTracker.organizeData();
+          await hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[currentIndex]);
+          await hitTracker.initializeFilters();
+          await sharedPref().saveRecentWorkspace(currentIndex);
+          try {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+          } catch (e) {
+            print("Null Safety : $e");
+          }
+          return await wkspcs;
+        });
+      }
     }
     if (savedColId != null && savedColId < userWorkspaces2.results.length) {
-      /*CreateTeamModel data =*/
-      await EM.createTeamAccount(context, myWorkspaces2.instUrl[savedColId], myUser.entermediakey, myWorkspaces2.colId[savedColId]);
-      /* if (data.response.status != 'ok') {
-        print("Error creating team account");
-      }*/
-      final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[savedColId]);
-      hitTracker.searchedhits = searchedData;
-      hitTracker.organizeData();
-      hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[savedColId]);
-      hitTracker.initializeFilters();
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+      int currentIndex = savedColId;
+      if (myWorkspaces2.instUrl[savedColId] == "pending") {
+        for (int i = 0; i < myWorkspaces2.instUrl.length; i++) {
+          if (myWorkspaces2.instUrl[i] != "pending") {
+            currentIndex = i;
+            break;
+          }
+        }
+      }
+      if (myWorkspaces2.instUrl[currentIndex] == "pending") {
+        logOutUser(context);
+      } else {
+        await EM
+            .startMediaFinder(context, myWorkspaces2.instUrl[currentIndex], myUser.entermediakey, myWorkspaces2.colId[currentIndex])
+            .whenComplete(() async {
+          final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces2.instUrl[currentIndex]);
+          hitTracker.searchedhits = await searchedData;
+          await hitTracker.organizeData();
+          await hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[currentIndex]);
+          await hitTracker.initializeFilters();
+          try {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeMenu()));
+          } catch (e) {
+            print("Null Safety : $e");
+          }
+        });
+      }
     }
-    return wkspcs;
+    return await wkspcs;
+  }
+
+  void logOutUser(BuildContext context) async {
+    Fluttertoast.showToast(
+      msg: "No instance URL found for the Workspaces. Please try again after some time.",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 20,
+      backgroundColor: Colors.lightBlue,
+      fontSize: 16.0,
+    );
+    final EM = Provider.of<EnterMedia>(context, listen: false);
+    await EM.logOutUser();
+    sharedPref().resetValues();
+    AuthenticationService.instance.signOut();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 }

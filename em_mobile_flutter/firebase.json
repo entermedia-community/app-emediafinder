@@ -1,0 +1,12 @@
+{
+  "hosting": {
+    "public": "entermediadb",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "appAssociation": "AUTO",
+    "rewrites": [ { "source": "/entermediadb/app/workspace/**", "dynamicLinks": true } ]
+  }
+}

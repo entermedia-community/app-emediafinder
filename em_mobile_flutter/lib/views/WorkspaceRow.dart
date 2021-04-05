@@ -87,7 +87,7 @@ Widget rightSide(String instanceUrl, String colId, BuildContext context, int ind
             color: Color(0xff237C9C),
           ),
           onPressed: () async {
-            await EM.createTeamAccount(context, instanceUrl, myUser.entermediakey, colId);
+            await EM.startMediaFinder(context, instanceUrl, myUser.entermediakey, colId);
 
             final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, instanceUrl);
 

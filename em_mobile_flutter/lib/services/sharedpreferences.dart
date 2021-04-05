@@ -30,6 +30,11 @@ class sharedPref {
     prefs.setInt('recent', colId);
   }
 
+  clearRecentWorkspace() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("recent");
+  }
+
   getRecentWorkspace() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //Return index of workspace
@@ -37,7 +42,7 @@ class sharedPref {
     return intValue;
   }
 
-  setDeepLinkHandler(bool hasPassed) async {
+/*  setDeepLinkHandler(bool hasPassed) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('hasPassed', hasPassed);
   }
@@ -47,7 +52,7 @@ class sharedPref {
     //Return index of workspace
     bool boolValue = prefs.getBool('hasPassed');
     return boolValue;
-  }
+  }*/
 
   //todo; EX:Handle null int intValue= await prefs.getInt('intValue') ?? 0;
   //todo; EX: Check value SharedPreferences prefs = await SharedPreferences.getInstance();
