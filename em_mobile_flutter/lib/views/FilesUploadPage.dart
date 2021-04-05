@@ -5,7 +5,6 @@ import 'package:em_mobile_flutter/models/uploadMediaModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +29,78 @@ class FilesUploadPageState extends State<FilesUploadPage> {
     Widget thumbs;
     thumbs = fileListThumb;
 
+    await FilePicker.platform
+        .pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'bmp', 'heic', 'pdf', 'doc', 'docx'],
+    )
+        .then((file) {
+      File myFile = File(file.files.single.path);
+      print(myFile.absolute.path);
+      if (myFile != null) {
+        List<String> picExt = ['.jpg', '.jpeg', '.bmp', '.heic'];
+        if (picExt.contains(extension(myFile.path).toLowerCase())) {
+          thumbs = Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(1),
+                child: Card(
+                  color: Colors.transparent,
+                  child: ClipRRect(
+                    child: new Image.file(myFile),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              if (myFile != null)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Card(
+                    shape: CircleBorder(),
+                    color: Colors.transparent,
+                    child: InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.clear,
+                          color: Colors.red,
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          fileList = null;
+                          fileListThumb = null;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+            ],
+          );
+        } else
+          thumbs = Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.insert_drive_file,
+                  color: Colors.white,
+                ),
+                Text(
+                  extension(myFile.path),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          );
+        fileList = myFile;
+        setState(() {
+          fileListThumb = thumbs;
+        });
+      }
+    });
     try {
       await FilePicker.platform
           .pickFiles(
