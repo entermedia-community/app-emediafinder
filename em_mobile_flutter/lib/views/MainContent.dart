@@ -331,7 +331,10 @@ class MainContent extends StatelessWidget {
                                             fit: BoxFit.contain,
                                           );
                                         }
-                                        return Center(child: CircularProgressIndicator());
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 15.0),
+                                          child: Center(child: CircularProgressIndicator()),
+                                        );
                                       },
                                     ),
                                     fit: BoxFit.contain,
