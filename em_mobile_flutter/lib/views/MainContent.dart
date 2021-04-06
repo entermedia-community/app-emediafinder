@@ -63,7 +63,7 @@ class MainContent extends StatelessWidget {
                         //appbar title & menu goes here
                         leading: Container(),
                         titleSpacing: 0,
-                        leadingWidth: 6,
+                        leadingWidth: 0,
                         actions: [
                           SizedBox(width: 10),
                           PopupMenuButton(
@@ -94,21 +94,12 @@ class MainContent extends StatelessWidget {
                                                 Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Expanded(
-                                                          child: customPopupMenuItem(
-                                                              context, popupContext, "${myWorkspaces.names[currentWorkspace]}", null),
-                                                        ),
-                                                        Icon(
-                                                          Icons.album_outlined,
-                                                          color: Color(0xff237C9C),
-                                                          size: 15,
-                                                        ),
-                                                        SizedBox(width: 7)
-                                                      ],
+                                                    customPopupWithTrailingIconMenuItem(
+                                                      context,
+                                                      Icons.album_outlined,
+                                                      popupContext,
+                                                      "${myWorkspaces.names[currentWorkspace]}",
+                                                      null,
                                                     ),
                                                     customPopupWithIconMenuItem(
                                                       context,
@@ -125,7 +116,7 @@ class MainContent extends StatelessWidget {
                                                       () => renameWorkspace(context, renameController),
                                                     ),
                                                     customPopupMenuItem(context, popupContext, "Create New Workspace",
-                                                        () => createWorkspace(context, newWorkspaceController)),
+                                                        () => createWorkspace(context, newWorkspaceController), 0),
                                                     myWorkspaces.names.length > 1
                                                         ? ExpansionTile(
                                                             ///TODO REMOVE TILE WHEN THERE IN ONLY ONE WORKSPACE
@@ -167,6 +158,7 @@ class MainContent extends StatelessWidget {
                                       actionButtonCallback: () => logOutUser(context),
                                       secondActionButtonLabel: "No",
                                     ).showPopUpDialog(),
+                                    0,
                                   ),
                                   value: 1,
                                 ),
@@ -633,13 +625,13 @@ class MainContent extends StatelessWidget {
       if (i != currentWorkspace) {
         _widget.add(
           Container(
-            padding: EdgeInsets.only(left: 12),
             alignment: Alignment.centerLeft,
             child: customPopupMenuItem(
               context,
               popupContext,
               workspaces[i].toString(),
               () => loadNewWorkspace(context, i, true),
+              12,
             ),
           ),
         );
@@ -654,6 +646,36 @@ class MainContent extends StatelessWidget {
       status = true;
     });
     return await status;
+  }
+
+  Widget customPopupWithTrailingIconMenuItem(BuildContext context, IconData icon, BuildContext popupContext, String title, Function onTap) {
+    return InkWell(
+      child: Container(
+        padding: EdgeInsets.only(left: 0, top: 4, bottom: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                "$title",
+                style: TextStyle(
+                  color: Color(0xff237C9C),
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+            Icon(
+              icon,
+              color: Color(0xff237C9C),
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        Navigator.of(popupContext).pop();
+        onTap();
+      },
+    );
   }
 
   Widget customPopupWithIconMenuItem(BuildContext context, IconData icon, BuildContext popupContext, String title, Function onTap) {
@@ -686,16 +708,22 @@ class MainContent extends StatelessWidget {
     );
   }
 
-  Widget customPopupMenuItem(BuildContext context, BuildContext popupContext, String title, Function onTap) {
+  Widget customPopupMenuItem(BuildContext context, BuildContext popupContext, String title, Function onTap, double leftPadding) {
     return InkWell(
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5),
-        child: Text(
-          "$title",
-          style: TextStyle(
-            color: Color(0xff237C9C),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.fromLTRB(leftPadding, 5, 5, 5),
+              child: Text(
+                "$title",
+                style: TextStyle(
+                  color: Color(0xff237C9C),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
       onTap: () {
         Navigator.of(popupContext).pop();

@@ -19,7 +19,6 @@ class HomeMenu extends StatefulWidget {
 
 //todo; LAYOUT starts here
 class _HomeMenuState extends State<HomeMenu> {
-  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     final EM = Provider.of<EnterMedia>(context, listen: false);
@@ -32,14 +31,6 @@ class _HomeMenuState extends State<HomeMenu> {
       child: Scaffold(
         backgroundColor: Color(0xff0c223a),
         resizeToAvoidBottomInset: false,
-        /*floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.refresh),
-          onPressed: () async {
-            Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
-            final testWorkspaces = await EM.getEMWorkspaces(context);
-            print(testWorkspaces);
-          },
-        ),*/
         body: Row(
           children: <Widget>[
             //From NavRail.dart
