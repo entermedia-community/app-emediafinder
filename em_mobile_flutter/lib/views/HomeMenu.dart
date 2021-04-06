@@ -32,14 +32,14 @@ class _HomeMenuState extends State<HomeMenu> {
       child: Scaffold(
         backgroundColor: Color(0xff0c223a),
         resizeToAvoidBottomInset: false,
-        floatingActionButton: FloatingActionButton(
+        /*floatingActionButton: FloatingActionButton(
           child: Icon(Icons.refresh),
           onPressed: () async {
             Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
             final testWorkspaces = await EM.getEMWorkspaces(context);
             print(testWorkspaces);
           },
-        ),
+        ),*/
         body: Row(
           children: <Widget>[
             //From NavRail.dart

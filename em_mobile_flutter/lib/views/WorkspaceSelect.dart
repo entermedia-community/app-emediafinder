@@ -27,7 +27,7 @@ class WorkspaceSelect extends StatefulWidget {
 
 class _WorkspaceSelectState extends State<WorkspaceSelect> {
   ValueNotifier<bool> isLoading = ValueNotifier(true);
-
+  int loadWorkspaceCount = 0;
   @override
   void initState() {
     loadUserWorkspaces();
@@ -117,7 +117,11 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
                         SizedBox(height: 15),
                         ElevatedButton(
                           child: Text("Try again"),
-                          onPressed: () => loadUserWorkspaces(),
+                          onPressed: () {
+                            isLoading.value = true;
+                            loadWorkspaceCount++;
+                            Future.delayed(Duration(seconds: 15), () => loadUserWorkspaces());
+                          },
                         ),
                       ],
                     ),
@@ -193,7 +197,23 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
         }
       }
       if (myWorkspaces2.instUrl[currentIndex] == "pending") {
-        logOutUser(context);
+        if (myWorkspaces2.instUrl[currentIndex] == "pending") {
+          if (loadWorkspaceCount < 6) {
+            isLoading.value = false;
+            Fluttertoast.showToast(
+              msg: "Oops! we couldn't take you to your workspace. Please try again after some time.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 20,
+              backgroundColor: Colors.lightBlue,
+              fontSize: 16.0,
+            );
+            return false;
+          } else {
+            notifyUser(context);
+            return false;
+          }
+        }
       } else {
         await EM
             .startMediaFinder(context, myWorkspaces2.instUrl[currentIndex], myUser.entermediakey, myWorkspaces2.colId[currentIndex])
@@ -231,7 +251,21 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
         }
       }
       if (myWorkspaces2.instUrl[currentIndex] == "pending") {
-        logOutUser(context);
+        if (loadWorkspaceCount < 6) {
+          isLoading.value = false;
+          Fluttertoast.showToast(
+            msg: "Oops! we couldn't take you to your workspace. Please try again after some time.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 20,
+            backgroundColor: Colors.lightBlue,
+            fontSize: 16.0,
+          );
+          return false;
+        } else {
+          notifyUser(context);
+          return false;
+        }
       } else {
         await EM
             .startMediaFinder(context, myWorkspaces2.instUrl[currentIndex], myUser.entermediakey, myWorkspaces2.colId[currentIndex])
@@ -258,19 +292,15 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
     return await wkspcs;
   }
 
-  void logOutUser(BuildContext context) async {
+  void notifyUser(BuildContext context) async {
     Fluttertoast.showToast(
-      msg: "No instance URL found for the Workspaces. Please try again after some time.",
+      msg: "Not working? Contact support: help@entermediadb.org.",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 20,
       backgroundColor: Colors.lightBlue,
       fontSize: 16.0,
     );
-    final EM = Provider.of<EnterMedia>(context, listen: false);
-    await EM.logOutUser();
-    sharedPref().resetValues();
-    AuthenticationService.instance.signOut();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    isLoading.value = false;
   }
 }

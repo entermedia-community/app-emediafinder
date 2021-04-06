@@ -325,7 +325,23 @@ class MainContent extends StatelessWidget {
                                   child: CachedNetworkImage(
                                     imageUrl: "${assets.filterUrls[i]}",
                                     placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                    errorWidget: (context, url, error) => FutureBuilder(
+                                      future: fewSecondsDelay(10),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData && snapshot.data == true) {
+                                          return CachedNetworkImage(
+                                            imageUrl: "${assets.filterUrls[i]}",
+                                            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                            errorWidget: (context, url, error) => Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 15.0),
+                                              child: Icon(Icons.error),
+                                            ),
+                                            fit: BoxFit.contain,
+                                          );
+                                        }
+                                        return Center(child: CircularProgressIndicator());
+                                      },
+                                    ),
                                     fit: BoxFit.contain,
                                   ), /*Image.network(
                                     assets.filterUrls[i],
@@ -575,6 +591,14 @@ class MainContent extends StatelessWidget {
                 : Text("Create new Workspace");
           },
         ),
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: FloatingActionButton(
+            onPressed: () => loadNewWorkspace(context, currentWorkspace, false),
+            child: Icon(Icons.refresh),
+          ),
+        ),
         ValueListenableBuilder<bool>(
           valueListenable: isLoading,
           builder: (BuildContext context, bool value, _) {
@@ -624,27 +648,13 @@ class MainContent extends StatelessWidget {
     return _widget;
   }
 
-  /*Container(
-                                                      padding: EdgeInsets.only(left: 12),
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(
-                                                            Icons.edit,
-                                                            color: Color(0xff237C9C),
-                                                            size: 18,
-                                                          ),
-                                                          SizedBox(width: 5),
-                                                          Expanded(
-                                                            child: customPopupMenuItem(
-                                                              context,
-                                                              popupContext,
-                                                              "Rename",
-                                                              () => renameWorkspace(context, renameController),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),*/
+  Future<bool> fewSecondsDelay(int delay) async {
+    bool status = false;
+    await Future.delayed(Duration(seconds: delay), () {
+      status = true;
+    });
+    return await status;
+  }
 
   Widget customPopupWithIconMenuItem(BuildContext context, IconData icon, BuildContext popupContext, String title, Function onTap) {
     return InkWell(

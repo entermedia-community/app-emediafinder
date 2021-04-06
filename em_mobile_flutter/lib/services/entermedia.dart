@@ -445,6 +445,7 @@ class EnterMedia {
 
   Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
+    print(url);
     var request = new http.MultipartRequest("POST", url);
     Map<String, String> headers = {
       "X-tokentype": "entermedia",
@@ -465,6 +466,7 @@ class EnterMedia {
     );
     request.fields.addAll({'jsonrequest': '{}'});
     http.Response response = await http.Response.fromStream(await request.send());
+    print("LogLog: ${response.body}");
     return UploadMediaModel.fromJson(json.decode(response.body));
   }
 
