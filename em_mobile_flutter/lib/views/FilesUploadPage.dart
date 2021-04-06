@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:em_mobile_flutter/models/uploadMediaModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
+import 'package:em_mobile_flutter/models/workspaceAssets.dart';
+import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:file_picker/file_picker.dart';
@@ -139,9 +143,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
       file?.path,
     );
     if (response.response.status == 'ok') {
-      await MainContent(
-        myWorkspaces: null,
-      ).loadNewWorkspace(context, workspaces.instUrl.indexOf(widget.instanceUrl), false).whenComplete(() {
+      await loadNewWorkspace(context, workspaces.instUrl.indexOf(widget.instanceUrl)).whenComplete(() {
         Fluttertoast.showToast(
           msg: "Media Uploaded successfully!",
           toastLength: Toast.LENGTH_SHORT,
@@ -232,5 +234,47 @@ class FilesUploadPageState extends State<FilesUploadPage> {
         child: const Icon(Icons.cloud_upload),
       ),
     );
+  }
+
+  Future<void> loadNewWorkspace(BuildContext parentContext, int index) async {
+    isLoading.value = true;
+    final EM = Provider.of<EnterMedia>(parentContext, listen: false);
+    final myWorkspaces2 = Provider.of<userWorkspaces>(parentContext, listen: false);
+    final hitTracker = Provider.of<workspaceAssets>(parentContext, listen: false);
+    final myUser = Provider.of<userData>(parentContext, listen: false);
+    //Perform API call
+    final GetWorkspaceModel userWorkspaces2 = await EM.getEMWorkspaces(parentContext);
+    myWorkspaces2.names = [];
+    myWorkspaces2.colId = [];
+    myWorkspaces2.instUrl = [];
+    //Loop thru API 'results'
+    if (userWorkspaces2 != null) {
+      for (final project in userWorkspaces2?.results) {
+        myWorkspaces2.names.add(project.name);
+        myWorkspaces2.colId.add(project.id);
+        //Loop through response, add urls and check if blank.
+        if (project.servers.isEmpty == true) {
+          myWorkspaces2.instUrl.add("no instance url");
+        } else {
+          myWorkspaces2.instUrl.add(project.servers[0].instanceurl);
+          print(project.servers[0].instanceurl);
+        }
+      }
+    }
+    print("CHeck here");
+    print(myWorkspaces2.instUrl[index]);
+    print(myUser.entermediakey);
+    print(myWorkspaces2.colId[index]);
+    await EM.startMediaFinder(parentContext, myWorkspaces2.instUrl[index], myUser.entermediakey, myWorkspaces2.colId[index]).whenComplete(() async {
+      final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(parentContext, myWorkspaces2.instUrl[index]);
+      hitTracker.searchedhits = searchedData;
+      hitTracker.organizeData();
+      hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[index]);
+      hitTracker.initializeFilters();
+      if (index != null) {
+        sharedPref().saveRecentWorkspace(index);
+      }
+      isLoading.value = false;
+    });
   }
 }
