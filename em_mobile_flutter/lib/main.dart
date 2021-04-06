@@ -188,7 +188,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           sharedPref().saveEMKey(uri.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             if (value == true) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => WorkspaceSelect(),
+                  transitionDuration: Duration(seconds: 0),
+                ),
+              );
             }
           });
         });
@@ -208,7 +214,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           await sharedPref().saveEMKey(_initialUri.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             if (value == true) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => WorkspaceSelect(),
+                  transitionDuration: Duration(seconds: 0),
+                ),
+              );
             }
           });
         });
