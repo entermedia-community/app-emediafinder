@@ -204,7 +204,7 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
               msg: "Oops! we couldn't take you to your workspace. Please try again after some time.",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 20,
+              timeInSecForIosWeb: 15,
               backgroundColor: Colors.lightBlue,
               fontSize: 16.0,
             );
@@ -257,7 +257,7 @@ class _WorkspaceSelectState extends State<WorkspaceSelect> {
             msg: "Oops! we couldn't take you to your workspace. Please try again after some time.",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 20,
+            timeInSecForIosWeb: 15,
             backgroundColor: Colors.lightBlue,
             fontSize: 16.0,
           );
