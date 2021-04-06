@@ -224,26 +224,24 @@ class FilesUploadPageState extends State<FilesUploadPage> {
       file?.path,
     );
     if (response.response.status == 'ok') {
-      await Future.delayed(Duration(seconds: 5), () async {
-        await MainContent(myWorkspaces: null)
-            .loadNewWorkspace(
-          context,
-          workspaces.instUrl.indexOf(widget.instanceUrl),
-          false,
-        )
-            .whenComplete(() {
-          Fluttertoast.showToast(
-            msg: "Media Uploaded successfully!",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 10,
-            backgroundColor: Color(0xff61af56),
-            fontSize: 16.0,
-          );
-          fileListThumb = null;
-          fileList = null;
-          setState(() {});
-        });
+      await MainContent(myWorkspaces: null)
+          .loadNewWorkspace(
+        context,
+        workspaces.instUrl.indexOf(widget.instanceUrl),
+        false
+      )
+          .whenComplete(() {
+        Fluttertoast.showToast(
+          msg: "Media Uploaded successfully!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 10,
+          backgroundColor: Color(0xff61af56),
+          fontSize: 16.0,
+        );
+        fileListThumb = null;
+        fileList = null;
+        setState(() {});
       });
     } else {
       Fluttertoast.showToast(

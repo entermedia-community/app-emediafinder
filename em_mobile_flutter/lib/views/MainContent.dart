@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:js';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/createTeamModel.dart';
@@ -648,11 +647,14 @@ class MainContent extends StatelessWidget {
       final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
       final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
       final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces.instUrl[currentWorkspace]);
-      hitTracker.searchedhits = await searchedData;
-      await hitTracker.organizeData();
-      await hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[currentWorkspace]);
-      await hitTracker.initializeFilters();
-      status = true;
+      if(searchedData.response.status == 'ok') {
+        hitTracker.searchedhits = await searchedData;
+        await hitTracker.organizeData();
+        await hitTracker
+            .getAssetSampleUrls(myWorkspaces2.instUrl[currentWorkspace]);
+        await hitTracker.initializeFilters();
+        status = true;
+      }
     });
     return await status;
   }
