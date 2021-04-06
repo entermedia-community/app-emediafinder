@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:js';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/createTeamModel.dart';
@@ -318,7 +319,7 @@ class MainContent extends StatelessWidget {
                                     imageUrl: "${assets.filterUrls[i]}",
                                     placeholder: (context, url) => Center(child: CircularProgressIndicator()),
                                     errorWidget: (context, url, error) => FutureBuilder(
-                                      future: fewSecondsDelay(10),
+                                      future: reloadCachedImage(context),
                                       builder: (context, snapshot) {
                                         if (snapshot.hasData && snapshot.data == true) {
                                           return CachedNetworkImage(
@@ -640,9 +641,17 @@ class MainContent extends StatelessWidget {
     return _widget;
   }
 
-  Future<bool> fewSecondsDelay(int delay) async {
+  Future<bool> reloadCachedImage(BuildContext context) async {
     bool status = false;
-    await Future.delayed(Duration(seconds: delay), () {
+    Future.delayed(Duration(seconds: 5), () async {
+      final EM = Provider.of<EnterMedia>(context, listen: false);
+      final myWorkspaces2 = Provider.of<userWorkspaces>(context, listen: false);
+      final hitTracker = Provider.of<workspaceAssets>(context, listen: false);
+      final WorkspaceAssetsModel searchedData = await EM.getWorkspaceAssets(context, myWorkspaces.instUrl[currentWorkspace]);
+      hitTracker.searchedhits = await searchedData;
+      await hitTracker.organizeData();
+      await hitTracker.getAssetSampleUrls(myWorkspaces2.instUrl[currentWorkspace]);
+      await hitTracker.initializeFilters();
       status = true;
     });
     return await status;
