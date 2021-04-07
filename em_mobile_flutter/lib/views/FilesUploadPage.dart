@@ -47,6 +47,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
                 decoration: BoxDecoration(
                   color: Colors.blue.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey, width: 1),
                 ),
                 child: Icon(
                   Icons.add,
@@ -170,9 +171,11 @@ class FilesUploadPageState extends State<FilesUploadPage> {
                         Icon(
                           Icons.insert_drive_file,
                           color: Colors.white,
+                          size: 60,
                         ),
+                        SizedBox(height: 7),
                         Text(
-                          extension(myFile.path),
+                          "${basename(myFile.path)}",
                           style: TextStyle(color: Colors.white),
                         ),
                       ],
@@ -216,44 +219,49 @@ class FilesUploadPageState extends State<FilesUploadPage> {
       return;
     }
     isLoading.value = true;
-    final EM = Provider.of<EnterMedia>(context, listen: false);
-    print(file.path);
-    final UploadMediaModel response = await EM.uploadAsset(
-      context,
-      widget.instanceUrl,
-      file?.path,
-    );
-    if (response.response.status == 'ok') {
-      await MainContent(myWorkspaces: null)
-          .loadNewWorkspace(
+    try {
+      final EM = Provider.of<EnterMedia>(context, listen: false);
+      print(file.path);
+      final UploadMediaModel response = await EM.uploadAsset(
         context,
-        workspaces.instUrl.indexOf(widget.instanceUrl),
-        false
-      )
-          .whenComplete(() {
+        widget.instanceUrl,
+        file?.path,
+      );
+      if (response.response.status == 'ok') {
+        await MainContent(myWorkspaces: null).loadNewWorkspace(context, workspaces.instUrl.indexOf(widget.instanceUrl), false).whenComplete(() {
+          Fluttertoast.showToast(
+            msg: "Media Uploaded successfully!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 10,
+            backgroundColor: Color(0xff61af56),
+            fontSize: 16.0,
+          );
+          fileListThumb = null;
+          fileList = null;
+          setState(() {});
+        });
+      } else {
         Fluttertoast.showToast(
-          msg: "Media Uploaded successfully!",
+          msg: "Failed to upload media.",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 10,
-          backgroundColor: Color(0xff61af56),
+          backgroundColor: Colors.red.withOpacity(0.8),
           fontSize: 16.0,
         );
-        fileListThumb = null;
-        fileList = null;
-        setState(() {});
-      });
-    } else {
+      }
+      print(response);
+    } catch (e) {
       Fluttertoast.showToast(
-        msg: "Failed to upload media.",
+        msg: "An error occurred while communicating with the server. Please try again later.",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 10,
+        timeInSecForIosWeb: 15,
         backgroundColor: Colors.red.withOpacity(0.8),
         fontSize: 16.0,
       );
     }
-    print(response);
     isLoading.value = false;
   }
 }

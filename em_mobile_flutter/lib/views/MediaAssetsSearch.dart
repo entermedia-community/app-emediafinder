@@ -236,7 +236,10 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
           borderRadius: BorderRadius.circular(15),
           child: CachedNetworkImage(
             imageUrl: "$imageUrl",
-            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+            placeholder: (context, url) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
             errorWidget: (context, url, error) => Icon(Icons.error),
             fit: BoxFit.contain,
           ) /*Image.network(

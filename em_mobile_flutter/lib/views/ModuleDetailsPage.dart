@@ -651,7 +651,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
                       ),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Color(0xff237C9C),
+                          color: Colors.blue.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.grey, width: 1),
                           boxShadow: [

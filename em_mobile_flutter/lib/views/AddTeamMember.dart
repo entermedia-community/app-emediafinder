@@ -147,45 +147,12 @@ class _AddTeamMemberState extends State<AddTeamMember> {
     );
   }
 
-  /*Widget _workspaceInDropdown(userWorkspaces hitTracker) {
-    return Container(
-      decoration: new BoxDecoration(
-        borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
-        color: Color(0xff384964),
-      ),
-      margin: EdgeInsets.symmetric(horizontal: 3),
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: DropdownButton(
-        hint: Text(
-          "Select workspace",
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-          softWrap: true,
-        ),
-        dropdownColor: Color(0xff384964),
-        items: workspaces.map((String value) {
-          return new DropdownMenuItem<String>(
-            value: value,
-            child: new Text(value),
-          );
-        }).toList(),
-        onChanged: (value) {
-          setState(() {
-            _selectedIndex = value;
-          });
-        },
-        value: _selectedIndex,
-        underline: Container(),
-        isExpanded: true,
-      ),
-    );
-  }*/
-
   //Validator index as : 1 - Name, 2 - password, 3 - Confirm Password
   Widget _memberTextField({String hintText, TextEditingController controller, int validatorIndex, bool isObscure}) {
     return TextFormField(
       obscureText: isObscure,
       controller: controller,
-      style: TextStyle(fontSize: 16, color: Colors.black),
+      style: TextStyle(fontSize: 16, color: Colors.white),
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.next,
       cursorColor: Color(0xff237C9C),
