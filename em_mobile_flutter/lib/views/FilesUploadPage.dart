@@ -10,6 +10,7 @@ import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/shared/CircularLoader.dart';
+import 'package:em_mobile_flutter/views/AttachEntityPage.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
   Widget fileListThumb;
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   File fileList;
+  Map<String, List<String>> jsonEncodedData = {};
 
   @override
   Widget build(BuildContext context) {
@@ -85,15 +87,38 @@ class FilesUploadPageState extends State<FilesUploadPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          if (isLoading.value) {
-            return null;
-          }
-          await httpSend(params, context, fileList, myWorkspaces);
-        },
-        tooltip: 'Upload File',
-        child: const Icon(Icons.cloud_upload),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          fileList == null
+              ? Text("")
+              : ElevatedButton(
+                  onPressed: () async {
+                    jsonEncodedData = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AttachEntityPage(widget.instanceUrl),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                    print(jsonEncodedData);
+                    setState(() {});
+                  },
+                  child: Text("Attach Entity"),
+                  style: ElevatedButton.styleFrom(primary: Theme.of(context).accentColor),
+                ),
+          SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () async {
+              if (isLoading.value) {
+                return null;
+              }
+              await httpSend(params, context, fileList, myWorkspaces);
+            },
+            tooltip: 'Upload File',
+            child: const Icon(Icons.cloud_upload),
+          ),
+        ],
       ),
     );
   }
@@ -226,6 +251,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
         context,
         widget.instanceUrl,
         file?.path,
+        jsonEncodedData,
       );
       if (response.response.status == 'ok') {
         await MainContent(myWorkspaces: null).loadNewWorkspace(context, workspaces.instUrl.indexOf(widget.instanceUrl), false).whenComplete(() {

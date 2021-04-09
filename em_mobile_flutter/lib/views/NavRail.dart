@@ -4,6 +4,7 @@ import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/views/AddTeamMember.dart';
 import 'package:em_mobile_flutter/views/FilesUploadPage.dart';
 import 'package:em_mobile_flutter/views/ModuleListingPage.dart';
+import 'package:em_mobile_flutter/views/PageView.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -90,7 +91,7 @@ class _NavRailState extends State<NavRail> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FilesUploadPage(instanceUrl),
+              builder: (context) => /*MyPageView(instanceUrl)*/ FilesUploadPage(instanceUrl),
             ),
           );
         },

@@ -443,7 +443,7 @@ class EnterMedia {
     }
   }
 
-  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
+  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, String filePath, Map<String, List<String>> jsonEncodedData) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
     print(url);
     var request = new http.MultipartRequest("POST", url);
@@ -464,7 +464,9 @@ class EnterMedia {
         filename: filePath.split('/').last,
       ),
     );
-    request.fields.addAll({'jsonrequest': '{}'});
+
+    ///TODO GET THE PARAMETER _ JSON ENCODED STRING FROM FILE UPLOAD PAGE
+    request.fields.addAll({'jsonrequest': json.encode(jsonEncodedData)});
     http.Response response = await http.Response.fromStream(await request.send());
     print("LogLog: ${response.body}");
     return UploadMediaModel.fromJson(json.decode(response.body));
