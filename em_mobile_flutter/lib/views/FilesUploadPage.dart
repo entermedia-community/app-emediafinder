@@ -104,7 +104,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
                     print(jsonEncodedData);
                     setState(() {});
                   },
-                  child: Text("Attach Entity"),
+                  child: Text("Attach Entity Tags"),
                   style: ElevatedButton.styleFrom(primary: Theme.of(context).accentColor),
                 ),
           SizedBox(width: 10),
