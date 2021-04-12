@@ -10,12 +10,14 @@ import 'package:provider/provider.dart';
 
 class AttachEntityPage extends StatefulWidget {
   final String instanceUrl;
-  AttachEntityPage(this.instanceUrl);
+  final Function(Map<String, List<String>>) onDataChanged;
+  final PageController controller;
+  AttachEntityPage({this.instanceUrl, this.onDataChanged, this.controller, Key key}) : super(key: key);
   @override
   _AttachEntityPageState createState() => _AttachEntityPageState();
 }
 
-class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerProviderStateMixin {
+class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   bool isLoading = true;
   ModuleListModel moduleList = new ModuleListModel();
   List<ModuleAssetModel> moduleAssets = <ModuleAssetModel>[];
@@ -57,7 +59,11 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -68,7 +74,7 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
           backgroundColor: Theme.of(context).primaryColor,
           extendBodyBehindAppBar: isLoading ? true : false,
           appBar: AppBar(
-            title: Text("Attach Entity Tags"),
+            title: Text("Manage Entity Tags"),
             leading: Text(""),
             actions: [
               SizedBox(width: 10),
@@ -158,7 +164,13 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
       }
     }
     Map<String, List<String>> jsonEncodedData = jsonMap;
-    Navigator.pop(context, jsonEncodedData);
+    widget.onDataChanged(jsonEncodedData);
+    _tabController.animateTo(0);
+    widget.controller.animateToPage(
+      0,
+      duration: Duration(milliseconds: 200),
+      curve: Curves.linear,
+    );
   }
 
   List<String> getEntityList(int index) {
@@ -171,11 +183,65 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
 
   Widget buildSelectedEntity() {
     return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.all(15),
-        child: buildEntitySections(),
-      ),
+      child: !hasEntities()
+          ? Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              child: Center(
+                child: Container(
+                  child: Text(
+                    "No entity selected",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 12, 8, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            selectedModule =
+                                List.generate(moduleList.results.length, (index) => new List.filled(0, SelectedModule(null, null), growable: true));
+                          });
+                        },
+                        child: Text(
+                          "Clear Selection",
+                          style: TextStyle(
+                            color: Colors.orange.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                  child: buildEntitySections(),
+                ),
+              ],
+            ),
     );
+  }
+
+  bool hasEntities() {
+    bool status = false;
+    for (int i = 0; i < selectedModule.length; i++) {
+      if (selectedModule[i].isNotEmpty && selectedModule[i] != null) {
+        status = true;
+        break;
+      }
+    }
+    return status;
   }
 
   Widget buildEntitySections() {
@@ -185,10 +251,12 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "${moduleList.results[index].name}",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
+            selectedModule[index].isEmpty || selectedModule[index] == null
+                ? Container()
+                : Text(
+                    "${moduleList.results[index].name}",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
             getSelectedEntity(moduleList.results[index].id, index),
           ],
         );

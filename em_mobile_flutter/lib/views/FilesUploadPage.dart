@@ -21,21 +21,27 @@ import 'package:provider/provider.dart';
 
 class FilesUploadPage extends StatefulWidget {
   final String instanceUrl;
-  FilesUploadPage(this.instanceUrl);
+  final PageController controller;
+  final Function getEncodedJson;
+  FilesUploadPage({this.instanceUrl, this.controller, this.getEncodedJson, Key key}) : super(key: key);
   @override
   FilesUploadPageState createState() => FilesUploadPageState();
 }
 
-class FilesUploadPageState extends State<FilesUploadPage> {
+class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliveClientMixin {
   // variable section
   Widget fileListThumb;
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   File fileList;
-  Map<String, List<String>> jsonEncodedData = {};
+  // Map<String, List<String>> jsonEncodedData = {};
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     final myWorkspaces = Provider.of<userWorkspaces>(context, listen: false);
+    super.build(context);
     if (fileListThumb == null)
       fileListThumb = InkWell(
         onTap: pickFiles,
@@ -65,6 +71,10 @@ class FilesUploadPageState extends State<FilesUploadPage> {
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         title: Text("Upload Media"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         centerTitle: true,
       ),
       body: Stack(
@@ -94,7 +104,12 @@ class FilesUploadPageState extends State<FilesUploadPage> {
               ? Text("")
               : ElevatedButton(
                   onPressed: () async {
-                    jsonEncodedData = await Navigator.push(
+                    widget.controller.animateToPage(
+                      1,
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.linear,
+                    );
+                    /* jsonEncodedData = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => AttachEntityPage(widget.instanceUrl),
@@ -102,9 +117,9 @@ class FilesUploadPageState extends State<FilesUploadPage> {
                       ),
                     );
                     print(jsonEncodedData);
-                    setState(() {});
+                    setState(() {});*/
                   },
-                  child: Text("Attach Entity Tags"),
+                  child: Text("Manage Entity Tags"),
                   style: ElevatedButton.styleFrom(primary: Theme.of(context).accentColor),
                 ),
           SizedBox(width: 10),
@@ -232,6 +247,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
   }
 
   Future httpSend(Map params, BuildContext context, File file, userWorkspaces workspaces) async {
+    print(widget.getEncodedJson());
     if (file == null) {
       Fluttertoast.showToast(
         msg: "  Select a file first  ",
@@ -251,7 +267,7 @@ class FilesUploadPageState extends State<FilesUploadPage> {
         context,
         widget.instanceUrl,
         file?.path,
-        jsonEncodedData,
+        widget.getEncodedJson(),
       );
       if (response.response.status == 'ok') {
         await MainContent(myWorkspaces: null).loadNewWorkspace(context, workspaces.instUrl.indexOf(widget.instanceUrl), false).whenComplete(() {
