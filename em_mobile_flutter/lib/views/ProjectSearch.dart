@@ -6,6 +6,7 @@ import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
+import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
@@ -103,6 +104,8 @@ class _ProjectSearchState extends State<ProjectSearch> {
     if (projectResponse != null && projectResponse.response.status == "ok") {
       result = projectResponse.results;
       filteredResult = result;
+      currentPage = projectResponse.response.page;
+      totalPages = projectResponse.response.pages;
       setState(() {});
     }
     print(projectResponse);
@@ -151,7 +154,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
     final ProjectAssetModel assetSearchResponse = await EM.searchProjectsAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
-      searchText,
+      searchText == null || searchText.length < 3 ? '*' : searchText,
       (currentPage + 1).toString(),
     );
     if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
@@ -183,7 +186,15 @@ class _ProjectSearchState extends State<ProjectSearch> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return emWorkspaceRow('assets/EM Logo Basic.jpg', filteredResult[index].name.toString(), null, null, context, index);
+              return entitiesTiles(
+                title: '${filteredResult[index].name.toString()}',
+                id: '${filteredResult[index].id.toString()}',
+                context: context,
+                myWorkspaces: widget.myWorkspaces,
+                currentWorkspace: widget.currentWorkspace,
+                searchText: "project",
+                instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+              );
             },
           ),
           currentPage < totalPages

@@ -272,6 +272,8 @@ class EnterMedia {
   }
 
   Future<MediaAssetModel> searchMediaAssets(BuildContext context, String url, String searchtext, String page) async {
+    print(searchtext);
+    print(page);
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/asset/search',
       {

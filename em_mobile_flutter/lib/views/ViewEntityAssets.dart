@@ -2,38 +2,32 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
-import 'package:em_mobile_flutter/models/workspaceAssets.dart';
-import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/views/ImageView.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:masonry_grid/masonry_grid.dart';
 import 'package:provider/provider.dart';
 
-class MediaAssetsSearch extends StatefulWidget {
+class ViewEntityAssets extends StatefulWidget {
   final userWorkspaces myWorkspaces;
   final int currentWorkspace;
   final String searchText;
-  final Organizedhit organizedHits;
-  MediaAssetsSearch({
+  final String entityId;
+  final String instanceUrl;
+  ViewEntityAssets({
     Key key,
     @required this.myWorkspaces,
     @required this.currentWorkspace,
     @required this.searchText,
-    @required this.organizedHits,
+    @required this.entityId,
+    @required this.instanceUrl,
   }) : super(key: key);
-
   @override
-  _MediaAssetsSearchState createState() => _MediaAssetsSearchState();
+  _ViewEntityAssetsState createState() => _ViewEntityAssetsState();
 }
 
-class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
+class _ViewEntityAssetsState extends State<ViewEntityAssets> {
   String searchText = "";
   List<MediaResults> result = new List<MediaResults>();
   List<MediaResults> filteredResult = new List<MediaResults>();
@@ -42,17 +36,19 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
   int currentPage = 1;
   TextEditingController searchController = new TextEditingController();
 
-  void filterContent() async {
+/*  void filterContent() async {
     searchText = widget.searchText;
     setState(() {});
     _filterResult();
-  }
+  }*/
 
   @override
   void initState() {
-    _getAllImages();
+    searchText = widget.searchText;
     searchController..text = widget.searchText;
-    filterContent();
+    _getAllImages();
+
+    // filterContent();
     super.initState();
   }
 
@@ -60,36 +56,43 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xff0c223a),
-      body: ValueListenableBuilder<bool>(
-        valueListenable: isLoading,
-        builder: (BuildContext context, bool value, _) {
-          return value
-              ? InkWell(
-                  enableFeedback: false,
-                  onTap: () => print(""),
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  child: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                )
-              : Container(
-                  margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        _searchBar(context),
-                        SizedBox(height: 15),
-                        _imageView(context),
-                      ],
-                    ),
-                  ),
-                );
-        },
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+      body: Stack(
+        children: [
+          ValueListenableBuilder<bool>(
+            valueListenable: isLoading,
+            builder: (BuildContext context, bool value, _) {
+              return value
+                  ? InkWell(
+                      enableFeedback: false,
+                      onTap: () => print(""),
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // _searchBar(context),
+                            _imageView(context),
+                          ],
+                        ),
+                      ),
+                    );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -99,18 +102,30 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     print(myUser.entermediakey);
-    final MediaAssetModel assetResponse = await EM.getMediaAssets(
+    List<MediaResults> mediaResult = [];
+    final MediaAssetModel assetResponse = await EM.searchMediaAssets(
       context,
-      widget.myWorkspaces.instUrl[widget.currentWorkspace],
+      widget.instanceUrl,
+      searchText,
+      currentPage.toString(),
     );
     if (assetResponse != null && assetResponse.response.status == "ok") {
-      result = assetResponse.results;
+      if (widget.searchText.toLowerCase().trim() == 'event') {
+        mediaResult = assetResponse.results.where((element) => element.entityevent.id.contains(widget.entityId)).toList();
+      } else if (widget.searchText.toLowerCase().trim() == 'project') {
+        mediaResult = assetResponse.results.where((element) => element.entityproject.id.contains(widget.entityId)).toList();
+      }
+
+      result = mediaResult;
       filteredResult = result;
       currentPage = assetResponse.response.page;
       totalPages = assetResponse.response.pages;
       setState(() {});
     }
     print(assetResponse);
+    await print("LOGLOG");
+    await print(widget.entityId);
+    await print(widget.searchText);
     isLoading.value = false;
   }
 
@@ -121,7 +136,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     setState(() {});
   }
 
-  _filterResult() async {
+/*  _filterResult() async {
     if (searchText.length <= 2) {
       resetData();
     } else {
@@ -132,7 +147,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       print(myUser.entermediakey);
       final MediaAssetModel assetSearchResponse = await EM.searchMediaAssets(
         context,
-        widget.myWorkspaces.instUrl[widget.currentWorkspace],
+        widget.instanceUrl,
         searchText,
         (currentPage).toString(),
       );
@@ -145,7 +160,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       setState(() {});
       print(assetSearchResponse);
     }
-  }
+  }*/
 
   _loadMoreImages() async {
     final EM = Provider.of<EnterMedia>(context, listen: false);
@@ -153,7 +168,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     print(myUser.entermediakey);
     final MediaAssetModel assetSearchResponse = await EM.searchMediaAssets(
       context,
-      widget.myWorkspaces.instUrl[widget.currentWorkspace],
+      widget.instanceUrl,
       searchText == null || searchText.length < 3 ? '*' : searchText,
       (currentPage + 1).toString(),
     );
@@ -166,40 +181,53 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     print(assetSearchResponse);
   }
 
-  Widget _searchBar(BuildContext context) {
+  /* Widget _searchBar(BuildContext context) {
     return CustomSearchBar(searchController, (val) {
       searchText = val;
       _filterResult();
       setState(() {});
     }, context);
-  }
+  }*/
 
   Widget _imageView(BuildContext context) {
     return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MasonryGrid(
-            staggered: true,
-            children: getImages(),
-            column: 2,
-          ),
-          /*Wrap(
-            children: getImages(),
-          ),*/
-          currentPage < totalPages
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Center(
-                    child: TextButton(
-                      child: Text("Load more"),
-                      onPressed: () => _loadMoreImages(),
-                    ),
+      child: filteredResult.length < 1
+          ? Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+              child: Center(
+                child: Text(
+                  "No media file with ${widget.searchText} tag is found.",
+                  maxLines: 3,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                )
-              : Container(),
-        ],
-      ),
+                ),
+              ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MasonryGrid(
+                  staggered: true,
+                  children: getImages(),
+                  column: 2,
+                ),
+                currentPage < totalPages
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Center(
+                          child: TextButton(
+                            child: Text("Load more"),
+                            onPressed: () => _loadMoreImages(),
+                          ),
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
     );
   }
 
@@ -266,4 +294,13 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       ),
     );
   }
+}
+
+String getEntityId(String entity) {
+  ///TODO: IF THERE ARE MORE ENTITIES IN FUTURE THEN MAKE SURE TO ADD IT HERE
+  Map<String, String> entityToId = {
+    'project': 'entityproject',
+    'event': 'entityevent',
+  };
+  return entityToId[entity].toLowerCase();
 }

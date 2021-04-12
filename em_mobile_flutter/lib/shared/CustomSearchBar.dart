@@ -35,7 +35,7 @@ class CustomSearchBar extends StatelessWidget {
                 accentColor: Color(0xff0c223a),
               ),
               child: TextFormField(
-                style: TextStyle(fontSize: 17),
+                style: TextStyle(fontSize: 17, color: Colors.white),
                 controller: controller,
                 decoration: InputDecoration(
                     filled: true,
