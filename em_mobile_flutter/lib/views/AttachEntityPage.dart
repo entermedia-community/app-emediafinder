@@ -248,18 +248,18 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(moduleList.results.length, (index) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            selectedModule[index].isEmpty || selectedModule[index] == null
-                ? Container()
-                : Text(
+        return selectedModule[index].isEmpty || selectedModule[index] == null
+            ? Container()
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     "${moduleList.results[index].name}",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
-            getSelectedEntity(moduleList.results[index].id, index),
-          ],
-        );
+                  getSelectedEntity(moduleList.results[index].id, index),
+                ],
+              );
       }),
     );
   }
