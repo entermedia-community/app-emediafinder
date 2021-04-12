@@ -239,7 +239,7 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
       fileList = null;
       print("error text: $e");
       Fluttertoast.showToast(
-        msg: "An error occurred while uploading image to the server. Please try again.",
+        msg: "Failed to pick a file. Please try again.",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 20,
