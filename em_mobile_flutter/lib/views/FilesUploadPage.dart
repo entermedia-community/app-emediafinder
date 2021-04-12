@@ -231,10 +231,13 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
           });
         }
       });
+    } on NoSuchMethodError {
+      print("No file selected");
     } catch (e) {
       isLoading.value = false;
       fileListThumb = null;
       fileList = null;
+      print("error text: $e");
       Fluttertoast.showToast(
         msg: "An error occurred while uploading image to the server. Please try again.",
         toastLength: Toast.LENGTH_SHORT,
