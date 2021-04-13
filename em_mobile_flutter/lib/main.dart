@@ -263,7 +263,6 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     final myUser = Provider.of<userData>(context, listen: false);
     String emkey = await sharedPref().getEMKey();
     print('Trying to relogin $emkey');
-    print('Trying to relogin22 ${myUser.entermediakey}');
     if (emkey != null && myUser.entermediakey == null) {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
       print(userInfo);

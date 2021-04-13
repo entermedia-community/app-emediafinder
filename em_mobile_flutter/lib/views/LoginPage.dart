@@ -267,6 +267,11 @@ class _LoginPageState extends State<LoginPage> {
           userInfo.results.lastname, userInfo.results.email, userInfo.results.firebasepassword);
       //Firebase Authentication sign in.
       await AuthenticationService.instance.signIn(email: myUser.email, password: myUser.firebasepassword, context: context);
+      try {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+      } catch (e) {
+        print(e);
+      }
     } else {
       Fluttertoast.showToast(
         msg: "Invalid Key. Please try again.",
