@@ -213,7 +213,7 @@ class _ViewEntityAssetsState extends State<ViewEntityAssets> {
                 MasonryGrid(
                   staggered: true,
                   children: getImages(),
-                  column: 2,
+                  column: 3,
                 ),
                 currentPage < totalPages
                     ? Padding(

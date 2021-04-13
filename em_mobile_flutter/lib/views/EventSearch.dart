@@ -186,15 +186,17 @@ class _EventSearchState extends State<EventSearch> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return entitiesTiles(
-                title: '${filteredResult[index].name.toString()}',
-                id: '${filteredResult[index].id.toString()}',
-                context: context,
-                myWorkspaces: widget.myWorkspaces,
-                currentWorkspace: widget.currentWorkspace,
-                searchText: "event",
-                instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
-              );
+              return filteredResult[index].name.toString().toLowerCase() == 'null'
+                  ? Container()
+                  : entitiesTiles(
+                      title: '${filteredResult[index].name.toString()}',
+                      id: '${filteredResult[index].id.toString()}',
+                      context: context,
+                      myWorkspaces: widget.myWorkspaces,
+                      currentWorkspace: widget.currentWorkspace,
+                      searchText: "event",
+                      instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                    );
             },
           ),
           currentPage < totalPages

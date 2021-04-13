@@ -207,20 +207,22 @@ class MainContent extends StatelessWidget {
                                       padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                                     ),
                                     onSearch: (val) async {
+                                      isLoading.value = true;
                                       searchText = val;
-                                      Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
+                                      // Provider.of<workspaceAssets>(context, listen: false).initializeFilters();
                                       isSearching.value = false;
-                                      Provider.of<workspaceAssets>(context, listen: false)
+                                      await Provider.of<workspaceAssets>(context, listen: false)
                                           .filterResult(val, context, myWorkspaces, false)
                                           .then((value) {
                                         isSearching.value = true;
                                       });
+                                      isLoading.value = false;
                                       return null;
                                     },
                                     loader: CircularProgressIndicator(),
                                     onItemFound: null,
+                                    textStyle: TextStyle(color: Colors.white, fontSize: 16),
                                   ),
-//                 todo; IF YOU WANT TO ADD ICON NEXT TO SEARCHBAR -> Row(children: [ Expanded(child: SearchBar(onSearch: null, onItemFound: null)),IconButton(icon: Icon(Icons.list,color: Colors.white,), onPressed: null)]),
                                 ),
                                 pinned: true,
                                 expandedHeight: 55.0,
@@ -310,66 +312,70 @@ class MainContent extends StatelessWidget {
                                         ))),
                                   )),
                               SliverToBoxAdapter(
-                                child: MasonryGrid(
-                                  column: 3,
-                                  children: List.generate(
-                                    assets.filterUrls?.length,
-                                    (i) => Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      shadowColor: Colors.black,
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: CachedNetworkImage(
-                                            imageUrl: "${assets.filterUrls[i]}",
-                                            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                            errorWidget: (context, url, error) => FutureBuilder(
-                                              future: reloadCachedImage(context),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.hasData && snapshot.data == true) {
-                                                  return CachedNetworkImage(
-                                                    imageUrl: "${assets.filterUrls[i]}",
-                                                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                                    errorWidget: (context, url, error) => Padding(
-                                                      padding: const EdgeInsets.symmetric(vertical: 15.0),
-                                                      child: Icon(Icons.error),
-                                                    ),
-                                                    fit: BoxFit.contain,
-                                                  );
-                                                }
-                                                return Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 15.0),
-                                                  child: Center(child: CircularProgressIndicator()),
-                                                );
-                                              },
+                                child: ValueListenableBuilder<bool>(
+                                    valueListenable: isSearching,
+                                    builder: (BuildContext context, bool value, _) {
+                                      return MasonryGrid(
+                                        column: 3,
+                                        children: List.generate(
+                                          assets.filterUrls?.length,
+                                          (i) => Card(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
                                             ),
-                                            fit: BoxFit.contain,
-                                          ), /*Image.network(
+                                            shadowColor: Colors.black,
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(8),
+                                                child: CachedNetworkImage(
+                                                  imageUrl: "${assets.filterUrls[i]}",
+                                                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                                  errorWidget: (context, url, error) => FutureBuilder(
+                                                    future: reloadCachedImage(context),
+                                                    builder: (context, snapshot) {
+                                                      if (snapshot.hasData && snapshot.data == true) {
+                                                        return CachedNetworkImage(
+                                                          imageUrl: "${assets.filterUrls[i]}",
+                                                          placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                                          errorWidget: (context, url, error) => Padding(
+                                                            padding: const EdgeInsets.symmetric(vertical: 15.0),
+                                                            child: Icon(Icons.error),
+                                                          ),
+                                                          fit: BoxFit.contain,
+                                                        );
+                                                      }
+                                                      return Padding(
+                                                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                                                        child: Center(child: CircularProgressIndicator()),
+                                                      );
+                                                    },
+                                                  ),
+                                                  fit: BoxFit.contain,
+                                                ), /*Image.network(
                                         assets.filterUrls[i],
                                         fit: BoxFit.contain,
                                       ),*/
-                                        ),
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ImageView(
-                                                collectionId: assets.filterIds[i],
-                                                instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                                hasDirectLink: false,
-                                                directLink: '',
                                               ),
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => ImageView(
+                                                      collectionId: assets.filterIds[i],
+                                                      instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                                      hasDirectLink: false,
+                                                      directLink: '',
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  staggered: true,
-                                ),
+                                          ),
+                                        ),
+                                        staggered: true,
+                                      );
+                                    }),
                               ),
                               SliverPersistentHeader(
                                   pinned: true,
@@ -452,29 +458,30 @@ class MainContent extends StatelessWidget {
                                           ],
                                         ))),
                                   )),
-                              SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                //just an example will build from api call
-                                (ctx, i) => entitiesTiles(
-                                  title: "${assets.filterProjects[i].name}",
-                                  id: "${assets.filterProjects[i].id}",
-                                  context: context,
-                                  myWorkspaces: myWorkspaces,
-                                  currentWorkspace: currentWorkspace,
-                                  searchText: "project",
-                                  instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                ) /*emWorkspaceRow(
-                              'assets/EM Logo Basic.jpg',
-                              assets.filterProjects[i],
-                              i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
-                              i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
-                              context,
-                              null,
-                            )*/
-                                ,
-                                //amount of rows
-                                childCount: assets.filterProjects.length,
-                              )),
+                              SliverToBoxAdapter(
+                                child: ValueListenableBuilder<bool>(
+                                  valueListenable: isSearching,
+                                  builder: (BuildContext context, bool value, _) {
+                                    return Column(
+                                      children: List.generate(
+                                        assets.filterProjects.length,
+                                        (i) => assets.filterProjects[i].name.toString().toLowerCase() == 'null'
+                                            ? Container()
+                                            : entitiesTiles(
+                                                title: "${assets.filterProjects[i].name}",
+                                                id: "${assets.filterProjects[i].id}",
+                                                context: context,
+                                                myWorkspaces: myWorkspaces,
+                                                currentWorkspace: currentWorkspace,
+                                                searchText: "project",
+                                                instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                              ),
+                                      ),
+                                      //just an example will build from api call
+                                    );
+                                  },
+                                ),
+                              ),
                               SliverPersistentHeader(
                                   pinned: true,
                                   delegate: _SliverAppBarDelegate(
@@ -553,28 +560,28 @@ class MainContent extends StatelessWidget {
                                           )
                                         ]))),
                                   )),
-                              SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  //just an example will build from api call
-                                  (ctx, i) => entitiesTiles(
-                                    title: "${assets.filterEvents[i].name}",
-                                    id: "${assets.filterEvents[i].id}",
-                                    context: context,
-                                    myWorkspaces: myWorkspaces,
-                                    currentWorkspace: currentWorkspace,
-                                    searchText: "event",
-                                    instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                  ) /*emWorkspaceRow(
-                                'assets/EM Logo Basic.jpg',
-                                assets.filterEvents[i],
-                                i < myWorkspaces.instUrl?.length ? myWorkspaces.instUrl[i] : "",
-                                i < myWorkspaces.colId?.length ? myWorkspaces.colId[i] : "",
-                                context,
-                                null,
-                              )*/
-                                  ,
-                                  //amount of rows
-                                  childCount: assets.filterEvents?.length,
+                              SliverToBoxAdapter(
+                                child: ValueListenableBuilder<bool>(
+                                  valueListenable: isSearching,
+                                  builder: (BuildContext context, bool value, _) {
+                                    return Column(
+                                      children: List.generate(
+                                        assets.filterEvents.length,
+                                        (i) => assets.filterEvents[i].name.toString().toLowerCase() == 'null'
+                                            ? Container()
+                                            : entitiesTiles(
+                                                title: "${assets.filterEvents[i].name}",
+                                                id: "${assets.filterEvents[i].id}",
+                                                context: context,
+                                                myWorkspaces: myWorkspaces,
+                                                currentWorkspace: currentWorkspace,
+                                                searchText: "event",
+                                                instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                              ),
+                                      ),
+                                      //just an example will build from api call
+                                    );
+                                  },
                                 ),
                               ),
                               SliverToBoxAdapter(

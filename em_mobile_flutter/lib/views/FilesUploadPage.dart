@@ -173,7 +173,7 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
         File myFile = File(file.files.single.path);
         print(myFile.absolute.path);
         if (myFile != null) {
-          List<String> picExt = ['.jpg', '.jpeg', '.bmp', '.heic'];
+          List<String> picExt = ['.jpg', '.jpeg', '.png', '.bmp', '.heic'];
           if (picExt.contains(extension(myFile.path).toLowerCase())) {
             thumbs = Stack(
               children: [
