@@ -213,7 +213,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       String fullResolutionImageurl = filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
       print(url);
       image.add(
-        _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl),
+        _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, filename: filteredResult[index].name),
       );
     }
     if (image.length == 0) {
@@ -225,6 +225,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
   Widget _singleImageTile({
     @required String imageUrl,
     @required String fullScreenImageUrl,
+    @required String filename,
   }) {
     return Card(
       elevation: 20,
@@ -259,6 +260,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
                 instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
                 hasDirectLink: true,
                 directLink: '$fullScreenImageUrl',
+                filename: filename,
               ),
             ),
           );

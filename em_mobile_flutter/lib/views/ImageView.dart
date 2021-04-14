@@ -3,23 +3,29 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
-import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:em_mobile_flutter/views/FilesUploadPage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ImageView extends StatefulWidget {
   final String collectionId;
   final String instanceUrl;
   final bool hasDirectLink;
   final String directLink;
-  ImageView({@required this.collectionId, @required this.instanceUrl, @required this.hasDirectLink, @required this.directLink});
+  final String filename;
+  ImageView({
+    @required this.collectionId,
+    @required this.instanceUrl,
+    @required this.hasDirectLink,
+    @required this.directLink,
+    this.filename,
+  });
 
   @override
   _ImageViewState createState() => _ImageViewState();
@@ -30,6 +36,11 @@ class _ImageViewState extends State<ImageView> {
   List<MediaResults> result = new List<MediaResults>();
   var myUser;
   String imageUrl = '';
+  final Dio _dio = Dio();
+  String fileName = DateTime.now().toString() + '.jpg';
+  String _progress = "-";
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   @override
   void initState() {
@@ -37,10 +48,12 @@ class _ImageViewState extends State<ImageView> {
     if (widget.hasDirectLink) {
       setState(() {
         imageUrl = widget.directLink;
+        fileName = widget.filename;
       });
     } else {
       getFullSizeImage();
     }
+    initializeLocalNotification();
     super.initState();
   }
 
@@ -59,6 +72,7 @@ class _ImageViewState extends State<ImageView> {
         if (i.id == widget.collectionId) {
           print("collection id is : ${widget.collectionId}");
           imageUrl = i.downloads[2].url.toString();
+          fileName = i.name.toString();
           setState(() {});
           isLoading.value = false;
           return;
@@ -75,7 +89,7 @@ class _ImageViewState extends State<ImageView> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.file_download),
-        onPressed: _downloadImage,
+        onPressed: _download,
       ),
       backgroundColor: Color(0xff0c223a),
       body: Stack(
@@ -115,26 +129,113 @@ class _ImageViewState extends State<ImageView> {
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          /*SafeArea(
-            child: Positioned(
-              right: 0,
-              child: IconButton(
-                icon: Icon(
-                  Icons.cloud_download,
-                  color: Colors.white,
-                ),
-                onPressed: () => _downloadImage(widget.imageUrls[_controller.page.toInt()]),
-              ),
-            ),
-          ),*/
         ],
       ),
     );
   }
 
-  void _downloadImage() async {
-    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FilesUploadPage(widget.instanceUrl)));
-    Directory imageDir = await getApplicationDocumentsDirectory();
+  void initializeLocalNotification() {
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    final android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final iOS = IOSInitializationSettings();
+    final initSettings = InitializationSettings(android: android, iOS: iOS);
+
+    flutterLocalNotificationsPlugin.initialize(initSettings, onSelectNotification: _onSelectNotification);
+  }
+
+  Future<void> _onSelectNotification(String json) async {
+    final obj = jsonDecode(json);
+
+    if (obj['isSuccess']) {
+      OpenFile.open(obj['filePath']);
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Error'),
+          content: Text('${obj['error']}'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _showNotification(Map<String, dynamic> downloadStatus) async {
+    final android =
+        AndroidNotificationDetails('channel id', 'channel name', 'channel description', priority: Priority.high, importance: Importance.max);
+    final iOS = IOSNotificationDetails();
+    final platform = NotificationDetails(android: android, iOS: iOS);
+    final json = jsonEncode(downloadStatus);
+    final isSuccess = downloadStatus['isSuccess'];
+
+    await flutterLocalNotificationsPlugin.show(
+        0, // notification id
+        isSuccess ? 'Success' : 'Failure',
+        isSuccess ? 'File has been downloaded successfully!' : 'There was an error while downloading the file.',
+        platform,
+        payload: json);
+  }
+
+  Future<Directory> _getDownloadDirectory() async {
+    return await getApplicationDocumentsDirectory();
+  }
+
+  Future<bool> _requestPermissions() async {
+    var permission = await Permission.storage.status;
+
+    if (permission != PermissionStatus.granted) {
+      await Permission.storage.request();
+      permission = await Permission.storage.status;
+    }
+
+    return permission == PermissionStatus.granted;
+  }
+
+  void _onReceiveProgress(int received, int total) {
+    if (total != -1) {
+      setState(() {
+        _progress = (received / total * 100).toStringAsFixed(0) + "%";
+      });
+    }
+  }
+
+  Future<void> _startDownload(String savePath) async {
+    Map<String, dynamic> result = {
+      'isSuccess': false,
+      'filePath': null,
+      'error': null,
+    };
+
+    try {
+      final response = await _dio.download(widget.instanceUrl + imageUrl, savePath, onReceiveProgress: _onReceiveProgress);
+      result['isSuccess'] = response.statusCode == 200;
+      result['filePath'] = savePath;
+    } catch (ex) {
+      result['error'] = ex.toString();
+    } finally {
+      await _showNotification(result);
+    }
+  }
+
+  Future<void> _download() async {
+    final dir = await _getDownloadDirectory();
+    final isPermissionStatusGranted = await _requestPermissions();
+    String path = dir.path + '/' + fileName;
+    if (isPermissionStatusGranted) {
+      final savePath = path;
+      await _startDownload(savePath);
+    } else {
+      // handle the scenario when user declines the permissions
+    }
+  }
+
+/*  void _downloadImage() async {
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ImageViewAndFileDownloadPage(
+                  title: "Title",
+                )));
+    */ /* Directory imageDir = await getApplicationDocumentsDirectory();
     String imagePath = imageDir.path;
     try {
       final taskId = await FlutterDownloader.enqueue(
@@ -146,6 +247,6 @@ class _ImageViewState extends State<ImageView> {
       print(taskId);
     } on PlatformException catch (error) {
       print(error);
-    }
-  }
+    }*/ /*
+  }*/
 }
