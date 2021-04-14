@@ -4,8 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:em_mobile_flutter/models/mediaAssetModel.dart';
 import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -32,13 +34,14 @@ class ImageView extends StatefulWidget {
 }
 
 class _ImageViewState extends State<ImageView> {
-  ValueNotifier<bool> isLoading = ValueNotifier(false);
+  bool isLoading = false;
+  bool isDownloading = false;
   List<MediaResults> result = new List<MediaResults>();
   var myUser;
   String imageUrl = '';
   final Dio _dio = Dio();
   String fileName = DateTime.now().toString() + '.jpg';
-  String _progress = "-";
+  ValueNotifier<double> progress = ValueNotifier(0.0);
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
@@ -57,8 +60,12 @@ class _ImageViewState extends State<ImageView> {
     super.initState();
   }
 
+  List<String> imageFileFormat = ['jpg', 'jpeg', 'png', 'svg'];
+
   Future<void> getFullSizeImage() async {
-    isLoading.value = true;
+    setState(() {
+      isLoading = true;
+    });
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     print(myUser.entermediakey);
@@ -71,66 +78,91 @@ class _ImageViewState extends State<ImageView> {
       for (var i in result) {
         if (i.id == widget.collectionId) {
           print("collection id is : ${widget.collectionId}");
-          imageUrl = i.downloads[2].url.toString();
+          if (imageFileFormat.contains(i.detectedfileformat.toLowerCase())) {
+            imageUrl = i.downloads[2].url.toString();
+          } else {
+            imageUrl = i.downloads[0].url.toString();
+          }
+
           fileName = i.name.toString();
-          setState(() {});
-          isLoading.value = false;
+          setState(() {
+            isLoading = false;
+          });
           return;
         }
       }
       setState(() {});
     }
     print(assetResponse);
-    isLoading.value = false;
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: isLoading ? Colors.grey : Theme.of(context).accentColor,
         child: Icon(Icons.file_download),
-        onPressed: _download,
+        onPressed: isLoading ? null : _download,
+      ),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       backgroundColor: Color(0xff0c223a),
-      body: Stack(
-        children: [
-          ValueListenableBuilder<bool>(
-            valueListenable: isLoading,
-            builder: (BuildContext context, bool value, _) {
-              return value
-                  ? InkWell(
-                      enableFeedback: false,
-                      onTap: () => print(""),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(),
+      body: isLoading
+          ? Loader.showLoader(context)
+          : Stack(
+              children: [
+                Center(
+                  child: CachedNetworkImage(
+                    imageUrl: widget.instanceUrl + imageUrl,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+                !isDownloading
+                    ? Container()
+                    : Positioned(
+                        bottom: 90,
+                        child: ValueListenableBuilder<double>(
+                          valueListenable: progress,
+                          builder: (BuildContext context, double value, _) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              child: Column(
+                                children: [
+                                  Center(
+                                    child: LinearPercentIndicator(
+                                      width: 200.0,
+                                      lineHeight: 20.0,
+                                      percent: value / 100,
+                                      center: Text(
+                                        "${value.toStringAsFixed(0)}%",
+                                        style: new TextStyle(fontSize: 16.0, color: Colors.white, fontStyle: FontStyle.italic),
+                                      ),
+                                      alignment: MainAxisAlignment.center,
+                                      linearStrokeCap: LinearStrokeCap.roundAll,
+                                      backgroundColor: Colors.grey,
+                                      progressColor: Theme.of(context).accentColor,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    value == 100 ? "Download complete!" : "Downloading...",
+                                    style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
-                    )
-                  : Center(
-                      child: CachedNetworkImage(
-                        imageUrl: widget.instanceUrl + imageUrl,
-                        placeholder: (context, url) => CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                      ),
-                    );
-            },
-          ),
-          SafeArea(
-            child: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -139,13 +171,11 @@ class _ImageViewState extends State<ImageView> {
     final android = AndroidInitializationSettings('@mipmap/ic_launcher');
     final iOS = IOSInitializationSettings();
     final initSettings = InitializationSettings(android: android, iOS: iOS);
-
     flutterLocalNotificationsPlugin.initialize(initSettings, onSelectNotification: _onSelectNotification);
   }
 
   Future<void> _onSelectNotification(String json) async {
     final obj = jsonDecode(json);
-
     if (obj['isSuccess']) {
       OpenFile.open(obj['filePath']);
     } else {
@@ -192,9 +222,8 @@ class _ImageViewState extends State<ImageView> {
 
   void _onReceiveProgress(int received, int total) {
     if (total != -1) {
-      setState(() {
-        _progress = (received / total * 100).toStringAsFixed(0) + "%";
-      });
+      progress.value = (received / total * 100);
+      print(progress.value);
     }
   }
 
@@ -217,6 +246,9 @@ class _ImageViewState extends State<ImageView> {
   }
 
   Future<void> _download() async {
+    setState(() {
+      isDownloading = true;
+    });
     final dir = await _getDownloadDirectory();
     final isPermissionStatusGranted = await _requestPermissions();
     String path = dir.path + '/' + fileName;
@@ -224,8 +256,12 @@ class _ImageViewState extends State<ImageView> {
       final savePath = path;
       await _startDownload(savePath);
     } else {
-      // handle the scenario when user declines the permissions
+      print("User has not given the permission");
     }
+    setState(() {
+      isDownloading = false;
+      progress.value = 0.0;
+    });
   }
 
 /*  void _downloadImage() async {

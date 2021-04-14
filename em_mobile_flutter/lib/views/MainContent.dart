@@ -358,6 +358,7 @@ class MainContent extends StatelessWidget {
                                       ),*/
                                               ),
                                               onTap: () {
+                                                print(assets.filterIds[i]);
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
