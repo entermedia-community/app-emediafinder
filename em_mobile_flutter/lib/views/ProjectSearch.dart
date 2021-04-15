@@ -5,11 +5,10 @@ import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
@@ -61,19 +60,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
             valueListenable: isLoading,
             builder: (BuildContext context, bool value, _) {
               return value
-                  ? InkWell(
-                      enableFeedback: false,
-                      onTap: () => print(""),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    )
+                  ? Loader.showLoader(context)
                   : Container(
                       margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
                       child: SingleChildScrollView(

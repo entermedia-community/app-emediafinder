@@ -20,13 +20,13 @@ import 'package:em_mobile_flutter/views/LoginPage.dart';
 import 'package:em_mobile_flutter/views/MediaAssetsSearch.dart';
 import 'package:em_mobile_flutter/views/ProjectSearch.dart';
 import 'package:em_mobile_flutter/views/ViewEntityAssets.dart';
-import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:masonry_grid/masonry_grid.dart';
 import 'dart:math' as math;
 
 import 'package:provider/provider.dart';
@@ -315,66 +315,29 @@ class MainContent extends StatelessWidget {
                                 child: ValueListenableBuilder<bool>(
                                     valueListenable: isSearching,
                                     builder: (BuildContext context, bool value, _) {
-                                      return MasonryGrid(
-                                        column: 3,
-                                        children: List.generate(
-                                          assets.filterUrls?.length,
-                                          (i) => Card(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            shadowColor: Colors.black,
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(8),
-                                                child: CachedNetworkImage(
-                                                  imageUrl: "${assets.filterUrls[i]}",
-                                                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                                  errorWidget: (context, url, error) => FutureBuilder(
-                                                    future: reloadCachedImage(context),
-                                                    builder: (context, snapshot) {
-                                                      if (snapshot.hasData && snapshot.data == true) {
-                                                        return CachedNetworkImage(
-                                                          imageUrl: "${assets.filterUrls[i]}",
-                                                          placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                                          errorWidget: (context, url, error) => Padding(
-                                                            padding: const EdgeInsets.symmetric(vertical: 15.0),
-                                                            child: Icon(Icons.error),
-                                                          ),
-                                                          fit: BoxFit.contain,
-                                                        );
-                                                      }
-                                                      return Padding(
-                                                        padding: const EdgeInsets.symmetric(vertical: 15.0),
-                                                        child: Center(child: CircularProgressIndicator()),
-                                                      );
-                                                    },
-                                                  ),
-                                                  fit: BoxFit.contain,
-                                                ), /*Image.network(
-                                        assets.filterUrls[i],
-                                        fit: BoxFit.contain,
-                                      ),*/
-                                              ),
-                                              onTap: () {
-                                                print(assets.filterIds[i]);
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => ImageView(
-                                                      collectionId: assets.filterIds[i],
-                                                      instanceUrl: myWorkspaces.instUrl[currentWorkspace],
-                                                      hasDirectLink: false,
-                                                      directLink: '',
-                                                    ),
-                                                  ),
-                                                );
-                                              },
+                                      return Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                StaggeredGridView.countBuilder(
+                                                  shrinkWrap: true,
+                                                  crossAxisCount: 9,
+                                                  padding: EdgeInsets.all(0),
+                                                  physics: ClampingScrollPhysics(),
+                                                  itemCount: assets.filterUrls?.length,
+                                                  itemBuilder: (BuildContext context, int i) {
+                                                    return buildImageTile(context, assets, i);
+                                                  },
+                                                  staggeredTileBuilder: (int index) => new StaggeredTile.fit(3),
+                                                  mainAxisSpacing: 2.0,
+                                                  crossAxisSpacing: 2.0,
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ),
-                                        staggered: true,
+                                        ],
                                       );
                                     }),
                               ),
@@ -650,6 +613,60 @@ class MainContent extends StatelessWidget {
           }
           return Loader.showLoaderWithText(context, "Fetching Assets");
         });
+  }
+
+  Widget buildImageTile(BuildContext context, workspaceAssets assets, int i) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      shadowColor: Colors.black,
+      color: Colors.transparent,
+      child: InkWell(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: CachedNetworkImage(
+            imageUrl: "${assets.filterUrls[i]}",
+            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) => FutureBuilder(
+              future: reloadCachedImage(context),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data == true) {
+                  return CachedNetworkImage(
+                    imageUrl: "${assets.filterUrls[i]}",
+                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      child: Icon(Icons.error),
+                    ),
+                    fit: BoxFit.contain,
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              },
+            ),
+            fit: BoxFit.contain,
+          ),
+        ),
+        onTap: () {
+          print(assets.filterIds[i]);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ImageView(
+                collectionId: assets.filterIds[i],
+                instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                hasDirectLink: false,
+                directLink: '',
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   List<Widget> getWorkspaces(BuildContext context, BuildContext popupContext, List workspaces) {

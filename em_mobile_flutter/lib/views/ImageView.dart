@@ -121,7 +121,25 @@ class _ImageViewState extends State<ImageView> {
                   child: CachedNetworkImage(
                     imageUrl: widget.instanceUrl + imageUrl,
                     placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    errorWidget: (context, url, error) => Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 60,
+                          color: Colors.red.withOpacity(0.5),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          "Preview not available for \n$fileName",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 !isDownloading

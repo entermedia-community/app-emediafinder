@@ -8,8 +8,6 @@ import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';

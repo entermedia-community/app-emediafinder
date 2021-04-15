@@ -76,7 +76,7 @@ class EnterMedia {
       body: json.encode(jsonBody),
       headers: headers,
       customError: customError,
-      isPutMethod: true,
+      isPutMethod: isPutMethod,
     );
     if (response != null && response.statusCode == 200) {
       log("Success workspace data is:" + response.body);

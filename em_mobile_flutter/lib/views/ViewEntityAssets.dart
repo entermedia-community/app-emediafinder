@@ -6,7 +6,7 @@ import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/views/ImageView.dart';
 import 'package:flutter/material.dart';
-import 'package:masonry_grid/masonry_grid.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
 class ViewEntityAssets extends StatefulWidget {
@@ -210,10 +210,30 @@ class _ViewEntityAssetsState extends State<ViewEntityAssets> {
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                MasonryGrid(
-                  staggered: true,
-                  children: getImages(),
-                  column: 3,
+                StaggeredGridView.countBuilder(
+                  shrinkWrap: true,
+                  crossAxisCount: 4,
+                  padding: EdgeInsets.all(0),
+                  physics: ClampingScrollPhysics(),
+                  itemCount: filteredResult.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    String errorUrl = "https://img.icons8.com/FF0000/error";
+                    String url = filteredResult[index].downloads.length == 0
+                        ? errorUrl
+                        : filteredResult[index].downloads.length < 4
+                            ? ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[0].url)}").trim()
+                            : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}")
+                                .trim();
+                    String fullResolutionImageurl = filteredResult[index].downloads.length == 0
+                        ? errorUrl
+                        : filteredResult[index].downloads.length < 4
+                            ? ("${(filteredResult[index].downloads[0].url)}").trim()
+                            : ("${(filteredResult[index].downloads[2].url)}").trim();
+                    return _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, filename: filteredResult[index].name);
+                  },
+                  staggeredTileBuilder: (int index) => new StaggeredTile.fit(2),
+                  mainAxisSpacing: 4.0,
+                  crossAxisSpacing: 4.0,
                 ),
                 currentPage < totalPages
                     ? Padding(
@@ -229,25 +249,6 @@ class _ViewEntityAssetsState extends State<ViewEntityAssets> {
               ],
             ),
     );
-  }
-
-  List<Widget> getImages() {
-    String errorUrl = "https://img.icons8.com/FF0000/error";
-    List<Widget> image = [];
-    for (int index = 0; index < filteredResult.length; index++) {
-      String url = filteredResult[index].downloads.length == 0
-          ? errorUrl
-          : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
-      String fullResolutionImageurl = filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
-      print(url);
-      image.add(
-        _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, filename: filteredResult[index].name),
-      );
-    }
-    if (image.length == 0) {
-      image.add(Container());
-    }
-    return image;
   }
 
   Widget _singleImageTile({
