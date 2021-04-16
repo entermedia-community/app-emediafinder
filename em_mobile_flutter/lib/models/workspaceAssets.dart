@@ -144,7 +144,7 @@ class workspaceAssets with ChangeNotifier {
         print(i.samples);
 
         for (final i in i.samples) {
-          projects.add(EntityFilters(id: i.id, name: i.name));
+          projects.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
         }
 
         projects.forEach((element) {
@@ -158,7 +158,7 @@ class workspaceAssets with ChangeNotifier {
         print(i.samples);
 
         for (final i in i.samples) {
-          events.add(EntityFilters(id: i.id, name: i.name));
+          events.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
         }
         events.forEach((element) {
           filterEvents.add(element);
@@ -190,7 +190,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            projects.add(EntityFilters(id: i.id, name: i.name));
+            projects.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
           }
 
           workspaceProjects = projects;
@@ -203,7 +203,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            events.add(EntityFilters(id: i.id, name: i.name));
+            events.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
           }
 
           workspaceEvents = events;
@@ -255,5 +255,6 @@ class workspaceAssets with ChangeNotifier {
 class EntityFilters {
   final String name;
   final String id;
-  EntityFilters({@required this.id, @required this.name});
+  final List<Attachedmedia> attachedMedia;
+  EntityFilters({@required this.id, @required this.name, this.attachedMedia = const []});
 }

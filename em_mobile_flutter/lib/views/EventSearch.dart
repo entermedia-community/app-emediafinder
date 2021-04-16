@@ -194,6 +194,8 @@ class _EventSearchState extends State<EventSearch> {
                       currentWorkspace: widget.currentWorkspace,
                       searchText: "event",
                       instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                      attachedmedia: null,
+                      hasThumbnails: false,
                     );
             },
           ),

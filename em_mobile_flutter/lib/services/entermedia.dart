@@ -445,7 +445,7 @@ class EnterMedia {
     }
   }
 
-  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, String filePath, Map<String, List<String>> jsonEncodedData) async {
+  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, List<String> filePath, Map<String, List<String>> jsonEncodedData) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
     print(url);
     var request = new http.MultipartRequest("POST", url);
@@ -458,14 +458,16 @@ class EnterMedia {
       headers.addAll({"X-token": "em" + this.emUser.results.entermediakey.toString()});
     }
     request.headers.addAll(headers);
-    request.files.add(
-      new http.MultipartFile.fromBytes(
-        'file',
-        await File.fromUri(Uri.parse("$filePath")).readAsBytes(),
-        contentType: parser.MediaType('application', 'x-tar'),
-        filename: filePath.split('/').last,
-      ),
-    );
+    for (int i = 0; i < filePath.length; i++) {
+      request.files.add(
+        new http.MultipartFile.fromBytes(
+          'file',
+          await File.fromUri(Uri.parse("${filePath[i]}")).readAsBytes(),
+          contentType: parser.MediaType('application', 'x-tar'),
+          filename: filePath[i].split('/').last,
+        ),
+      );
+    }
 
     ///TODO GET THE PARAMETER _ JSON ENCODED STRING FROM FILE UPLOAD PAGE
     request.fields.addAll({'jsonrequest': json.encode(jsonEncodedData)});
@@ -502,7 +504,9 @@ class EnterMedia {
     http.Response response;
     try {
       var responseJson;
-      if (isPutMethod != null && isPutMethod) {
+      print("isPutMethod: $isPutMethod");
+      if (isPutMethod != null && isPutMethod == true) {
+        print("isPutMethod: $isPutMethod");
         responseJson = await client.put(
           Uri.parse(url),
           body: body,

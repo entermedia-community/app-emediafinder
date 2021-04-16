@@ -183,6 +183,8 @@ class _ProjectSearchState extends State<ProjectSearch> {
                       currentWorkspace: widget.currentWorkspace,
                       searchText: "project",
                       instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                      hasThumbnails: false,
+                      attachedmedia: null,
                     );
             },
           ),

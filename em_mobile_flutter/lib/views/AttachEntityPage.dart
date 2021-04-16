@@ -236,7 +236,7 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
   bool hasEntities() {
     bool status = false;
     for (int i = 0; i < selectedModule.length; i++) {
-      if (selectedModule[i].isNotEmpty && selectedModule[i] != null) {
+      if (selectedModule[i] != null && selectedModule[i].isNotEmpty) {
         status = true;
         break;
       }

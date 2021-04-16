@@ -580,7 +580,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
             fontSize: 16.0,
           );
           enableEdit.value = false;
-          fetchEntityData();
+          await fetchEntityData();
         } else {
           Fluttertoast.showToast(
             msg: "Failed to update data",
@@ -862,7 +862,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
         widget.modulesDetails.id,
         createEntityController.text,
       );
-      if (response) {
+      if (response == true) {
         Fluttertoast.showToast(
           msg: "Created successfully!",
           toastLength: Toast.LENGTH_SHORT,
@@ -872,7 +872,7 @@ class _ModuleDetailsPageState extends State<ModuleDetailsPage> {
           fontSize: 16.0,
         );
         createEntityController..text = "";
-        fetchEntityData();
+        await fetchEntityData();
       } else {
         Fluttertoast.showToast(
           msg: "Failed to create ${widget.modulesDetails.name}!",

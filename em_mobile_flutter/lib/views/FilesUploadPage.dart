@@ -10,12 +10,13 @@ import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/shared/CircularLoader.dart';
+import 'package:em_mobile_flutter/shared/ImageDialog.dart';
 import 'package:em_mobile_flutter/views/AttachEntityPage.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -30,42 +31,25 @@ class FilesUploadPage extends StatefulWidget {
 
 class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliveClientMixin {
   // variable section
-  Widget fileListThumb;
+  List<Widget> fileListThumb = new List<Widget>();
   ValueNotifier<bool> isLoading = ValueNotifier(false);
-  File fileList;
+  List<File> fileList = new List<File>();
   // Map<String, List<String>> jsonEncodedData = {};
 
   @override
   bool get wantKeepAlive => true;
 
   @override
+  void initState() {
+    pickFiles();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final myWorkspaces = Provider.of<userWorkspaces>(context, listen: false);
     super.build(context);
-    if (fileListThumb == null)
-      fileListThumb = InkWell(
-        onTap: pickFiles,
-        child: GridView.count(
-          crossAxisCount: 3,
-          children: [
-            Card(
-              color: Colors.transparent,
-              elevation: 8,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey, width: 1),
-                ),
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+
     final Map params = new Map();
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
@@ -79,11 +63,47 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
       ),
       body: Stack(
         children: [
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(5),
-              child: fileListThumb,
+          GridView.builder(
+            itemCount: fileListThumb.length + 1,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 1,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
             ),
+            itemBuilder: (BuildContext context, int index) {
+              if (index == 0) {
+                return InkWell(
+                  onTap: pickFiles,
+                  child: Center(
+                    child: Card(
+                      color: Colors.transparent,
+                      elevation: 8,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey, width: 1),
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return Stack(
+                children: [
+                  fileListThumb[index - 1],
+                  if (fileListThumb[index - 1] != null) cancelIcon(index - 1),
+                ],
+              );
+            },
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
           ),
           ValueListenableBuilder<bool>(
             valueListenable: isLoading,
@@ -109,15 +129,6 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
                       duration: Duration(milliseconds: 200),
                       curve: Curves.linear,
                     );
-                    /* jsonEncodedData = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AttachEntityPage(widget.instanceUrl),
-                        fullscreenDialog: true,
-                      ),
-                    );
-                    print(jsonEncodedData);
-                    setState(() {});*/
                   },
                   child: Text("Manage Entity Tags"),
                   style: ElevatedButton.styleFrom(primary: Theme.of(context).accentColor),
@@ -138,10 +149,10 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
     );
   }
 
-  Widget cancelIcon() {
+  Widget cancelIcon(int index) {
     return Positioned(
-      top: 10,
-      right: 10,
+      top: 0,
+      right: 0,
       child: Card(
         shape: CircleBorder(),
         color: Colors.transparent,
@@ -155,8 +166,8 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
           ),
           onTap: () {
             setState(() {
-              fileList = null;
-              fileListThumb = null;
+              fileList.removeAt(index);
+              fileListThumb.removeAt(index);
             });
           },
         ),
@@ -165,35 +176,55 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
   }
 
   Future pickFiles() async {
-    Widget thumbs;
-    thumbs = fileListThumb;
-
+    List<Widget> thumbs = List<Widget>();
+    List<File> myFile = List<File>();
     try {
-      await FilePicker.platform.pickFiles(type: FileType.any).then((file) {
-        File myFile = File(file.files.single.path);
-        print(myFile.absolute.path);
+      await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: true).then((file) {
+        file.files.forEach((file) {
+          myFile.add(File(file.path));
+          setState(() {});
+        });
+
+        print(myFile.first.absolute.path);
         if (myFile != null) {
           List<String> picExt = ['.jpg', '.jpeg', '.png', '.bmp', '.heic'];
-          if (picExt.contains(extension(myFile.path).toLowerCase())) {
-            thumbs = Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(1),
-                  child: Card(
-                    color: Colors.transparent,
-                    child: ClipRRect(
-                      child: new Image.file(myFile),
-                      borderRadius: BorderRadius.circular(10),
+          for (int index = 0; index < myFile.length; index++) {
+            if (picExt.contains(p.extension(myFile[index].path, 1))) {
+              thumbs.add(GestureDetector(
+                child: Card(
+                  color: Colors.transparent,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      height: 300,
+                      width: 300,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue.withOpacity(0.2),
+                          image: DecorationImage(
+                            image: FileImage(myFile[index]),
+                            fit: BoxFit.cover,
+                          )),
+                      child: Container(),
                     ),
                   ),
                 ),
-                if (myFile != null) cancelIcon(),
-              ],
-            );
-          } else
-            thumbs = Stack(
-              children: [
-                Card(
+                onTap: () => showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ImageDialog(
+                        imageFile: myFile[index],
+                        isPreviewAvailable: true,
+                        filename: p.basename(myFile[index].path),
+                      );
+                    }),
+              ));
+              setState(() {});
+            } else {
+              thumbs.add(GestureDetector(
+                child: Card(
                   color: Colors.transparent,
                   elevation: 8,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -211,23 +242,37 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
                         Icon(
                           Icons.insert_drive_file,
                           color: Colors.white,
-                          size: 60,
+                          size: 40,
                         ),
                         SizedBox(height: 7),
                         Text(
-                          "${basename(myFile.path)}",
+                          "${p.basename(myFile[index].path)}",
                           style: TextStyle(color: Colors.white),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          textDirection: TextDirection.rtl,
                         ),
                       ],
                     ),
                   ),
                 ),
-                if (myFile != null) cancelIcon(),
-              ],
-            );
-          fileList = myFile;
+                onTap: () => showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ImageDialog(
+                        imageFile: myFile[index],
+                        isPreviewAvailable: false,
+                        filename: p.basename(myFile[index].path),
+                      );
+                    }),
+              ));
+              setState(() {});
+            }
+          }
           setState(() {
-            fileListThumb = thumbs;
+            fileList.addAll(myFile);
+            fileListThumb.addAll(thumbs);
           });
         }
       });
@@ -249,7 +294,7 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
     }
   }
 
-  Future httpSend(Map params, BuildContext context, File file, userWorkspaces workspaces) async {
+  Future httpSend(Map params, BuildContext context, List<File> file, userWorkspaces workspaces) async {
     print(widget.getEncodedJson());
     if (file == null) {
       Fluttertoast.showToast(
@@ -264,12 +309,18 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
     }
     isLoading.value = true;
     try {
+      List<String> filePaths = <String>[];
+      file.forEach(
+        (element) {
+          filePaths.add(element.path);
+        },
+      );
       final EM = Provider.of<EnterMedia>(context, listen: false);
-      print(file.path);
+      print(file.first.path);
       final UploadMediaModel response = await EM.uploadAsset(
         context,
         widget.instanceUrl,
-        file?.path,
+        filePaths,
         widget.getEncodedJson(),
       );
       if (response.response.status == 'ok') {
@@ -282,8 +333,8 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
             backgroundColor: Color(0xff61af56),
             fontSize: 16.0,
           );
-          fileListThumb = null;
-          fileList = null;
+          fileListThumb = new List<Widget>();
+          fileList = new List<File>();
           setState(() {});
         });
       } else {

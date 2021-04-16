@@ -431,14 +431,21 @@ class MainContent extends StatelessWidget {
                                         assets.filterProjects.length,
                                         (i) => assets.filterProjects[i].name.toString().toLowerCase() == 'null'
                                             ? Container()
-                                            : entitiesTiles(
-                                                title: "${assets.filterProjects[i].name}",
-                                                id: "${assets.filterProjects[i].id}",
-                                                context: context,
-                                                myWorkspaces: myWorkspaces,
-                                                currentWorkspace: currentWorkspace,
-                                                searchText: "project",
-                                                instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                            : Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  entitiesTiles(
+                                                    title: "${assets.filterProjects[i].name}",
+                                                    id: "${assets.filterProjects[i].id}",
+                                                    context: context,
+                                                    myWorkspaces: myWorkspaces,
+                                                    currentWorkspace: currentWorkspace,
+                                                    searchText: "project",
+                                                    instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                                    hasThumbnails: true,
+                                                    attachedmedia: assets.filterProjects[i].attachedMedia,
+                                                  ),
+                                                ],
                                               ),
                                       ),
                                       //just an example will build from api call
@@ -541,6 +548,8 @@ class MainContent extends StatelessWidget {
                                                 currentWorkspace: currentWorkspace,
                                                 searchText: "event",
                                                 instanceUrl: myWorkspaces.instUrl[currentWorkspace],
+                                                hasThumbnails: true,
+                                                attachedmedia: assets.filterEvents[i].attachedMedia,
                                               ),
                                       ),
                                       //just an example will build from api call
@@ -1104,6 +1113,8 @@ Widget entitiesTiles({
   @required int currentWorkspace,
   @required String searchText,
   @required String instanceUrl,
+  @required bool hasThumbnails,
+  @required List<Attachedmedia> attachedmedia,
 }) {
   return Row(
     children: [
@@ -1120,17 +1131,38 @@ Widget entitiesTiles({
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
               ),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                child: Text(
-                  "$title",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      child: Text(
+                        "$title",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
+                  !hasThumbnails
+                      ? Container()
+                      : Row(
+                          children: List.generate(attachedmedia.length, (index) {
+                            return Container(
+                              margin: EdgeInsets.only(right: 3),
+                              height: 30,
+                              child: Image.network(
+                                instanceUrl + attachedmedia[index].thumbnailimg,
+                                fit: BoxFit.fitHeight,
+                              ),
+                            );
+                          }),
+                        ),
+                ],
               ),
             ),
           ),
