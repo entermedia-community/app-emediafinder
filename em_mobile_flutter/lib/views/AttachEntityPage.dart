@@ -5,14 +5,17 @@ import 'package:em_mobile_flutter/models/moduleListModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:em_mobile_flutter/views/ModuleDetailsPage.dart';
+import 'package:em_mobile_flutter/views/UploadPageView.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AttachEntityPage extends StatefulWidget {
   final String instanceUrl;
-  final Function(Map<String, List<String>>) onDataChanged;
+  final Function(List<SelectedModulesWithTitle>) onDataChanged;
   final PageController controller;
-  AttachEntityPage({this.instanceUrl, this.onDataChanged, this.controller, Key key}) : super(key: key);
+  final RemoveItem removedItems;
+  final Function resetVariable;
+  AttachEntityPage({this.instanceUrl, this.onDataChanged, this.controller, this.removedItems, this.resetVariable, Key key}) : super(key: key);
   @override
   _AttachEntityPageState createState() => _AttachEntityPageState();
 }
@@ -34,13 +37,10 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
           await model.results.removeAt(i);
         }
       }
-
       moduleList = await model;
       _tabController = new TabController(vsync: this, length: moduleList.results.length + 1);
       moduleAssets = new List<ModuleAssetModel>(moduleList.results.length);
       selectedModule = List.generate(moduleList.results.length, (index) => new List.filled(0, SelectedModule(null, null), growable: true));
-      // selectedModule = new List<List<SelectedModule>>(moduleList.results.length);
-
       return await moduleList;
     }
   }
@@ -52,10 +52,31 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
     setState(() => isLoading = false);
   }
 
+  void deleteSelectedModules(String moduleId, String item) {
+    for (int i = 0; i < moduleList.results.length; i++) {
+      if (moduleList.results[i].id == moduleId) {
+        for (int j = 0; j < selectedModule[i].length; j++) {
+          if (selectedModule[i][j].id == item) {
+            setState(() {
+              selectedModule[i].removeAt(j);
+              widget.resetVariable();
+            });
+          }
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     fetchAllModules().whenComplete(() => fetchEntities());
     super.initState();
+  }
+
+  void deleteParticularModule() {
+    if (widget.removedItems.moduleId != null && widget.removedItems.item != null) {
+      deleteSelectedModules(widget.removedItems.moduleId, widget.removedItems.item);
+    }
   }
 
   @override
@@ -63,6 +84,9 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    if (!isLoading) {
+      deleteParticularModule();
+    }
     super.build(context);
     return WillPopScope(
       onWillPop: () async {
@@ -157,14 +181,21 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
   }
 
   Future<void> createEncodedJson() async {
-    Map<String, List<String>> jsonMap = {};
+    List<SelectedModulesWithTitle> modulesWithTile = [];
     for (int i = 0; i < moduleList.results.length; i++) {
-      if (getEntityList(i).length > 0) {
+      modulesWithTile.add(
+        SelectedModulesWithTitle(
+          moduleId: moduleList.results[i].id,
+          title: moduleList.results[i].name,
+          selectedModules: getEntityList(i),
+        ),
+      );
+      /*if (getEntityList(i).length > 0) {
         jsonMap.addAll({'${moduleList.results[i].id}': getEntityList(i)});
-      }
+      }*/
     }
-    Map<String, List<String>> jsonEncodedData = jsonMap;
-    widget.onDataChanged(jsonEncodedData);
+    // Map<String, List<String>> jsonEncodedData = jsonMap;
+    widget.onDataChanged(modulesWithTile);
     _tabController.animateTo(0);
     widget.controller.animateToPage(
       0,
@@ -173,10 +204,10 @@ class _AttachEntityPageState extends State<AttachEntityPage> with SingleTickerPr
     );
   }
 
-  List<String> getEntityList(int index) {
-    List<String> entityId = [];
+  List<SelectedModule> getEntityList(int index) {
+    List<SelectedModule> entityId = [];
     for (int i = 0; i < selectedModule[index].length; i++) {
-      entityId.add(selectedModule[index][i].id);
+      entityId.add(SelectedModule(selectedModule[index][i].id, selectedModule[index][i].name));
     }
     return entityId;
   }
@@ -369,4 +400,11 @@ class SelectedModule {
   final String id;
   final String name;
   SelectedModule(this.id, this.name);
+}
+
+class SelectedModulesWithTitle {
+  final String moduleId;
+  final String title;
+  final List<SelectedModule> selectedModules;
+  SelectedModulesWithTitle({@required this.moduleId, @required this.title, @required this.selectedModules});
 }

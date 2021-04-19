@@ -1,40 +1,34 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:em_mobile_flutter/models/getWorkspacesModel.dart';
 import 'package:em_mobile_flutter/models/uploadMediaModel.dart';
-import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
-import 'package:em_mobile_flutter/models/workspaceAssets.dart';
-import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
-import 'package:em_mobile_flutter/services/sharedpreferences.dart';
 import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:em_mobile_flutter/shared/ImageDialog.dart';
 import 'package:em_mobile_flutter/views/AttachEntityPage.dart';
 import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart' as p;
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class FilesUploadPage extends StatefulWidget {
   final String instanceUrl;
   final PageController controller;
   final Function getEncodedJson;
-  FilesUploadPage({this.instanceUrl, this.controller, this.getEncodedJson, Key key}) : super(key: key);
+  final Function removeEntityAtIndex;
+  FilesUploadPage({this.instanceUrl, this.controller, this.getEncodedJson, this.removeEntityAtIndex, Key key}) : super(key: key);
   @override
   FilesUploadPageState createState() => FilesUploadPageState();
 }
 
 class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliveClientMixin {
-  // variable section
   List<Widget> fileListThumb = new List<Widget>();
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   List<File> fileList = new List<File>();
-  // Map<String, List<String>> jsonEncodedData = {};
 
   @override
   bool get wantKeepAlive => true;
@@ -63,47 +57,77 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
       ),
       body: Stack(
         children: [
-          GridView.builder(
-            itemCount: fileListThumb.length + 1,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 1,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-            ),
-            itemBuilder: (BuildContext context, int index) {
-              if (index == 0) {
-                return InkWell(
-                  onTap: pickFiles,
-                  child: Center(
-                    child: Card(
-                      color: Colors.transparent,
-                      elevation: 8,
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey, width: 1),
-                        ),
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }
-              return Stack(
+          SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(8),
+              child: Column(
                 children: [
-                  fileListThumb[index - 1],
-                  if (fileListThumb[index - 1] != null) cancelIcon(index - 1),
+                  GridView.builder(
+                    itemCount: fileListThumb.length + 1,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      childAspectRatio: 1,
+                      crossAxisSpacing: 0,
+                      mainAxisSpacing: 0,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == 0) {
+                        return InkWell(
+                          onTap: pickFiles,
+                          child: Center(
+                            child: Card(
+                              color: Colors.transparent,
+                              elevation: 8,
+                              child: Container(
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.grey, width: 1),
+                                ),
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      return Stack(
+                        children: [
+                          fileListThumb[index - 1],
+                          if (fileListThumb[index - 1] != null) cancelIcon(index - 1),
+                        ],
+                      );
+                    },
+                    padding: EdgeInsets.all(0),
+                    shrinkWrap: true,
+                  ),
+                  fileList == null
+                      ? Text("")
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(width: 4),
+                            ElevatedButton(
+                              onPressed: () async {
+                                widget.controller.animateToPage(
+                                  1,
+                                  duration: Duration(milliseconds: 200),
+                                  curve: Curves.linear,
+                                );
+                              },
+                              child: Text("+ Entity Tags"),
+                              style: ElevatedButton.styleFrom(primary: Theme.of(context).accentColor),
+                            ),
+                          ],
+                        ),
+                  SizedBox(height: 25),
+                  showSelectedEntity(),
                 ],
-              );
-            },
-            padding: EdgeInsets.all(0),
-            shrinkWrap: true,
+              ),
+            ),
           ),
           ValueListenableBuilder<bool>(
             valueListenable: isLoading,
@@ -117,34 +141,15 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
           ),
         ],
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          fileList == null
-              ? Text("")
-              : ElevatedButton(
-                  onPressed: () async {
-                    widget.controller.animateToPage(
-                      1,
-                      duration: Duration(milliseconds: 200),
-                      curve: Curves.linear,
-                    );
-                  },
-                  child: Text("Manage Entity Tags"),
-                  style: ElevatedButton.styleFrom(primary: Theme.of(context).accentColor),
-                ),
-          SizedBox(width: 10),
-          FloatingActionButton(
-            onPressed: () async {
-              if (isLoading.value) {
-                return null;
-              }
-              await httpSend(params, context, fileList, myWorkspaces);
-            },
-            tooltip: 'Upload File',
-            child: const Icon(Icons.cloud_upload),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          if (isLoading.value) {
+            return null;
+          }
+          await httpSend(params, context, fileList, myWorkspaces);
+        },
+        tooltip: 'Upload File',
+        child: const Icon(Icons.cloud_upload),
       ),
     );
   }
@@ -170,6 +175,80 @@ class FilesUploadPageState extends State<FilesUploadPage> with AutomaticKeepAliv
               fileListThumb.removeAt(index);
             });
           },
+        ),
+      ),
+    );
+  }
+
+  Widget showSelectedEntity() {
+    List<SelectedModulesWithTitle> modulesWithTitle = widget.getEncodedJson();
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(
+          modulesWithTitle.length,
+          (index) {
+            return modulesWithTitle[index].selectedModules.length > 0
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        margin: EdgeInsets.fromLTRB(3, 20, 5, 10),
+                        child: Text(
+                          "${modulesWithTitle[index].title}",
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                        ),
+                      ),
+                      Wrap(
+                        children: List.generate(
+                          modulesWithTitle[index].selectedModules.length,
+                          (i) => buildSelectedTile(
+                            modulesWithTitle[index].selectedModules[i].id,
+                            modulesWithTitle[index].selectedModules[i].name,
+                            modulesWithTitle[index].moduleId,
+                            i,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Container();
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildSelectedTile(String id, String name, String moduleId, int index) {
+    return Container(
+      child: Card(
+        color: Theme.of(context).accentColor.withOpacity(0.2),
+        elevation: 5,
+        borderOnForeground: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8.0),
+              child: Text(
+                "$name",
+                style: TextStyle(color: Colors.white, fontSize: 15),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(right: 5),
+              child: GestureDetector(
+                child: Icon(
+                  Icons.clear,
+                  color: Colors.white,
+                ),
+                onTap: () {
+                  setState(() => widget.removeEntityAtIndex(moduleId, index, id));
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
