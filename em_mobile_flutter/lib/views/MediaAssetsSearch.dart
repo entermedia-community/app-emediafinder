@@ -7,13 +7,11 @@ import 'package:em_mobile_flutter/models/workspaceAssetsModel.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
 import 'package:em_mobile_flutter/views/ImageView.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:masonry_grid/masonry_grid.dart';
 import 'package:provider/provider.dart';
 
 class MediaAssetsSearch extends StatefulWidget {
@@ -106,6 +104,8 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     if (assetResponse != null && assetResponse.response.status == "ok") {
       result = assetResponse.results;
       filteredResult = result;
+      currentPage = assetResponse.response.page;
+      totalPages = assetResponse.response.pages;
       setState(() {});
     }
     print(assetResponse);
@@ -152,7 +152,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     final MediaAssetModel assetSearchResponse = await EM.searchMediaAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
-      searchText,
+      searchText == null || searchText.length < 3 ? '*' : searchText,
       (currentPage + 1).toString(),
     );
     if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
@@ -177,19 +177,35 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          MasonryGrid(
-            staggered: true,
-            children: getImages(),
-            column: 2,
+          StaggeredGridView.countBuilder(
+            shrinkWrap: true,
+            crossAxisCount: 4,
+            padding: EdgeInsets.all(0),
+            physics: ClampingScrollPhysics(),
+            itemCount: filteredResult.length,
+            itemBuilder: (BuildContext context, int index) {
+              String errorUrl = "https://img.icons8.com/FF0000/error";
+              String url = filteredResult[index].downloads.length == 0
+                  ? errorUrl
+                  : filteredResult[index].downloads.length < 4
+                      ? ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[0].url)}").trim()
+                      : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
+              String fullResolutionImageurl = filteredResult[index].downloads.length == 0
+                  ? errorUrl
+                  : filteredResult[index].downloads.length < 4
+                      ? ("${(filteredResult[index].downloads[0].url)}").trim()
+                      : ("${(filteredResult[index].downloads[2].url)}").trim();
+              return _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl, filename: filteredResult[index].name);
+            },
+            staggeredTileBuilder: (int index) => new StaggeredTile.fit(2),
+            mainAxisSpacing: 4.0,
+            crossAxisSpacing: 4.0,
           ),
-          /*Wrap(
-            children: getImages(),
-          ),*/
           currentPage < totalPages
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Center(
-                    child: RaisedButton(
+                    child: TextButton(
                       child: Text("Load more"),
                       onPressed: () => _loadMoreImages(),
                     ),
@@ -201,28 +217,10 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
     );
   }
 
-  List<Widget> getImages() {
-    String errorUrl = "https://img.icons8.com/FF0000/error";
-    List<Widget> image = [];
-    for (int index = 0; index < filteredResult.length; index++) {
-      String url = filteredResult[index].downloads.length == 0
-          ? errorUrl
-          : ("${widget.myWorkspaces.instUrl[widget.currentWorkspace].toString()}${(filteredResult[index].downloads[3].url)}").trim();
-      String fullResolutionImageurl = filteredResult[index].downloads.length == 0 ? errorUrl : ("${(filteredResult[index].downloads[2].url)}").trim();
-      print(url);
-      image.add(
-        _singleImageTile(imageUrl: url, fullScreenImageUrl: fullResolutionImageurl),
-      );
-    }
-    if (image.length == 0) {
-      image.add(Container());
-    }
-    return image;
-  }
-
   Widget _singleImageTile({
     @required String imageUrl,
     @required String fullScreenImageUrl,
+    @required String filename,
   }) {
     return Card(
       elevation: 20,
@@ -236,8 +234,32 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
           borderRadius: BorderRadius.circular(15),
           child: CachedNetworkImage(
             imageUrl: "$imageUrl",
-            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+            placeholder: (context, url) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            errorWidget: (context, url, error) => Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 60,
+                    color: Colors.red.withOpacity(0.5),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    "Preview not available",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             fit: BoxFit.contain,
           ) /*Image.network(
             imageUrl,
@@ -254,6 +276,7 @@ class _MediaAssetsSearchState extends State<MediaAssetsSearch> {
                 instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
                 hasDirectLink: true,
                 directLink: '$fullScreenImageUrl',
+                filename: filename,
               ),
             ),
           );

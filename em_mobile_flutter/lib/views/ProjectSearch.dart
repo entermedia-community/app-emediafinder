@@ -5,10 +5,10 @@ import 'package:em_mobile_flutter/models/userData.dart';
 import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
+import 'package:em_mobile_flutter/shared/CircularLoader.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
+import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
@@ -60,19 +60,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
             valueListenable: isLoading,
             builder: (BuildContext context, bool value, _) {
               return value
-                  ? InkWell(
-                      enableFeedback: false,
-                      onTap: () => print(""),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    )
+                  ? Loader.showLoader(context)
                   : Container(
                       margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
                       child: SingleChildScrollView(
@@ -103,6 +91,8 @@ class _ProjectSearchState extends State<ProjectSearch> {
     if (projectResponse != null && projectResponse.response.status == "ok") {
       result = projectResponse.results;
       filteredResult = result;
+      currentPage = projectResponse.response.page;
+      totalPages = projectResponse.response.pages;
       setState(() {});
     }
     print(projectResponse);
@@ -151,7 +141,7 @@ class _ProjectSearchState extends State<ProjectSearch> {
     final ProjectAssetModel assetSearchResponse = await EM.searchProjectsAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
-      searchText,
+      searchText == null || searchText.length < 3 ? '*' : searchText,
       (currentPage + 1).toString(),
     );
     if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
@@ -183,7 +173,19 @@ class _ProjectSearchState extends State<ProjectSearch> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return emWorkspaceRow('assets/EM Logo Basic.jpg', filteredResult[index].name.toString(), null, null, context, index);
+              return filteredResult[index].name.toString().toLowerCase() == 'null'
+                  ? Container()
+                  : entitiesTiles(
+                      title: '${filteredResult[index].name.toString()}',
+                      id: '${filteredResult[index].id.toString()}',
+                      context: context,
+                      myWorkspaces: widget.myWorkspaces,
+                      currentWorkspace: widget.currentWorkspace,
+                      searchText: "project",
+                      instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                      hasThumbnails: false,
+                      attachedmedia: null,
+                    );
             },
           ),
           currentPage < totalPages

@@ -6,9 +6,8 @@ import 'package:em_mobile_flutter/models/userWorkspaces.dart';
 import 'package:em_mobile_flutter/models/workspaceAssets.dart';
 import 'package:em_mobile_flutter/services/entermedia.dart';
 import 'package:em_mobile_flutter/shared/CustomSearchBar.dart';
+import 'package:em_mobile_flutter/views/MainContent.dart';
 import 'package:em_mobile_flutter/views/WorkspaceRow.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
@@ -96,18 +95,18 @@ class _EventSearchState extends State<EventSearch> {
     final EM = Provider.of<EnterMedia>(context, listen: false);
     final myUser = Provider.of<userData>(context, listen: false);
     print(myUser.entermediakey);
-    final EventAssetModel assetResponse = await EM.getEventsAssets(
+    final EventAssetModel eventResponse = await EM.getEventsAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
     );
-    if (assetResponse != null && assetResponse.response.status == "ok") {
-      result = assetResponse.results;
+    if (eventResponse != null && eventResponse.response.status == "ok") {
+      result = eventResponse.results;
       filteredResult = result;
-      currentPage = assetResponse.response.page;
-      totalPages = assetResponse.response.pages;
+      currentPage = eventResponse.response.page;
+      totalPages = eventResponse.response.pages;
       setState(() {});
     }
-    print(assetResponse);
+    print(eventResponse);
     isLoading.value = false;
   }
 
@@ -118,7 +117,7 @@ class _EventSearchState extends State<EventSearch> {
     setState(() {});
   }
 
-  Future _filterResult() async {
+  _filterResult() async {
     isLoading.value = true;
     if (searchText.length <= 2) {
       resetData();
@@ -153,7 +152,7 @@ class _EventSearchState extends State<EventSearch> {
     final EventAssetModel assetSearchResponse = await EM.searchEventsAssets(
       context,
       widget.myWorkspaces.instUrl[widget.currentWorkspace],
-      searchText,
+      searchText == null || searchText.length < 3 ? '*' : searchText,
       (currentPage + 1).toString(),
     );
     if (assetSearchResponse != null && assetSearchResponse.response.status == "ok") {
@@ -185,7 +184,19 @@ class _EventSearchState extends State<EventSearch> {
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return emWorkspaceRow('assets/EM Logo Basic.jpg', filteredResult[index].name.toString(), null, null, context, index);
+              return filteredResult[index].name.toString().toLowerCase() == 'null'
+                  ? Container()
+                  : entitiesTiles(
+                      title: '${filteredResult[index].name.toString()}',
+                      id: '${filteredResult[index].id.toString()}',
+                      context: context,
+                      myWorkspaces: widget.myWorkspaces,
+                      currentWorkspace: widget.currentWorkspace,
+                      searchText: "event",
+                      instanceUrl: widget.myWorkspaces.instUrl[widget.currentWorkspace],
+                      attachedmedia: null,
+                      hasThumbnails: false,
+                    );
             },
           ),
           currentPage < totalPages

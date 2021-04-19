@@ -68,16 +68,18 @@ class _ModuleListingPageState extends State<ModuleListingPage> {
                               ),
                             ),
                           )
-                        : Container(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  modulesListing(moduleListData.results),
-                                  SizedBox(height: 80),
-                                ],
-                              ),
-                            ),
-                          );
+                        : moduleListData == null
+                            ? Container()
+                            : Container(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      modulesListing(moduleListData.results),
+                                      SizedBox(height: 80),
+                                    ],
+                                  ),
+                                ),
+                              );
                   },
                 ),
               ],

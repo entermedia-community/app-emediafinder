@@ -58,6 +58,12 @@
 	<array>
 		<string>fetch</string>
 	</array>
+	<key>NSAllowsArbitraryLoads</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>UIFileSharingEnabled</key>
+    <true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

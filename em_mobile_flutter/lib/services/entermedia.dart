@@ -76,7 +76,7 @@ class EnterMedia {
       body: json.encode(jsonBody),
       headers: headers,
       customError: customError,
-      isPutMethod: true,
+      isPutMethod: isPutMethod,
     );
     if (response != null && response.statusCode == 200) {
       log("Success workspace data is:" + response.body);
@@ -272,6 +272,8 @@ class EnterMedia {
   }
 
   Future<MediaAssetModel> searchMediaAssets(BuildContext context, String url, String searchtext, String page) async {
+    print(searchtext);
+    print(page);
     final resMap = await postFinder(
       url + '/finder/mediadb/services/module/asset/search',
       {
@@ -443,8 +445,9 @@ class EnterMedia {
     }
   }
 
-  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, String filePath) async {
+  Future<UploadMediaModel> uploadAsset(BuildContext context, String baseUrl, List<String> filePath, Map<String, List<String>> jsonEncodedData) async {
     Uri url = Uri.parse(baseUrl + "/finder/mediadb/services/module/asset/create");
+    print(url);
     var request = new http.MultipartRequest("POST", url);
     Map<String, String> headers = {
       "X-tokentype": "entermedia",
@@ -455,16 +458,21 @@ class EnterMedia {
       headers.addAll({"X-token": "em" + this.emUser.results.entermediakey.toString()});
     }
     request.headers.addAll(headers);
-    request.files.add(
-      new http.MultipartFile.fromBytes(
-        'file',
-        await File.fromUri(Uri.parse("$filePath")).readAsBytes(),
-        contentType: parser.MediaType('application', 'x-tar'),
-        filename: filePath.split('/').last,
-      ),
-    );
-    request.fields.addAll({'jsonrequest': '{}'});
+    for (int i = 0; i < filePath.length; i++) {
+      request.files.add(
+        new http.MultipartFile.fromBytes(
+          'file',
+          await File.fromUri(Uri.parse("${filePath[i]}")).readAsBytes(),
+          contentType: parser.MediaType('application', 'x-tar'),
+          filename: filePath[i].split('/').last,
+        ),
+      );
+    }
+
+    ///TODO GET THE PARAMETER _ JSON ENCODED STRING FROM FILE UPLOAD PAGE
+    request.fields.addAll({'jsonrequest': json.encode(jsonEncodedData)});
     http.Response response = await http.Response.fromStream(await request.send());
+    print("LogLog: ${response.body}");
     return UploadMediaModel.fromJson(json.decode(response.body));
   }
 
@@ -496,7 +504,9 @@ class EnterMedia {
     http.Response response;
     try {
       var responseJson;
-      if (isPutMethod != null && isPutMethod) {
+      print("isPutMethod: $isPutMethod");
+      if (isPutMethod != null && isPutMethod == true) {
+        print("isPutMethod: $isPutMethod");
         responseJson = await client.put(
           Uri.parse(url),
           body: body,

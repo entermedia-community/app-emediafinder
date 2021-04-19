@@ -67,6 +67,7 @@ class Sample {
     this.autocreatecollections,
     this.viewusers,
     this.entityDate,
+    this.attachedmedia,
   });
 
   String collectionid;
@@ -82,6 +83,7 @@ class Sample {
   String autocreatecollections;
   List<Entitysourcetype> viewusers;
   DateTime entityDate;
+  List<Attachedmedia> attachedmedia;
 
   factory Sample.fromJson(Map<String, dynamic> json) => Sample(
         collectionid: json["collectionid"] == null ? null : json["collectionid"],
@@ -97,6 +99,7 @@ class Sample {
         autocreatecollections: json["autocreatecollections"] == null ? null : json["autocreatecollections"],
         viewusers: json["viewusers"] == null ? null : List<Entitysourcetype>.from(json["viewusers"].map((x) => Entitysourcetype.fromJson(x))),
         entityDate: json["entity_date"] == null ? null : DateTime.parse(json["entity_date"]),
+        attachedmedia: json["attachedmedia"] == null ? null : List<Attachedmedia>.from(json["attachedmedia"].map((x) => Attachedmedia.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -113,6 +116,7 @@ class Sample {
         "autocreatecollections": autocreatecollections == null ? null : autocreatecollections,
         "viewusers": viewusers == null ? null : List<dynamic>.from(viewusers.map((x) => x.toJson())),
         "entity_date": entityDate == null ? null : entityDate.toIso8601String(),
+        "attachedmedia": attachedmedia == null ? null : List<dynamic>.from(attachedmedia.map((x) => x.toJson())),
       };
 }
 
@@ -214,4 +218,26 @@ class Term {
         "operation": operation,
         "value": value,
       };
+}
+
+class Attachedmedia {
+  String id;
+  String rendertype;
+  String thumbnailimg;
+
+  Attachedmedia({this.id, this.rendertype, this.thumbnailimg});
+
+  Attachedmedia.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    rendertype = json['rendertype'];
+    thumbnailimg = json['thumbnailimg'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['rendertype'] = this.rendertype;
+    data['thumbnailimg'] = this.thumbnailimg;
+    return data;
+  }
 }

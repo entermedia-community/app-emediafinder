@@ -11,14 +11,14 @@ class workspaceAssets with ChangeNotifier {
   WorkspaceAssetsModel searchedhits;
   List imageUrls;
   List workspaceCompanies;
-  List workspaceEvents;
+  List<EntityFilters> workspaceEvents;
   List workspaceLocations;
   List workspacePeople;
   List workspaceProducts;
-  List workspaceProjects;
+  List<EntityFilters> workspaceProjects;
   List filterUrls;
-  List filterEvents;
-  List filterProjects;
+  List<EntityFilters> filterEvents;
+  List<EntityFilters> filterProjects;
   List imageSourcePath;
   List imageName;
   List ids;
@@ -131,8 +131,8 @@ class workspaceAssets with ChangeNotifier {
   //Todo; Add 'if else' statements for all other datatypes
 
   organizeFilterData(bool appendResult) {
-    var projects = <String>[];
-    var events = <String>[];
+    var projects = <EntityFilters>[];
+    var events = <EntityFilters>[];
     if (!appendResult) {
       filterProjects = [];
       filterEvents = [];
@@ -144,7 +144,7 @@ class workspaceAssets with ChangeNotifier {
         print(i.samples);
 
         for (final i in i.samples) {
-          projects.add(i.name);
+          projects.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
         }
 
         projects.forEach((element) {
@@ -158,7 +158,7 @@ class workspaceAssets with ChangeNotifier {
         print(i.samples);
 
         for (final i in i.samples) {
-          events.add(i.name);
+          events.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
         }
         events.forEach((element) {
           filterEvents.add(element);
@@ -168,12 +168,12 @@ class workspaceAssets with ChangeNotifier {
   }
 
   organizeData() {
-    var companies = <String>[];
-    var events = <String>[];
-    var locations = <String>[];
-    var people = <String>[];
-    var products = <String>[];
-    var projects = <String>[];
+    var companies = <EntityFilters>[];
+    var events = <EntityFilters>[];
+    var locations = <EntityFilters>[];
+    var people = <EntityFilters>[];
+    var products = <EntityFilters>[];
+    var projects = <EntityFilters>[];
     totalProjectCount = 0;
     totalEventCount = 0;
     workspaceProjects = [];
@@ -190,7 +190,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            projects.add(i.name);
+            projects.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
           }
 
           workspaceProjects = projects;
@@ -203,7 +203,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            events.add(i.name);
+            events.add(EntityFilters(id: i.id, name: i.name, attachedMedia: i.attachedmedia));
           }
 
           workspaceEvents = events;
@@ -213,7 +213,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            products.add(i.name);
+            products.add(EntityFilters(id: i.id, name: i.name));
           }
 
           workspaceProducts = products;
@@ -222,7 +222,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            people.add(i.name);
+            people.add(EntityFilters(id: i.id, name: i.name));
           }
 
           workspacePeople = people;
@@ -231,7 +231,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            locations.add(i.name);
+            locations.add(EntityFilters(id: i.id, name: i.name));
           }
 
           workspaceLocations = locations;
@@ -240,7 +240,7 @@ class workspaceAssets with ChangeNotifier {
           print(i.samples);
 
           for (final i in i.samples) {
-            companies.add(i.name);
+            companies.add(EntityFilters(id: i.id, name: i.name));
           }
 
           workspaceCompanies = companies;
@@ -250,4 +250,11 @@ class workspaceAssets with ChangeNotifier {
       clearFields();
     }
   }
+}
+
+class EntityFilters {
+  final String name;
+  final String id;
+  final List<Attachedmedia> attachedMedia;
+  EntityFilters({@required this.id, @required this.name, this.attachedMedia = const []});
 }

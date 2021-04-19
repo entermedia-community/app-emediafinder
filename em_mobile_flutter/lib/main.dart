@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:uni_links/uni_links.dart';
@@ -24,7 +23,6 @@ Future<void> main() async {
   //but as we want to initialize a class asynchronously then, before that is done we need to say:  "Hey, can we do the initialization now and after that we initialize the class"
   //binding is required before/inorder to call native code. - 10/2/2020
   await Firebase.initializeApp();
-  await FlutterDownloader.initialize(debug: true);
   //initialize firebase.
   runApp(MyApp());
 }
@@ -188,7 +186,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           sharedPref().saveEMKey(uri.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             if (value == true) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => WorkspaceSelect(),
+                  transitionDuration: Duration(seconds: 0),
+                ),
+              );
             }
           });
         });
@@ -208,7 +212,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           await sharedPref().saveEMKey(_initialUri.queryParameters['entermedia.key'].toString());
           reLoginUser().then((value) {
             if (value == true) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => WorkspaceSelect()));
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => WorkspaceSelect(),
+                  transitionDuration: Duration(seconds: 0),
+                ),
+              );
             }
           });
         });
@@ -251,7 +261,6 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     final myUser = Provider.of<userData>(context, listen: false);
     String emkey = await sharedPref().getEMKey();
     print('Trying to relogin $emkey');
-    print('Trying to relogin22 ${myUser.entermediakey}');
     if (emkey != null && myUser.entermediakey == null) {
       final userInfo = await EM.emAutoLoginWithKey(context, emkey);
       print(userInfo);
